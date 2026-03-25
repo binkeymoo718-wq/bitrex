@@ -6,10 +6,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// 🔑 Supabase connection
+// 🔑 Supabase config
 const supabase = createClient(
-  "https://mpasnmqayaunhxdqlpsp.supabase.co",
-  "sb_publishable_T7Yk4Z3zxOjLh-wFMJfAtw_76iXk_qY"
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_KEY
 );
 
 // ✅ TEST ROUTE
@@ -17,16 +17,13 @@ app.get("/", (req, res) => {
   res.send("BITREX API is running 🚀");
 });
 
-
-// =========================
-// REGISTER
-// =========================
+// ✅ REGISTER
 app.post("/register", async (req, res) => {
   const { phone, password } = req.body;
 
   const { data, error } = await supabase
     .from("users")
-    .insert([{ phone, password, balance: 0, invested_amount: 0 }])
+    .insert([{ phone, password }])
     .select();
 
   if (error) return res.status(400).json({ error });
@@ -34,10 +31,7 @@ app.post("/register", async (req, res) => {
   res.json(data[0]);
 });
 
-
-// =========================
-// LOGIN
-// =========================
+// ✅ LOGIN
 app.post("/login", async (req, res) => {
   const { phone, password } = req.body;
 
@@ -48,53 +42,63 @@ app.post("/login", async (req, res) => {
     .eq("password", password)
     .single();
 
-  if (error) return res.status(400).json({ error: "Invalid login" });
+  if (error || !data) {
+    return res.status(401).json({ error: "Invalid credentials" });
+  }
 
   res.json(data);
 });
 
-
-// =========================
-// COMPLETE TASK
-// =========================
-app.post("/complete-task", async (req, res) => {
+// ✅ TASK (adds 50 to balance)
+app.post("/task", async (req, res) => {
   const { userId } = req.body;
 
-  const { data: user } = await supabase
+  // get current balance
+  const { data: user, error: fetchError } = await supabase
     .from("users")
     .select("balance")
     .eq("id", userId)
     .single();
 
+  if (fetchError) return res.status(400).json({ error: fetchError });
+
   const newBalance = user.balance + 50;
 
-  await supabase
+  const { error: updateError } = await supabase
     .from("users")
     .update({ balance: newBalance })
     .eq("id", userId);
 
-  res.json({ message: "Task completed", balance: newBalance });
+  if (updateError) return res.status(400).json({ error: updateError });
+
+  res.json({ message: "Task completed", newBalance });
 });
 
-
-// =========================
-// DEPOSIT
-// =========================
+// ✅ DEPOSIT (NEW CORRECT LOGIC)
 app.post("/deposit", async (req, res) => {
   const { userId, amount } = req.body;
 
-  await supabase
-    .from("users")
-    .update({ balance: amount })
-    .eq("id", userId);
+  const { data, error } = await supabase
+    .from("transactions")
+    .insert([
+      {
+        userId,
+        amount,
+        status: "pending",
+      },
+    ])
+    .select();
 
-  res.json({ message: "Deposit successful" });
+  if (error) return res.status(400).json({ error });
+
+  res.json({
+    message: "Deposit submitted, waiting for approval",
+    data,
+  });
 });
 
-
-// =========================
-// START SERVER
-// =========================
-app.listen(process.env.PORT || 3000, () => {
-  console.log("BITREX API running...");
+// 🚀 START SERVER
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
