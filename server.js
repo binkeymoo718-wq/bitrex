@@ -1,84 +1,100 @@
 const express = require("express");
 const cors = require("cors");
+const { createClient } = require("@supabase/supabase-js");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Fake database (for now)
-let users = [];
+// 🔑 Supabase connection
+const supabase = createClient(
+  "https://mpasnmqayaunhxdqlpsp.supabase.co",
+  "sb_publishable_T7Yk4Z3zxOjLh-wFMJfAtw_76iXk_qY"
+);
 
-// ROOT
+// ✅ TEST ROUTE
 app.get("/", (req, res) => {
   res.send("BITREX API is running 🚀");
 });
 
+
+// =========================
 // REGISTER
-app.post("/register", (req, res) => {
+// =========================
+app.post("/register", async (req, res) => {
   const { phone, password } = req.body;
 
-  const user = {
-    id: Date.now(),
-    phone,
-    password,
-    balance: 0,
-    invested_amount: 0
-  };
+  const { data, error } = await supabase
+    .from("users")
+    .insert([{ phone, password, balance: 0, invested_amount: 0 }])
+    .select();
 
-  users.push(user);
-  res.json(user);
+  if (error) return res.status(400).json({ error });
+
+  res.json(data[0]);
 });
 
+
+// =========================
 // LOGIN
-app.post("/login", (req, res) => {
+// =========================
+app.post("/login", async (req, res) => {
   const { phone, password } = req.body;
 
-  const user = users.find(
-    (u) => u.phone === phone && u.password === password
-  );
+  const { data, error } = await supabase
+    .from("users")
+    .select("*")
+    .eq("phone", phone)
+    .eq("password", password)
+    .single();
 
-  if (!user) return res.status(400).json({ error: "Invalid credentials" });
+  if (error) return res.status(400).json({ error: "Invalid login" });
 
-  res.json(user);
+  res.json(data);
 });
 
-// TASK
-app.post("/complete-task", (req, res) => {
+
+// =========================
+// COMPLETE TASK
+// =========================
+app.post("/complete-task", async (req, res) => {
   const { userId } = req.body;
 
-  const user = users.find((u) => u.id == userId);
-  if (!user) return res.status(404).json({ error: "User not found" });
+  const { data: user } = await supabase
+    .from("users")
+    .select("balance")
+    .eq("id", userId)
+    .single();
 
-  user.balance += 50;
+  const newBalance = user.balance + 50;
 
-  res.json({ message: "Task completed", balance: user.balance });
+  await supabase
+    .from("users")
+    .update({ balance: newBalance })
+    .eq("id", userId);
+
+  res.json({ message: "Task completed", balance: newBalance });
 });
 
+
+// =========================
 // DEPOSIT
-app.post("/deposit", (req, res) => {
+// =========================
+app.post("/deposit", async (req, res) => {
   const { userId, amount } = req.body;
 
-  const user = users.find((u) => u.id == userId);
-  if (!user) return res.status(404).json({ error: "User not found" });
+  await supabase
+    .from("users")
+    .update({ balance: amount })
+    .eq("id", userId);
 
-  user.invested_amount += Number(amount);
-
-  res.json({ message: "Deposit submitted" });
+  res.json({ message: "Deposit successful" });
 });
 
-// ADMIN APPROVE
-app.post("/admin/approve-deposit", (req, res) => {
-  const { userId, amount } = req.body;
 
-  const user = users.find((u) => u.id == userId);
-  if (!user) return res.status(404).json({ error: "User not found" });
-
-  user.balance += Number(amount);
-
-  res.json({ message: "Deposit approved" });
-});
-
+// =========================
 // START SERVER
+// =========================
 app.listen(process.env.PORT || 3000, () => {
-  console.log("BITREX running...");
+  console.log("BITREX API running...");
 });
