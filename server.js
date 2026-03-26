@@ -12,7 +12,9 @@ const supabase = createClient(
   process.env.SUPABASE_KEY
 );
 
+// =======================
 // ✅ TEST ROUTE
+// =======================
 app.get("/", (req, res) => {
   res.send("BITREX API is running 🚀");
 });
@@ -48,23 +50,51 @@ app.post("/login", async (req, res) => {
 
 
 // =======================
-// 💰 DEPOSIT ROUTE
+// 💰 DEPOSIT ROUTE (UPDATED)
 // =======================
 app.post("/deposit", async (req, res) => {
   const { userId, amount } = req.body;
 
   try {
-    // 1. Insert into transactions
+    // 1. Get user
+    const { data: user, error: userError } = await supabase
+      .from("users")
+      .select("*")
+      .eq("id", userId)
+      .single();
+
+    if (userError || !user) {
+      return res.status(400).json({
+        error: "User not found",
+      });
+    }
+
+    // 2. Calculate new balance
+    const newBalance = user.balance + amount;
+
+    // 3. Update balance
+    const { error: updateError } = await supabase
+      .from("users")
+      .update({ balance: newBalance })
+      .eq("id", userId);
+
+    if (updateError) {
+      return res.status(400).json({
+        error: updateError.message,
+      });
+    }
+
+    // 4. Save transaction
     const { data, error } = await supabase
       .from("transactions")
       .insert([
         {
           userId,
           amount,
-          status: "pending",
+          status: "completed",
         },
       ])
-      .select(); // ✅ FIX FOR NULL ISSUE
+      .select();
 
     if (error) {
       return res.status(400).json({
@@ -73,9 +103,11 @@ app.post("/deposit", async (req, res) => {
     }
 
     res.json({
-      message: "Deposit request created",
-      data: data, // ✅ now returns inserted row
+      message: "Deposit successful",
+      newBalance: newBalance,
+      transaction: data,
     });
+
   } catch (err) {
     res.status(500).json({
       error: err.message,
@@ -85,7 +117,7 @@ app.post("/deposit", async (req, res) => {
 
 
 // =======================
-// 📜 GET TRANSACTIONS
+// 📜 GET USER TRANSACTIONS
 // =======================
 app.get("/transactions/:userId", async (req, res) => {
   const { userId } = req.params;
