@@ -6,25 +6,20 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ✅ Supabase config
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_KEY
-);
+// =======================
+// 🔑 SUPABASE CONFIG
+// =======================
+const supabaseUrl = "https://mpasmnqayaunhxdqlpsp.supabase.co";
+const supabaseKey = "YOUR_SUPABASE_ANON_KEY"; // ⚠️ PUT YOUR REAL KEY HERE
+const supabase = createClient(supabaseUrl, supabaseKey);
 
-// ✅ Test route
-app.get("/", (req, res) => {
-  res.send("BITREX API is running 🚀");
-});
-
-
-// =============================
-// ✅ LOGIN
-// =============================
+// =======================
+// LOGIN ✅ FIXED
+// =======================
 app.post("/login", async (req, res) => {
-  const { phone, password } = req.body;
-
   try {
+    const { phone, password } = req.body;
+
     const { data, error } = await supabase
       .from("users")
       .select("*")
@@ -33,154 +28,141 @@ app.post("/login", async (req, res) => {
       .single();
 
     if (error || !data) {
-      return res.status(400).json({ error: "Invalid credentials" });
+      return res.json({ message: "Invalid credentials" });
     }
 
-    res.json(data);
+    // ✅ IMPORTANT FIX (frontend expects this)
+    res.json({
+      user: data
+    });
+
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.json({ message: "Server error" });
   }
 });
 
-
-// =============================
-// ✅ DEPOSIT
-// =============================
+// =======================
+// DEPOSIT
+// =======================
 app.post("/deposit", async (req, res) => {
-  const { userId, amount } = req.body;
-
   try {
-    // 1. Get user
-    const { data: user, error: userError } = await supabase
+    const { userId, amount } = req.body;
+
+    const { data: user } = await supabase
       .from("users")
-      .select("*")
+      .select("balance")
       .eq("id", userId)
       .single();
 
-    if (userError) throw userError;
-
-    // 2. Update balance
     const newBalance = user.balance + amount;
 
-    const { error: updateError } = await supabase
+    await supabase
       .from("users")
       .update({ balance: newBalance })
       .eq("id", userId);
 
-    if (updateError) throw updateError;
-
-    // 3. Insert transaction (RETURN DATA ✅)
-    const { data: transaction, error: txError } = await supabase
+    const { data: transaction } = await supabase
       .from("transactions")
       .insert([
         {
           userId,
           amount,
-          type: "deposit",
           status: "completed",
-        },
+          type: "deposit"
+        }
       ])
       .select();
-
-    if (txError) throw txError;
 
     res.json({
       message: "Deposit successful",
       newBalance,
-      transaction,
+      transaction
     });
+
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.json({ message: "Deposit failed" });
   }
 });
 
-
-// =============================
-// ✅ WITHDRAW
-// =============================
+// =======================
+// WITHDRAW
+// =======================
 app.post("/withdraw", async (req, res) => {
-  const { userId, amount } = req.body;
-
   try {
-    // 1. Get user
-    const { data: user, error: userError } = await supabase
+    const { userId, amount } = req.body;
+
+    const { data: user } = await supabase
       .from("users")
-      .select("*")
+      .select("balance")
       .eq("id", userId)
       .single();
 
-    if (userError) throw userError;
-
-    // 2. Check balance
-    if (user.balance < amount) {
-      return res.status(400).json({ error: "Insufficient balance" });
+    if (!user || user.balance < amount) {
+      return res.json({ message: "Insufficient balance" });
     }
 
-    // 3. Update balance
     const newBalance = user.balance - amount;
 
-    const { error: updateError } = await supabase
+    await supabase
       .from("users")
       .update({ balance: newBalance })
       .eq("id", userId);
 
-    if (updateError) throw updateError;
-
-    // 4. Insert transaction (RETURN DATA ✅)
-    const { data: transaction, error: txError } = await supabase
+    const { data: transaction } = await supabase
       .from("transactions")
       .insert([
         {
           userId,
           amount,
-          type: "withdraw",
           status: "completed",
-        },
+          type: "withdraw"
+        }
       ])
       .select();
-
-    if (txError) throw txError;
 
     res.json({
       message: "Withdraw successful",
       newBalance,
-      transaction,
+      transaction
     });
+
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.json({ message: "Withdraw failed" });
   }
 });
 
-
-// =============================
-// ✅ TRANSACTION HISTORY
-// =============================
+// =======================
+// TRANSACTIONS HISTORY
+// =======================
 app.get("/transactions/:userId", async (req, res) => {
-  const { userId } = req.params;
-
   try {
+    const { userId } = req.params;
+
     const { data, error } = await supabase
       .from("transactions")
       .select("*")
       .eq("userId", userId)
       .order("created_at", { ascending: false });
 
-    if (error) throw error;
+    if (error) {
+      return res.json({ message: "Error fetching transactions" });
+    }
 
     res.json({
       message: "Transaction history",
-      data,
+      data
     });
+
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.json({ message: "Server error" });
   }
 });
 
+// =======================
+// START SERVER
+// =======================
+const PORT = process.env.PORT || 3000;
 
-// =============================
-// ✅ START SERVER
-// =============================
-const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log("Server running on port " + PORT);
 });
