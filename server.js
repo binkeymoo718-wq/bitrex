@@ -6,136 +6,101 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-/* ================= SUPABASE ================= */
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_KEY
 );
 
+/* ================= SIGNUP ================= */
+app.post("/signup", async (req, res) => {
+  const { phone, password } = req.body;
+
+  const { error } = await supabase.from("users").insert([
+    { phone, password, balance: 0 }
+  ]);
+
+  if (error) return res.status(500).json({ message: "Signup failed" });
+
+  res.json({ message: "User created" });
+});
+
 /* ================= LOGIN ================= */
 app.post("/login", async (req, res) => {
-  try {
-    const { phone, password } = req.body;
+  const { phone, password } = req.body;
 
-    const { data, error } = await supabase
-      .from("users")
-      .select("*")
-      .eq("phone", phone);
+  const { data } = await supabase
+    .from("users")
+    .select("*")
+    .eq("phone", phone);
 
-    if (error) {
-      console.log(error);
-      return res.status(500).json({ message: "Database error" });
-    }
+  if (!data || data.length === 0)
+    return res.status(404).json({ message: "User not found" });
 
-    if (!data || data.length === 0) {
-      return res.status(404).json({ message: "User not found" });
-    }
+  const user = data[0];
 
-    const user = data[0];
+  if (user.password !== password)
+    return res.status(401).json({ message: "Invalid credentials" });
 
-    if (user.password !== password) {
-      return res.status(401).json({ message: "Invalid credentials" });
-    }
-
-    res.json({
-      id: user.id,
-      phone: user.phone,
-      balance: user.balance
-    });
-
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: "Server error" });
-  }
+  res.json({
+    phone: user.phone,
+    balance: user.balance
+  });
 });
 
 /* ================= DEPOSIT ================= */
 app.post("/deposit", async (req, res) => {
-  try {
-    const { phone, amount } = req.body;
+  const { phone, amount } = req.body;
 
-    const { data, error } = await supabase
-      .from("users")
-      .select("*")
-      .eq("phone", phone);
+  const { data } = await supabase
+    .from("users")
+    .select("*")
+    .eq("phone", phone);
 
-    if (error) {
-      console.log(error);
-      return res.status(500).json({ message: "Database error" });
-    }
+  const user = data[0];
+  const newBalance = Number(user.balance) + Number(amount);
 
-    if (!data || data.length === 0) {
-      return res.status(404).json({ message: "User not found" });
-    }
+  await supabase
+    .from("users")
+    .update({ balance: newBalance })
+    .eq("phone", phone);
 
-    const user = data[0];
-    const newBalance = user.balance + Number(amount);
+  await supabase.from("transactions").insert([
+    { phone, type: "deposit", amount }
+  ]);
 
-    const { error: updateError } = await supabase
-      .from("users")
-      .update({ balance: newBalance })
-      .eq("phone", phone);
-
-    if (updateError) {
-      console.log(updateError);
-      return res.status(500).json({ message: "Update failed" });
-    }
-
-    res.json({ balance: newBalance });
-
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: "Deposit error" });
-  }
+  res.json({ balance: newBalance });
 });
 
 /* ================= WITHDRAW ================= */
 app.post("/withdraw", async (req, res) => {
-  try {
-    const { phone, amount } = req.body;
+  const { phone, amount } = req.body;
 
-    const { data, error } = await supabase
-      .from("users")
-      .select("*")
-      .eq("phone", phone);
+  const { data } = await supabase
+    .from("users")
+    .select("*")
+    .eq("phone", phone);
 
-    if (error) {
-      console.log(error);
-      return res.status(500).json({ message: "Database error" });
-    }
+  const user = data[0];
 
-    if (!data || data.length === 0) {
-      return res.status(404).json({ message: "User not found" });
-    }
+  if (user.balance < amount)
+    return res.status(400).json({ message: "Insufficient funds" });
 
-    const user = data[0];
+  const newBalance = user.balance - Number(amount);
 
-    if (user.balance < amount) {
-      return res.status(400).json({ message: "Insufficient balance" });
-    }
+  await supabase
+    .from("users")
+    .update({ balance: newBalance })
+    .eq("phone", phone);
 
-    const newBalance = user.balance - Number(amount);
+  await supabase.from("transactions").insert([
+    { phone, type: "withdraw", amount }
+  ]);
 
-    const { error: updateError } = await supabase
-      .from("users")
-      .update({ balance: newBalance })
-      .eq("phone", phone);
-
-    if (updateError) {
-      console.log(updateError);
-      return res.status(500).json({ message: "Update failed" });
-    }
-
-    res.json({ balance: newBalance });
-
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: "Withdraw error" });
-  }
+  res.json({ balance: newBalance });
 });
 
-/* ================= START SERVER ================= */
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log("Server running on port", PORT);
-});
+/* ================= HISTORY ================= */
+app.post("/history", async (req, res) => {
+  const { phone } = req.body;
+
+  const { data
