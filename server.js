@@ -69,7 +69,7 @@ app.post("/deposit", async (req, res) => {
     }
 
     const user = data[0];
-    const newBalance = user.balance + Number(amount);
+    const newBalance = Number(user.balance || 0) + Number(amount);
 
     const { error: updateError } = await supabase
       .from("users")
@@ -80,6 +80,11 @@ app.post("/deposit", async (req, res) => {
       console.log(updateError);
       return res.status(500).json({ message: "Update failed" });
     }
+
+    // ✅ SAVE TRANSACTION
+    await supabase.from("transactions").insert([
+      { phone, type: "deposit", amount }
+    ]);
 
     res.json({ balance: newBalance });
 
@@ -110,11 +115,11 @@ app.post("/withdraw", async (req, res) => {
 
     const user = data[0];
 
-    if (user.balance < amount) {
+    if (Number(user.balance) < Number(amount)) {
       return res.status(400).json({ message: "Insufficient balance" });
     }
 
-    const newBalance = user.balance - Number(amount);
+    const newBalance = Number(user.balance) - Number(amount);
 
     const { error: updateError } = await supabase
       .from("users")
@@ -126,11 +131,94 @@ app.post("/withdraw", async (req, res) => {
       return res.status(500).json({ message: "Update failed" });
     }
 
+    // ✅ SAVE TRANSACTION
+    await supabase.from("transactions").insert([
+      { phone, type: "withdraw", amount }
+    ]);
+
     res.json({ balance: newBalance });
 
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Withdraw error" });
+  }
+});
+
+/* ================= HISTORY ================= */
+app.post("/history", async (req, res) => {
+  try {
+    const { phone } = req.body;
+
+    const { data, error } = await supabase
+      .from("transactions")
+      .select("*")
+      .eq("phone", phone)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.log(error);
+      return res.status(500).json({ message: "History error" });
+    }
+
+    res.json(data);
+
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+/* ================= ADMIN: USERS ================= */
+app.get("/users", async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from("users")
+      .select("phone, balance");
+
+    if (error) {
+      console.log(error);
+      return res.status(500).json({ message: "Users error" });
+    }
+
+    res.json(data);
+
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+/* ================= ADMIN: ANALYTICS ================= */
+app.get("/analytics", async (req, res) => {
+  try {
+    const { data: users } = await supabase.from("users").select("*");
+    const { data: transactions } = await supabase.from("transactions").select("*");
+
+    const totalUsers = users.length;
+
+    const totalBalance = users.reduce(
+      (sum, u) => sum + Number(u.balance || 0),
+      0
+    );
+
+    const totalDeposits = transactions
+      .filter(t => t.type === "deposit")
+      .reduce((sum, t) => sum + Number(t.amount), 0);
+
+    const totalWithdrawals = transactions
+      .filter(t => t.type === "withdraw")
+      .reduce((sum, t) => sum + Number(t.amount), 0);
+
+    res.json({
+      totalUsers,
+      totalBalance,
+      totalDeposits,
+      totalWithdrawals
+    });
+
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Analytics error" });
   }
 });
 
