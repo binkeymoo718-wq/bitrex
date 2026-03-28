@@ -8,8 +8,8 @@ app.use(express.json());
 
 /* ================= SUPABASE ================= */
 const supabase = createClient(
-  "https://mpasmnqayaunhxdqlpsp.supabase.co",
-  "sb_publishable_7Yk4Z3zx0jLh-wFMJfAtw_761Xk_qY"
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_KEY
 );
 
 /* ================= LOGIN ================= */
@@ -17,14 +17,13 @@ app.post("/login", async (req, res) => {
   try {
     const { phone, password } = req.body;
 
-    console.log("LOGIN:", phone, password);
-
     const { data, error } = await supabase
       .from("users")
       .select("*")
       .eq("phone", phone);
 
     if (error) {
+      console.log(error);
       return res.status(500).json({ message: "Database error" });
     }
 
@@ -45,6 +44,7 @@ app.post("/login", async (req, res) => {
     });
 
   } catch (err) {
+    console.log(err);
     res.status(500).json({ message: "Server error" });
   }
 });
@@ -59,6 +59,11 @@ app.post("/deposit", async (req, res) => {
       .select("*")
       .eq("phone", phone);
 
+    if (error) {
+      console.log(error);
+      return res.status(500).json({ message: "Database error" });
+    }
+
     if (!data || data.length === 0) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -66,14 +71,20 @@ app.post("/deposit", async (req, res) => {
     const user = data[0];
     const newBalance = user.balance + Number(amount);
 
-    await supabase
+    const { error: updateError } = await supabase
       .from("users")
       .update({ balance: newBalance })
       .eq("phone", phone);
 
+    if (updateError) {
+      console.log(updateError);
+      return res.status(500).json({ message: "Update failed" });
+    }
+
     res.json({ balance: newBalance });
 
   } catch (err) {
+    console.log(err);
     res.status(500).json({ message: "Deposit error" });
   }
 });
@@ -88,6 +99,11 @@ app.post("/withdraw", async (req, res) => {
       .select("*")
       .eq("phone", phone);
 
+    if (error) {
+      console.log(error);
+      return res.status(500).json({ message: "Database error" });
+    }
+
     if (!data || data.length === 0) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -100,14 +116,20 @@ app.post("/withdraw", async (req, res) => {
 
     const newBalance = user.balance - Number(amount);
 
-    await supabase
+    const { error: updateError } = await supabase
       .from("users")
       .update({ balance: newBalance })
       .eq("phone", phone);
 
+    if (updateError) {
+      console.log(updateError);
+      return res.status(500).json({ message: "Update failed" });
+    }
+
     res.json({ balance: newBalance });
 
   } catch (err) {
+    console.log(err);
     res.status(500).json({ message: "Withdraw error" });
   }
 });
