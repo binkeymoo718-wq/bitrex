@@ -9,7 +9,7 @@ app.use(express.json());
 /* ================== SUPABASE ================== */
 const supabase = createClient(
   "https://mpasmnqayaunhxdqlpsp.supabase.co",
-  ""sb_publishable_T7Yk4Z3zxOjLh-wFMJfAtw_76iXk_qY
+  "sb_publishable_T7Yk4Z3zxOjLh-wFMJfAtw_76iXk_qY"
 );
 
 /* ================== LOGIN ================== */
