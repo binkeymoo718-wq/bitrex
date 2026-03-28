@@ -10,7 +10,7 @@ app.use(express.json());
 // 🔑 SUPABASE CONFIG
 // =======================
 const supabaseUrl = "https://mpasmnqayaunhxdqlpsp.supabase.co";
-const supabaseKey = "YOUR_SUPABASE_ANON_KEY"; // ⚠️ PUT YOUR REAL KEY HERE
+const supabaseKey = "YOUR_SUPABASE_ANON_KEY"; // sb_publishable_T7Yk4Z3zxOjLh-wFMJfAtw_76iXk_qY
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 // =======================
@@ -18,26 +18,33 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 // =======================
 app.post("/login", async (req, res) => {
   try {
-    const { phone, password } = req.body;
+    let { phone, password } = req.body;
+
+    // trim spaces (important)
+    phone = phone.trim();
+    password = password.trim();
 
     const { data, error } = await supabase
       .from("users")
       .select("*")
       .eq("phone", phone)
-      .eq("password", password)
       .single();
 
     if (error || !data) {
-      return res.json({ message: "Invalid credentials" });
+      return res.status(400).json({ message: "User not found" });
     }
 
-    // ✅ IMPORTANT FIX (frontend expects this)
+    if (data.password !== password) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
+
+    // ✅ send full user (frontend needs balance)
     res.json({
       user: data
     });
 
   } catch (err) {
-    res.json({ message: "Server error" });
+    res.status(500).json({ message: "Server error" });
   }
 });
 
@@ -80,7 +87,7 @@ app.post("/deposit", async (req, res) => {
     });
 
   } catch (err) {
-    res.json({ message: "Deposit failed" });
+    res.status(500).json({ message: "Deposit failed" });
   }
 });
 
@@ -98,7 +105,7 @@ app.post("/withdraw", async (req, res) => {
       .single();
 
     if (!user || user.balance < amount) {
-      return res.json({ message: "Insufficient balance" });
+      return res.status(400).json({ message: "Insufficient balance" });
     }
 
     const newBalance = user.balance - amount;
@@ -127,7 +134,7 @@ app.post("/withdraw", async (req, res) => {
     });
 
   } catch (err) {
-    res.json({ message: "Withdraw failed" });
+    res.status(500).json({ message: "Withdraw failed" });
   }
 });
 
@@ -145,7 +152,7 @@ app.get("/transactions/:userId", async (req, res) => {
       .order("created_at", { ascending: false });
 
     if (error) {
-      return res.json({ message: "Error fetching transactions" });
+      return res.status(400).json({ message: "Error fetching transactions" });
     }
 
     res.json({
@@ -154,7 +161,7 @@ app.get("/transactions/:userId", async (req, res) => {
     });
 
   } catch (err) {
-    res.json({ message: "Server error" });
+    res.status(500).json({ message: "Server error" });
   }
 });
 
