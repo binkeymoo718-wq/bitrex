@@ -6,25 +6,25 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ✅ Supabase config (FIXED)
+/* ================== SUPABASE ================== */
 const supabase = createClient(
   "https://mpasmnqayaunhxdqlpsp.supabase.co",
-  "sb_publishable_T7Yk4Z3zxOjLh-wFMJfAtw_761Xk_qY"
+  ""sb_publishable_T7Yk4Z3zxOjLh-wFMJfAtw_76iXk_qY
 );
 
-// ================= LOGIN =================
+/* ================== LOGIN ================== */
 app.post("/login", async (req, res) => {
   try {
     const { phone, password } = req.body;
 
     if (!phone || !password) {
-      return res.status(400).json({ message: "Missing credentials" });
+      return res.status(400).json({ message: "Missing phone or password" });
     }
 
     const { data, error } = await supabase
       .from("users")
       .select("*")
-      .eq("phone", phone)
+      .eq("phone", phone.trim())
       .single();
 
     if (error || !data) {
@@ -35,65 +35,60 @@ app.post("/login", async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    res.json(data);
+    res.json({
+      id: data.id,
+      phone: data.phone,
+      balance: data.balance
+    });
 
   } catch (err) {
-    console.error(err);
     res.status(500).json({ message: "Server error" });
   }
 });
 
-// ================= DEPOSIT =================
+/* ================== DEPOSIT ================== */
 app.post("/deposit", async (req, res) => {
   try {
-    const { userId, amount } = req.body;
+    const { phone, amount } = req.body;
 
-    if (!userId || !amount) {
-      return res.status(400).json({ message: "Missing data" });
-    }
-
-    // get current user
     const { data: user } = await supabase
       .from("users")
       .select("*")
-      .eq("id", userId)
+      .eq("phone", phone.trim())
       .single();
+
+    if (!user) {
+      return res.status(400).json({ message: "User not found" });
+    }
 
     const newBalance = user.balance + Number(amount);
 
-    // update balance
     await supabase
       .from("users")
       .update({ balance: newBalance })
-      .eq("id", userId);
+      .eq("phone", phone.trim());
 
-    // insert transaction
-    await supabase.from("transactions").insert([
-      {
-        user_id: userId,
-        amount: amount,
-        type: "deposit",
-      },
-    ]);
+    res.json({ balance: newBalance });
 
-    res.json({ message: "Deposit successful", balance: newBalance });
-
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Error depositing" });
+  } catch {
+    res.status(500).json({ message: "Deposit error" });
   }
 });
 
-// ================= WITHDRAW =================
+/* ================== WITHDRAW ================== */
 app.post("/withdraw", async (req, res) => {
   try {
-    const { userId, amount } = req.body;
+    const { phone, amount } = req.body;
 
     const { data: user } = await supabase
       .from("users")
       .select("*")
-      .eq("id", userId)
+      .eq("phone", phone.trim())
       .single();
+
+    if (!user) {
+      return res.status(400).json({ message: "User not found" });
+    }
 
     if (user.balance < amount) {
       return res.status(400).json({ message: "Insufficient balance" });
@@ -104,43 +99,15 @@ app.post("/withdraw", async (req, res) => {
     await supabase
       .from("users")
       .update({ balance: newBalance })
-      .eq("id", userId);
+      .eq("phone", phone.trim());
 
-    await supabase.from("transactions").insert([
-      {
-        user_id: userId,
-        amount: amount,
-        type: "withdraw",
-      },
-    ]);
+    res.json({ balance: newBalance });
 
-    res.json({ message: "Withdraw successful", balance: newBalance });
-
-  } catch (err) {
-    res.status(500).json({ message: "Error withdrawing" });
+  } catch {
+    res.status(500).json({ message: "Withdraw error" });
   }
 });
 
-// ================= TRANSACTIONS =================
-app.get("/transactions/:userId", async (req, res) => {
-  try {
-    const userId = req.params.userId;
-
-    const { data } = await supabase
-      .from("transactions")
-      .select("*")
-      .eq("user_id", userId)
-      .order("id", { ascending: false });
-
-    res.json({ data });
-
-  } catch (err) {
-    res.status(500).json({ message: "Error fetching transactions" });
-  }
-});
-
-// ================= START SERVER =================
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log("Server running on port", PORT);
+app.listen(process.env.PORT || 3000, () => {
+  console.log("Server running...");
 });
