@@ -9,9 +9,8 @@ app.use(express.json());
 // 🔑 Supabase config
 const supabase = createClient(
   "https://mpasmnqayaunhxdqlpsp.supabase.co",   // your URL
-  "YOUR_SUPABASE_ANON_KEY"                     // ⚠️ put your real key
-);
-
+  "sb_publishable_T7Yk4Z3zxOjLh-wFMJfAtw_76iXk_qY"  
+  
 // ================= LOGIN =================
 app.post("/login", async (req, res) => {
   try {
