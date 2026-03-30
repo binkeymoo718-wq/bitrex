@@ -8,8 +8,8 @@ const app = express();
 
 // 1. DATABASE CONFIGURATION (Supabase)
 const supabase = createClient(
-    process.env.https://mpasnmqayaunhxdqlpsp.supabase.co,
-    process.env.sb_publishable_T7Yk4Z3zxOjLh-wFMJfAtw_76iXk_qY
+    process.env.SUPABASE_URL, 
+    process.env.SUPABASE_ANON_KEY
 );
 
 // 2. APP MIDDLEWARE
