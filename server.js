@@ -6,151 +6,98 @@ const path = require('path');
 
 const app = express();
 
-// 1. DATABASE CONFIGURATION (Supabase)
+// 1. DATABASE CONFIGURATION
+// Ensure these names match exactly what you saved in your Render Environment tab
 const supabase = createClient(
     process.env.SUPABASE_URL, 
-    process.env.SUPABASE_ANON_KEY
+    process.env.SUPABASE_ANON_KEY 
 );
 
 // 2. APP MIDDLEWARE
-app.set('view engine', 'ejs');
-app.use(express.static('public'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
 app.use(session({
-    secret: 'bitrex_secure_vault_2026',
+    secret: 'bitrex-secret-key',
     resave: false,
-    saveUninitialized: false,
-    cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 } // 24 hours
+    saveUninitialized: true
 }));
 
-// 3. BUSINESS CONSTANTS
-const CITIES = {
-    'CITY A': { price: 1500, dailyTasks: 1, dailyIncome: 50 },
-    'CITY B': { price: 3200, dailyTasks: 2, dailyIncome: 100 },
-    'CITY C': { price: 7200, dailyTasks: 4, dailyIncome: 200 },
-    'CITY D': { price: 12000, dailyTasks: 8, dailyIncome: 400 },
-    'CITY E': { price: 15000, dailyTasks: 10, dailyIncome: 500 }
-};
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 
-// 4. ROUTES
-app.get('/', (req, res) => {
-    if (req.session.userId) return res.redirect('/dashboard');
-    res.render('index'); // Sign up / Login page
-});
+// 3. ROUTES
 
-// Authentication: Sign Up
+// SIGNUP ROUTE (With Duplicate Fix)
 app.post('/auth/signup', async (req, res) => {
     const { phone, email, password, refCode } = req.body;
-    
-    // Referral logic: unique code for every user
-    const personalRefCode = "BTX" + Math.random().toString(36).substring(2, 7).toUpperCase();
+
+    // Generate a unique referral code for the new user
+    const newUserReferralCode = 'BTX' + Math.random().toString(36).toUpperCase().substring(2, 7);
 
     const { data, error } = await supabase
         .from('users')
         .insert([{ 
             phone, 
             email, 
-            password, // Note: In production, hash this with bcrypt
-            referral_code: personalRefCode,
+            password, 
             referred_by: refCode || null,
+            referral_code: newUserReferralCode,
             balance: 0,
-            total_earnings: 0
-        }])
-        .select();
+            total_earnings: 0,
+            tasks_today: 0
+        }]);
 
-    if (error) return res.status(400).send("Registration failed: " + error.message);
-    
-    req.session.userId = data[0].id;
-    res.redirect('/dashboard');
+    if (error) {
+        // FIX: Catch the "Unique Violation" error so the server doesn't crash
+        if (error.code === '23505') {
+            return res.status(400).json({ 
+                success: false, 
+                message: "This phone number or email is already registered." 
+            });
+        }
+        console.error("Signup Error:", error.message);
+        return res.status(500).json({ success: false, message: "Server error during registration." });
+    }
+
+    res.status(201).json({ 
+        success: true, 
+        message: "Registration successful!", 
+        referral_code: newUserReferralCode 
+    });
 });
 
-// Dashboard Data Fetching
-app.get('/dashboard', async (req, res) => {
-    if (!req.session.userId) return res.redirect('/');
+// LOGIN ROUTE
+app.post('/auth/login', async (req, res) => {
+    const { phone, password } = req.body;
 
     const { data: user, error } = await supabase
         .from('users')
         .select('*')
-        .eq('id', req.session.userId)
+        .eq('phone', phone)
+        .eq('password', password)
         .single();
 
-    const { data: history } = await supabase
-        .from('transactions')
-        .select('*')
-        .eq('user_id', req.session.userId)
-        .order('created_at', { ascending: false });
+    if (error || !user) {
+        return res.status(401).send('Invalid phone number or password.');
+    }
 
-    res.render('dashboard', { user, history, cities: CITIES });
+    req.session.user = user;
+    res.redirect('/');
 });
 
-// Investment Action
-app.post('/invest', async (req, res) => {
-    const { cityName } = req.body;
-    const city = CITIES[cityName];
-
-    const { data: user } = await supabase.from('users').select('*').eq('id', req.session.userId).single();
-
-    if (user.balance < city.price) return res.send("Insufficient funds. Minimum deposit is Ksh 300.");
-
-    await supabase.from('users').update({ 
-        balance: user.balance - city.price, 
-        active_city: cityName 
-    }).eq('id', user.id);
-
-    await supabase.from('transactions').insert({
-        user_id: user.id,
-        type: 'Investment',
-        amount: city.price,
-        description: `Joined ${cityName}`
-    });
-
-    res.redirect('/dashboard');
+// DASHBOARD ROUTE
+app.get('/', (req, res) => {
+    res.render('index', { user: req.session.user || null });
 });
 
-// Daily Task Execution
-app.post('/task/complete', async (req, res) => {
-    const { data: user } = await supabase.from('users').select('*').eq('id', req.session.userId).single();
-    
-    if (!user.active_city) return res.send("No active investment found.");
-    
-    const cityRules = CITIES[user.active_city];
-    
-    // Task check logic (Resetting daily or checking count)
-    if (user.tasks_today >= cityRules.dailyTasks) return res.send("Daily task limit reached.");
-
-    const reward = 50;
-    await supabase.from('users').update({
-        balance: user.balance + reward,
-        total_earnings: user.total_earnings + reward,
-        tasks_today: user.tasks_today + 1
-    }).eq('id', user.id);
-
-    res.redirect('/dashboard');
+// LOGOUT
+app.get('/logout', (req, res) => {
+    req.session.destroy();
+    res.redirect('/');
 });
 
-// Wallet: Withdrawal
-app.post('/wallet/withdraw', async (req, res) => {
-    const { amount, password } = req.body;
-    const { data: user } = await supabase.from('users').select('*').eq('id', req.session.userId).single();
-
-    if (amount < 500) return res.send("Minimum withdrawal is Ksh 500");
-    if (user.balance < amount) return res.send("Insufficient balance.");
-
-    await supabase.from('users').update({ balance: user.balance - amount }).eq('id', user.id);
-    await supabase.from('transactions').insert({
-        user_id: user.id,
-        type: 'Withdrawal',
-        amount: amount,
-        status: 'Pending'
-    });
-
-    res.redirect('/dashboard');
-});
-
-// 5. START SERVER
+// 4. START SERVER
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`BITREX Engine online at http://localhost:${PORT}`);
+    console.log(`BITREX server is running on port ${PORT}`);
 });
