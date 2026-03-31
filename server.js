@@ -6,12 +6,12 @@ const path = require('path');
 
 const app = express();
 
-// 1. DATABASE CONFIGURATION
-// Ensure these names match exactly what you saved in your Render Environment tab
+// 1. DATABASE CONFIGURATION (Supabase)
+// This tells the code to look at the "Environment Variables" you set in Render
 const supabase = createClient(
     process.env.SUPABASE_URL, 
-    process.env.SUPABASE_ANON_KEY 
-);
+    process.env.SUPABASE_KEY
+); 
 
 // 2. APP MIDDLEWARE
 app.use(express.json());
