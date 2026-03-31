@@ -131,6 +131,39 @@ app.post('/claim-task', async (req, res) => {
     res.json({ success: true, newBalance: req.session.user.balance });
 });
 
+// --- WITHDRAWAL ROUTE ---
+app.post('/withdraw', async (req, res) => {
+    if (!req.session.user) return res.status(401).json({ message: "Please login first" });
+
+    const { amount } = req.body;
+    const userId = req.session.user.id;
+
+    // 1. Get current balance
+    const { data: user } = await supabase.from('users').select('balance').eq('id', userId).single();
+
+    if (user.balance < amount) {
+        return res.status(400).json({ success: false, message: "Insufficient balance for withdrawal!" });
+    }
+
+    // 2. Create a pending withdrawal in your 'transactions' table
+    const { error: transError } = await supabase.from('transactions').insert([{
+        user_id: userId,
+        amount: amount,
+        type: 'withdrawal',
+        status: 'pending'
+    }]);
+
+    // 3. Deduct from balance
+    const { error: updateError } = await supabase
+        .from('users')
+        .update({ balance: user.balance - amount })
+        .eq('id', userId);
+
+    if (transError || updateError) return res.status(500).json({ success: false, message: "Withdrawal failed." });
+
+    req.session.user.balance -= amount;
+    res.json({ success: true, message: "Withdrawal request submitted for approval!" });
+});
 // --- LOGOUT ---
 app.get('/logout', (req, res) => {
     req.session.destroy();
