@@ -110,8 +110,8 @@ app.post('/claim-task', async (req, res) => {
         return res.status(400).json({ message: "No active investment." });
     }
 
-    // Profits: City A = 150, B = 400, C = 1000
-    const profits = { "CITY A": 150, "CITY B": 400, "CITY C": 1000 };
+    // Profits: City A = 50, B = 400, C = 1000
+    const profits = { "CITY A": 50, "CITY B": 400, "CITY C": 1000 };
     const dailyProfit = profits[req.session.user.active_city] || 0;
 
     const { data: userDB } = await supabase.from('users').select('balance, total_earnings').eq('id', req.session.user.id).single();
@@ -131,38 +131,52 @@ app.post('/claim-task', async (req, res) => {
     res.json({ success: true, newBalance: req.session.user.balance });
 });
 
-// --- WITHDRAWAL ROUTE ---
 app.post('/withdraw', async (req, res) => {
-    if (!req.session.user) return res.status(401).json({ message: "Please login first" });
+    if (!req.session.user) return res.status(401).json({ success: false, message: "Please login first" });
 
     const { amount } = req.body;
-    const userId = req.session.user.id;
+    const userSession = req.session.user;
 
-    // 1. Get current balance
-    const { data: user } = await supabase.from('users').select('balance').eq('id', userId).single();
+    // 1. Get the latest user data
+    const { data: userDB, error: fetchError } = await supabase
+        .from('users')
+        .select('id, balance')
+        .eq('phone', userSession.phone)
+        .single();
 
-    if (user.balance < amount) {
-        return res.status(400).json({ success: false, message: "Insufficient balance for withdrawal!" });
+    if (fetchError || !userDB) return res.status(500).json({ success: false, message: "User not found." });
+    
+    if (userDB.balance < amount) {
+        return res.status(400).json({ success: false, message: "Insufficient balance!" });
     }
 
-    // 2. Create a pending withdrawal in your 'transactions' table
-    const { error: transError } = await supabase.from('transactions').insert([{
-        user_id: userId,
-        amount: amount,
-        type: 'withdrawal',
-        status: 'pending'
-    }]);
+    // 2. Insert into transactions (Using EXACT column names from your screenshot)
+    const { error: transError } = await supabase
+        .from('transactions')
+        .insert([{
+            userId: userDB.id, // Matches your 'userId' column exactly
+            amount: parseInt(amount), // Ensures it is a number, not text
+            type: 'withdrawal',
+            status: 'pending'
+        }], { returning: 'minimal' }); // This line fixes many Supabase 500 errors
 
-    // 3. Deduct from balance
+    if (transError) {
+        console.error("Supabase Insert Error:", transError);
+        return res.status(500).json({ success: false, message: "Database rejected transaction." });
+    }
+
+    // 3. Deduct balance
     const { error: updateError } = await supabase
         .from('users')
-        .update({ balance: user.balance - amount })
-        .eq('id', userId);
+        .update({ balance: userDB.balance - amount })
+        .eq('id', userDB.id);
 
-    if (transError || updateError) return res.status(500).json({ success: false, message: "Withdrawal failed." });
+    if (updateError) return res.status(500).json({ success: false, message: "Balance update failed." });
 
     req.session.user.balance -= amount;
-    res.json({ success: true, message: "Withdrawal request submitted for approval!" });
+    res.json({ success: true, message: "Withdrawal submitted!" });
+});
+
 });
 // --- LOGOUT ---
 app.get('/logout', (req, res) => {
