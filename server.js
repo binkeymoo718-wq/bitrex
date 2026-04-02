@@ -90,24 +90,54 @@ app.post('/invest', async (req, res) => {
 app.post('/claim-task', async (req, res) => {
     if (!req.session.user || !req.session.user.active_city) return res.status(400).json({ message: "No active city" });
 
-    const profits = { "CITY A": 50, "CITY B": 100, "CITY C": 200 };
-    const dailyProfit = profits[req.session.user.active_city] || 0;
+   // --- CLAIM TASK ROUTE ---
+app.post('/claim_task', async (req, res) => {
+    // 1. Session Check
+    if (!req.session.user) return res.status(401).json({ success: false, message: "Please login first" });
 
-    const { data: userDB } = await supabase.from('users').select('balance, total_earnings').eq('id', req.session.user.id).single();
+    const userId = req.session.user.id;
+    const { taskId } = req.body;
 
-    const { error } = await supabase
+    // 2. Fetch user data to check city and existing balance
+    const { data: userDB, error: userError } = await supabase
         .from('users')
-        .update({ 
+        .select('balance, total_earnings, tasks_today, active_city')
+        .eq('id', userId)
+        .single();
+
+    // 3. Error Handling for No Investment
+    if (userError || !userDB.active_city) {
+        return res.status(400).json({ success: false, message: "No active city investment found." });
+    }
+
+    // 4. Define profit based on city tiers
+    let dailyProfit = 0;
+    if (userDB.active_city === 'CITY A') dailyProfit = 50;
+    else if (userDB.active_city === 'CITY B') dailyProfit = 150;
+    else if (userDB.active_city === 'CITY C') dailyProfit = 300;
+    // Add other city tiers (D, E) as needed
+
+    // 5. Update User Balance, Total Earnings, and Task Count in Supabase
+    const { error: updateError } = await supabase
+        .from('users')
+        .update({
             balance: userDB.balance + dailyProfit,
-            total_earnings: userDB.total_earnings + dailyProfit 
+            total_earnings: userDB.total_earnings + dailyProfit,
+            tasks_today: userDB.tasks_today + 1
         })
-        .eq('id', req.session.user.id);
+        .eq('id', userId);
 
-    if (error) return res.status(500).json({ message: "Claim failed" });
+    if (updateError) {
+        console.error("Task Update Error:", updateError);
+        return res.status(500).json({ success: false, message: "Failed to update earnings." });
+    }
 
-    req.session.user.balance += dailyProfit;
-    res.json({ success: true, newBalance: req.session.user.balance });
-});
+    res.json({ 
+        success: true, 
+        message: "Task claimed successfully!", 
+        newBalance: userDB.balance + dailyProfit 
+    });
+    
 
 // 5. WITHDRAWAL ROUTE (FIXED FOR transactions TABLE)
 app.post('/withdraw', async (req, res) => {
