@@ -112,6 +112,8 @@ app.post('/claim_task', async (req, res) => {
     if (userDB.active_city === 'CITY A') dailyProfit = 50;
     else if (userDB.active_city === 'CITY B') dailyProfit = 150;
     else if (userDB.active_city === 'CITY C') dailyProfit = 200;
+    else if (userDB.active_city === 'CITY D') dailyProfit = 400;
+    else if (userDB.active_city === 'CITY E') dailyProfit = 500;
     // Add other city tiers (D, E) as needed
 
     // 5. Update User Balance, Total Earnings, and Task Count in Supabase
