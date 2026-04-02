@@ -134,7 +134,7 @@ app.post('/claim_task', async (req, res) => {
         message: "Task claimed successfully!", 
         newBalance: userDB.balance + dailyProfit 
     });
-    
+});
 
 // 5. WITHDRAWAL ROUTE (FIXED FOR transactions TABLE)
 app.post('/withdraw', async (req, res) => {
