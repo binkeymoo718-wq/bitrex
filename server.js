@@ -87,9 +87,6 @@ app.post('/invest', async (req, res) => {
     res.json({ success: true, message: `Joined ${city}` });
 });
 
-app.post('/claim-task', async (req, res) => {
-    if (!req.session.user || !req.session.user.active_city) return res.status(400).json({ message: "No active city" });
-
    // --- CLAIM TASK ROUTE ---
 app.post('/claim_task', async (req, res) => {
     // 1. Session Check
