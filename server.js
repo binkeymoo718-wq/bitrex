@@ -198,6 +198,120 @@ app.post('/deposit', async (req, res) => {
     res.json({ success: true, message: "Deposit submitted for verification!" });
 });
 
+// --- ADMIN ROUTES ---
+
+// 1. Route to see all pending deposits
+app.get('/admin/dashboard', async (req, res) => {
+    const { data: pendingTransactions, error } = await supabase
+        .from('transactions')
+        .select('*')
+        .eq('status', 'pending')
+        .order('created_at', { ascending: false });
+
+    if (error) return res.status(500).send("Error fetching transactions");
+    res.render('admin', { pendingTransactions }); 
+});
+
+// 2. Route to approve a deposit and update balance
+app.post('/admin/approve_deposit', async (req, res) => {
+    const { transactionId, adminPass } = req.body;
+
+    // Use a secret password for security
+    if (adminPass !== 'YOUR_SECRET_CODE') { 
+        return res.status(403).json({ success: false, message: "Unauthorized" });
+    }
+
+    try {
+        // Find the transaction
+        const { data: trans, error: transError } = await supabase
+            .from('transactions')
+            .select('*')
+            .eq('id', transactionId)
+            .single();
+
+        if (transError || !trans) throw new Error("Transaction not found");
+
+        // Use the SQL function you just created to add the balance
+        const { error: rpcError } = await supabase.rpc('increment_balance', { 
+            user_id: trans.userId, 
+            amount_to_add: trans.amount 
+        });
+
+        if (rpcError) throw rpcError;
+
+        // Mark it as completed
+        await supabase.from('transactions').update({ status: 'completed' }).eq('id', transactionId);
+
+        res.json({ success: true, message: `Approved Ksh ${trans.amount}` });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// --- ADMIN ACTION ROUTES ---
+
+// 1. Approve Route: Increases balance and marks as completed
+app.post('/admin/approve_deposit', async (req, res) => {
+    const { transactionId, adminPass } = req.body;
+
+    // Security Check
+    if (adminPass !== 'Binkey@1722') { 
+        return res.status(403).json({ success: false, message: "Unauthorized: Wrong Admin Password" });
+    }
+
+    try {
+        // Find the transaction record
+        const { data: trans, error: transError } = await supabase
+            .from('transactions')
+            .select('*')
+            .eq('id', transactionId)
+            .single();
+
+        if (transError || !trans) throw new Error("Transaction not found");
+
+        // Use the SQL function to safely add the balance
+        const { error: rpcError } = await supabase.rpc('increment_balance', { 
+            user_id: trans.userId, 
+            amount_to_add: trans.amount 
+        });
+
+        if (rpcError) throw rpcError;
+
+        // Update status to 'completed'
+        await supabase.from('transactions')
+            .update({ status: 'completed' })
+            .eq('id', transactionId);
+
+        res.json({ success: true, message: `Approved! Ksh ${trans.amount} added to user account.` });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 2. Reject Route: Marks as rejected (no balance added)
+app.post('/admin/reject_deposit', async (req, res) => {
+    const { transactionId, adminPass } = req.body;
+
+    if (adminPass !== 'Binkey@1722') { 
+        return res.status(403).json({ success: false, message: "Unauthorized" });
+    }
+
+    try {
+        // Simply change the status to 'rejected'
+        const { error } = await supabase
+            .from('transactions')
+            .update({ status: 'rejected' })
+            .eq('id', transactionId);
+
+        if (error) throw error;
+
+        res.json({ success: true, message: "Transaction has been Rejected." });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
 // 6. LOGOUT & DASHBOARD
 app.get('/logout', (req, res) => {
     req.session.destroy();
