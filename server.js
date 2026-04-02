@@ -90,7 +90,7 @@ app.post('/invest', async (req, res) => {
 app.post('/claim-task', async (req, res) => {
     if (!req.session.user || !req.session.user.active_city) return res.status(400).json({ message: "No active city" });
 
-    const profits = { "CITY A": 150, "CITY B": 400, "CITY C": 1000 };
+    const profits = { "CITY A": 50, "CITY B": 100, "CITY C": 200 };
     const dailyProfit = profits[req.session.user.active_city] || 0;
 
     const { data: userDB } = await supabase.from('users').select('balance, total_earnings').eq('id', req.session.user.id).single();
@@ -144,6 +144,29 @@ app.post('/withdraw', async (req, res) => {
 
     req.session.user.balance -= amount;
     res.json({ success: true, message: "Withdrawal pending!" });
+});
+
+// Add this below your /withdraw route in server.js
+app.post('/deposit', async (req, res) => {
+    if (!req.session.user) return res.status(401).json({ success: false, message: "Please login first" });
+
+    const { amount } = req.body;
+    const userId = req.session.user.id;
+
+    const { error: transError } = await supabase
+        .from('transactions')
+        .insert([{
+            userId: userId, 
+            amount: parseInt(amount),
+            type: 'deposit',
+            status: 'pending'
+        }]);
+
+    if (transError) {
+        return res.status(500).json({ success: false, message: "Database rejected deposit record." });
+    }
+
+    res.json({ success: true, message: "Deposit submitted for verification!" });
 });
 
 // 6. LOGOUT & DASHBOARD
