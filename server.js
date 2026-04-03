@@ -1,329 +1,100 @@
-require('dotenv').config();
 const express = require('express');
-const session = require('express-session');
-const { createClient } = require('@supabase/supabase-js');
+const { createClient } = require('@supabase/supabase-base');
 const path = require('path');
-
 const app = express();
 
-// 1. DATABASE CONFIGURATION
-const supabase = createClient(
-    process.env.SUPABASE_URL, 
-    process.env.SUPABASE_KEY
-);
+// --- CONFIGURATION ---
+// Replace these with your actual Supabase credentials from your dashboard
+const supabaseUrl = 'YOUR_SUPABASE_URL'; 
+const supabaseKey = 'YOUR_SUPABASE_ANON_KEY';
+const supabase = createClient(supabaseUrl, supabaseKey);
 
-// 2. APP MIDDLEWARE
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(session({
-    secret: 'bitrex-2026-secure-key',
-    resave: false,
-    saveUninitialized: true,
-    cookie: { secure: false } 
-}));
+const ADMIN_PASS = '1234'; // Change this to your preferred admin password
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+app.use(express.static('public'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// 3. AUTH ROUTES
+// --- ROUTES ---
 
-app.post('/auth/signup', async (req, res) => {
-    const { phone, email, password, refCode } = req.body;
-    const newUserReferralCode = 'BTX' + Math.random().toString(36).toUpperCase().substring(2, 7);
+// 1. Home / Login Redirect
+app.get('/', (req, res) => {
+    res.redirect('/login');
+});
 
+// 2. Signup Page
+app.get('/signup', (req, res) => {
+    res.render('signup');
+});
+
+// 3. Login Page
+app.get('/login', (req, res) => {
+    res.render('login');
+});
+
+// 4. Admin Dashboard (Fetches pending transactions)
+app.get('/admin/dashboard', async (req, res) => {
+    const { data, error } = await supabase
+        .from('transactions')
+        .select('*')
+        .eq('status', 'pending');
+    
+    res.render('admin', { pendingTransactions: data || [] });
+});
+
+// --- AUTHENTICATION LOGIC ---
+
+app.post('/signup', async (req, res) => {
+    const { name, phone, password } = req.body;
     const { data, error } = await supabase
         .from('users')
-        .insert([{ 
-            phone: phone.trim(), 
-            email: email.trim(), 
-            password: password.trim(), 
-            referred_by: refCode || null,
-            referral_code: newUserReferralCode,
-            balance: 0,
-            total_earnings: 0
-        }])
-        .select();
+        .insert([{ name, phone, password, balance: 0 }]);
 
-    if (error) return res.status(400).json({ success: false, message: error.message });
-    res.status(201).json({ success: true, message: "Signup success!", referral_code: newUserReferralCode });
+    if (error) return res.send("Error creating account: " + error.message);
+    res.redirect('/login');
 });
 
-app.post('/auth/login', async (req, res) => {
+app.post('/login', async (req, res) => {
     const { phone, password } = req.body;
-    const { data: user, error } = await supabase
+    const { data, error } = await supabase
         .from('users')
         .select('*')
-        .eq('phone', phone.trim())
-        .eq('password', password.trim())
-        .maybeSingle();
-
-    if (error || !user) return res.status(401).json({ success: false, message: "Invalid credentials." });
-
-    req.session.user = user;
-    res.status(200).json({ success: true, user: { phone: user.phone, balance: user.balance } });
-});
-
-// 4. INVESTMENT & TASK ROUTES
-
-app.post('/invest', async (req, res) => {
-    if (!req.session.user) return res.status(401).json({ message: "Login first" });
-
-    const { city, cost } = req.body;
-    const userId = req.session.user.id;
-
-    const { data: userDB } = await supabase.from('users').select('balance').eq('id', userId).single();
-
-    if (userDB.balance < cost) return res.status(400).json({ success: false, message: "Insufficient balance" });
-
-    const { error } = await supabase
-        .from('users')
-        .update({ balance: userDB.balance - cost, active_city: city })
-        .eq('id', userId);
-
-    if (error) return res.status(500).json({ success: false, message: "Invest failed" });
-
-    req.session.user.balance -= cost;
-    req.session.user.active_city = city;
-    res.json({ success: true, message: `Joined ${city}` });
-});
-
-   // --- CLAIM TASK ROUTE ---
-app.post('/claim_task', async (req, res) => {
-    // 1. Session Check
-    if (!req.session.user) return res.status(401).json({ success: false, message: "Please login first" });
-
-    const userId = req.session.user.id;
-    const { taskId } = req.body;
-
-    // 2. Fetch user data to check city and existing balance
-    const { data: userDB, error: userError } = await supabase
-        .from('users')
-        .select('balance, total_earnings, tasks_today, active_city')
-        .eq('id', userId)
+        .eq('phone', phone)
+        .eq('password', password)
         .single();
 
-    // 3. Error Handling for No Investment
-    if (userError || !userDB.active_city) {
-        return res.status(400).json({ success: false, message: "No active city investment found." });
+    if (data) {
+        res.render('index', { user: data }); // Show the user dashboard
+    } else {
+        res.send("Invalid phone or password.");
     }
-
-    // 4. Define profit based on city tiers
-    let dailyProfit = 0;
-    if (userDB.active_city === 'CITY A') dailyProfit = 50;
-    else if (userDB.active_city === 'CITY B') dailyProfit = 150;
-    else if (userDB.active_city === 'CITY C') dailyProfit = 200;
-    else if (userDB.active_city === 'CITY D') dailyProfit = 400;
-    else if (userDB.active_city === 'CITY E') dailyProfit = 500;
-    // Add other city tiers (D, E) as needed
-
-    // 5. Update User Balance, Total Earnings, and Task Count in Supabase
-    const { error: updateError } = await supabase
-        .from('users')
-        .update({
-            balance: userDB.balance + dailyProfit,
-            total_earnings: userDB.total_earnings + dailyProfit,
-            tasks_today: userDB.tasks_today + 1
-        })
-        .eq('id', userId);
-
-    if (updateError) {
-        console.error("Task Update Error:", updateError);
-        return res.status(500).json({ success: false, message: "Failed to update earnings." });
-    }
-
-    res.json({ 
-        success: true, 
-        message: "Task claimed successfully!", 
-        newBalance: userDB.balance + dailyProfit 
-    });
 });
 
-// 5. WITHDRAWAL ROUTE (FIXED FOR transactions TABLE)
-app.post('/withdraw', async (req, res) => {
-    if (!req.session.user) return res.status(401).json({ success: false, message: "Please login first" });
+// --- ADMIN ACTIONS ---
 
-    const { amount } = req.body;
-    const userId = req.session.user.id;
-
-    // Fetch latest balance
-    const { data: userDB, error: fetchError } = await supabase.from('users').select('balance').eq('id', userId).single();
-
-    if (fetchError || userDB.balance < amount) {
-        return res.status(400).json({ success: false, message: "Insufficient balance!" });
-    }
-
-    // 1. Insert into transactions (Matches your 'userId' and 'amount' columns)
-    const { error: transError } = await supabase
-        .from('transactions')
-        .insert([{
-            userId: userId, 
-            amount: parseInt(amount),
-            type: 'withdrawal',
-            status: 'pending'
-        }])
-        .select(); // Essential for confirming insert worked
-
-    if (transError) {
-        console.error("Trans Error:", transError);
-        return res.status(500).json({ success: false, message: "Database rejected transaction record." });
-    }
-
-    // 2. Update user balance
-    await supabase.from('users').update({ balance: userDB.balance - amount }).eq('id', userId);
-
-    req.session.user.balance -= amount;
-    res.json({ success: true, message: "Withdrawal pending!" });
-});
-
-// Add this below your /withdraw route in server.js
-app.post('/deposit', async (req, res) => {
-    if (!req.session.user) return res.status(401).json({ success: false, message: "Please login first" });
-
-    const { amount } = req.body;
-    const userId = req.session.user.id;
-
-    const { error: transError } = await supabase
-        .from('transactions')
-        .insert([{
-            userId: userId, 
-            amount: parseInt(amount),
-            type: 'deposit',
-            status: 'pending'
-        }]);
-
-    if (transError) {
-        return res.status(500).json({ success: false, message: "Database rejected deposit record." });
-    }
-
-    res.json({ success: true, message: "Deposit submitted for verification!" });
-});
-
-// --- ADMIN ROUTES ---
-
-// 1. Route to see all pending deposits
-app.get('/admin/dashboard', async (req, res) => {
-    const { data: pendingTransactions, error } = await supabase
-        .from('transactions')
-        .select('*')
-        .eq('status', 'pending')
-        .order('created_at', { ascending: false });
-
-    if (error) return res.status(500).send("Error fetching transactions");
-    res.render('admin', { pendingTransactions }); 
-});
-
-// 2. Route to approve a deposit and update balance
 app.post('/admin/approve_deposit', async (req, res) => {
     const { transactionId, adminPass } = req.body;
 
-    // Use a secret password for security
-    if (adminPass !== 'YOUR_SECRET_CODE') { 
-        return res.status(403).json({ success: false, message: "Unauthorized" });
+    if (adminPass !== ADMIN_PASS) {
+        return res.status(401).json({ success: false, message: "Unauthorized" });
     }
 
-    try {
-        // Find the transaction
-        const { data: trans, error: transError } = await supabase
-            .from('transactions')
-            .select('*')
-            .eq('id', transactionId)
-            .single();
+    // 1. Get transaction details
+    const { data: trans } = await supabase.from('transactions').select('*').eq('id', transactionId).single();
+    
+    // 2. Update user balance using the function we created in SQL
+    await supabase.rpc('increment_balance', { user_id_input: trans.user_id, amount_input: trans.amount });
 
-        if (transError || !trans) throw new Error("Transaction not found");
+    // 3. Mark transaction as approved
+    await supabase.from('transactions').update({ status: 'approved' }).eq('id', transactionId);
 
-        // Use the SQL function you just created to add the balance
-        const { error: rpcError } = await supabase.rpc('increment_balance', { 
-            user_id: trans.userId, 
-            amount_to_add: trans.amount 
-        });
-
-        if (rpcError) throw rpcError;
-
-        // Mark it as completed
-        await supabase.from('transactions').update({ status: 'completed' }).eq('id', transactionId);
-
-        res.json({ success: true, message: `Approved Ksh ${trans.amount}` });
-    } catch (err) {
-        res.status(500).json({ success: false, message: err.message });
-    }
+    res.json({ success: true, message: "Deposit Approved!" });
 });
 
-// --- ADMIN ACTION ROUTES ---
-
-// 1. Approve Route: Increases balance and marks as completed
-app.post('/admin/approve_deposit', async (req, res) => {
-    const { transactionId, adminPass } = req.body;
-
-    // Security Check
-    if (adminPass !== 'Binkey@1722') { 
-        return res.status(403).json({ success: false, message: "Unauthorized: Wrong Admin Password" });
-    }
-
-    try {
-        // Find the transaction record
-        const { data: trans, error: transError } = await supabase
-            .from('transactions')
-            .select('*')
-            .eq('id', transactionId)
-            .single();
-
-        if (transError || !trans) throw new Error("Transaction not found");
-
-        // Use the SQL function to safely add the balance
-        const { error: rpcError } = await supabase.rpc('increment_balance', { 
-            user_id: trans.userId, 
-            amount_to_add: trans.amount 
-        });
-
-        if (rpcError) throw rpcError;
-
-        // Update status to 'completed'
-        await supabase.from('transactions')
-            .update({ status: 'completed' })
-            .eq('id', transactionId);
-
-        res.json({ success: true, message: `Approved! Ksh ${trans.amount} added to user account.` });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ success: false, message: err.message });
-    }
-});
-
-// 2. Reject Route: Marks as rejected (no balance added)
-app.post('/admin/reject_deposit', async (req, res) => {
-    const { transactionId, adminPass } = req.body;
-
-    if (adminPass !== 'Binkey@1722') { 
-        return res.status(403).json({ success: false, message: "Unauthorized" });
-    }
-
-    try {
-        // Simply change the status to 'rejected'
-        const { error } = await supabase
-            .from('transactions')
-            .update({ status: 'rejected' })
-            .eq('id', transactionId);
-
-        if (error) throw error;
-
-        res.json({ success: true, message: "Transaction has been Rejected." });
-    } catch (err) {
-        res.status(500).json({ success: false, message: err.message });
-    }
-});
-
-// 6. LOGOUT & DASHBOARD
-app.get('/logout', (req, res) => {
-    req.session.destroy();
-    res.redirect('/');
-});
-
-app.get('/', (req, res) => {
-    res.render('index', { user: req.session.user || null });
-});
-
-// 7. START SERVER
+// --- START SERVER ---
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`BITREX active on port ${PORT}`);
+    console.log(`BITREX Server running on port ${PORT}`);
 });
