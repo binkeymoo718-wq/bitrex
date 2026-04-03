@@ -3,189 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BITREX | Dashboard</title>
+    <title>BITREX | Trade with Transparency</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        :root { --blue-main: #3B82F6; --bg-light: #F3F4F6; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg-light); margin: 0; padding-bottom: 90px; color: #1F2937; }
+        :root { --blue-main: #3B82F6; --bg-light: #F3F4F6; --text-gray: #6B7280; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-light); margin: 0; padding-bottom: 100px; color: #1F2937; }
         
-        /* Top Blue Stats Card - Matches PANEX Style */
-        .stats-header { background: linear-gradient(180deg, #3B82F6 0%, #2563EB 100%); color: white; padding: 30px 20px 50px 20px; border-bottom-left-radius: 30px; border-bottom-right-radius: 30px; text-align: center; position: relative; }
-        .balance-label { font-size: 0.85rem; opacity: 0.9; margin-bottom: 5px; }
-        .balance-main { font-size: 2.2rem; font-weight: 700; margin-bottom: 20px; }
-        
-        .income-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; background: rgba(255, 255, 255, 0.15); border-radius: 20px; padding: 15px; backdrop-filter: blur(5px); }
-        .income-item div:first-child { font-size: 0.7rem; opacity: 0.8; margin-bottom: 8px; text-transform: uppercase; }
-        .income-item div:last-child { font-weight: 700; font-size: 1.1rem; }
+        /* Stats Header - Matches PANEX Style */
+        .stats-header { background: linear-gradient(180deg, #3B82F6 0%, #2563EB 100%); color: white; padding: 35px 20px 60px 20px; border-bottom-left-radius: 35px; border-bottom-right-radius: 35px; text-align: center; position: relative; }
+        .balance-main { font-size: 2.5rem; font-weight: 700; margin: 10px 0; }
+        .income-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; background: rgba(255, 255, 255, 0.18); border-radius: 20px; padding: 18px; backdrop-filter: blur(8px); margin-top: 15px; }
+        .income-item div:first-child { font-size: 0.7rem; opacity: 0.85; margin-bottom: 5px; }
+        .income-item div:last-child { font-weight: 700; font-size: 1rem; }
 
-        /* Quick Action Grid (Top-up/Withdraw) */
-        .action-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; padding: 0 20px; margin-top: -30px; position: relative; z-index: 10; }
-        .action-card { background: white; padding: 18px 10px; border-radius: 18px; text-align: center; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); cursor: pointer; transition: transform 0.2s; }
-        .action-card:active { transform: scale(0.95); }
-        .action-icon { font-size: 1.6rem; margin-bottom: 8px; display: block; }
+        /* Action Grid */
+        .action-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; padding: 0 20px; margin-top: -35px; position: relative; z-index: 10; }
+        .action-card { background: white; padding: 20px 10px; border-radius: 20px; text-align: center; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); cursor: pointer; }
+        .action-icon { font-size: 1.8rem; margin-bottom: 8px; display: block; }
         .action-label { font-size: 0.75rem; font-weight: 600; color: #4B5563; }
 
-        /* My City Section */
-        .section-container { padding: 20px; }
-        .section-title { font-size: 1rem; font-weight: 700; margin-bottom: 12px; display: block; }
-        .city-status-card { background: white; padding: 15px; border-radius: 20px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
-        .city-img-box { width: 90px; height: 65px; border-radius: 12px; background: #E5E7EB; background-size: cover; background-position: center; }
-        .city-info { flex: 1; }
-        .city-name { font-weight: 700; font-size: 1rem; margin-bottom: 4px; }
-        .city-days { font-size: 0.75rem; color: #9CA3AF; }
-        .city-badge { color: #F97316; font-weight: 700; font-size: 0.8rem; }
+        /* Menu Section - Matches sample image */
+        .menu-list { padding: 20px; }
+        .menu-item { background: white; padding: 18px; margin-bottom: 2px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .menu-item:first-child { border-top-left-radius: 15px; border-top-right-radius: 15px; }
+        .menu-item:last-child { border-bottom-left-radius: 15px; border-bottom-right-radius: 15px; }
+        .logout-btn { background: #3B82F6; color: white; border: none; padding: 15px; border-radius: 30px; width: 90%; margin: 20px 5%; font-weight: 700; }
 
-        /* Bottom Nav - Fixed with Home, Task, City */
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #E5E7EB; z-index: 1000; }
-        .nav-item { text-align: center; font-size: 0.7rem; color: #9CA3AF; text-decoration: none; font-weight: 500; }
-        .nav-item.active { color: var(--blue-main); }
-        .nav-icon { font-size: 1.4rem; margin-bottom: 4px; display: block; }
-
-        /* Hidden Sections */
+        /* Modals */
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); }
+        .modal-content { background: white; margin: 15% auto; padding: 25px; border-radius: 25px; width: 85%; max-width: 380px; }
+        .btn-blue { background: var(--blue-main); color: white; border: none; padding: 12px; border-radius: 12px; width: 100%; font-weight: 600; margin-top: 10px; }
         .hidden { display: none; }
-        .task-list { padding: 15px; }
-        .task-card { background: white; margin-bottom: 10px; padding: 15px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; }
+        
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #E5E7EB; z-index: 1000; }
+        .nav-item { text-align: center; font-size: 0.7rem; color: #9CA3AF; text-decoration: none; cursor: pointer; flex: 1; }
+        .nav-item.active { color: var(--blue-main); font-weight: 700; }
     </style>
 </head>
 <body>
 
 <div id="home-sec">
     <div class="stats-header">
-        <div class="balance-label">Account balance</div>
+        <div style="font-size: 0.85rem; opacity: 0.9;">Account balance</div>
         <div class="balance-main">Ksh <%= user.balance %></div>
-        
         <div class="income-grid">
-            <div class="income-item">
-                <div>Today's income</div>
-                <div><%= user.todays_income || 0 %></div>
-            </div>
-            <div class="income-item">
-                <div>This month's</div>
-                <div><%= user.monthly_income || 0 %></div>
-            </div>
-            <div class="income-item">
-                <div>Total income</div>
-                <div><%= user.total_income || 0 %></div>
-            </div>
+            <div class="income-item"><div>Today's income</div><div><%= user.todays_income || 0 %></div></div>
+            <div class="income-item"><div>This month's</div><div><%= user.monthly_income || 0 %></div></div>
+            <div class="income-item"><div>Total income</div><div><%= user.total_income || 0 %></div></div>
         </div>
     </div>
-
     <div class="action-grid">
-        <div class="action-card" onclick="location.href='/deposit'">
-            <span class="action-icon">💳</span>
-            <span class="action-label">Account top-up</span>
-        </div>
-        <div class="action-card" onclick="location.href='/withdraw'">
-            <span class="action-icon">📥</span>
-            <span class="action-label">Withdrawal</span>
-        </div>
-        <div class="action-card">
-            <span class="action-icon">📈</span>
-            <span class="action-label">Income details</span>
-        </div>
-    </div>
-
-    <div class="section-container">
-        <span class="section-title">My City</span>
-        <div class="city-status-card">
-            <div class="city-img-box" style="background-image: url('https://images.unsplash.com/photo-1514924013411-cbf25faa35bb?q=80&w=200');"></div>
-            <div class="city-info">
-                <div class="city-name"><%= user.active_city || 'None' %></div>
-                <div class="city-days">Joined Time <%= user.days_worked || 0 %>/365</div>
-            </div>
-            <div class="city-badge">
-                <%= user.active_city !== 'None' ? 'Completed' : 'Pending' %>
-            </div>
-        </div>
+        <div class="action-card" onclick="showModal('depModal')"><span class="action-icon">💳</span><span class="action-label">Account top-up</span></div>
+        <div class="action-card" onclick="showModal('witModal')"><span class="action-icon">📥</span><span class="action-label">Withdrawal</span></div>
+        <div class="action-card"><span class="action-icon">📈</span><span class="action-label">Income details</span></div>
     </div>
 </div>
 
-<div id="task-sec" class="hidden">
-    <div style="padding: 20px; background: white; text-align: center; border-bottom: 1px solid #EEE;">
-        <h3 style="margin: 0;">Daily Tasks</h3>
-    </div>
-    <div class="task-list">
-        <% const products = ['2.5L Vaccum Flask', 'Mini massage gun', 'Blood glucose machine', 'Electric blender', 'Modern soldering gun', 'Television set', 'Electric meter', 'Smart phones', 'HD Camera High pixel', 'Iron sheets', 'Plumbing tools', 'Furniture', 'Wi-Fi systems', 'Laptops', 'Textiles', 'Paints', 'Cosmetics', 'Electrical tools', 'Shoes', 'Gas cookers', 'Electric heater']; %>
-        <% products.forEach(p => { %>
-            <div class="task-card">
-                <div>
-                    <div style="font-weight:600; font-size:0.9rem;"><%= p %></div>
-                    <div style="color:var(--blue-main); font-size:0.8rem; font-weight:700;">Reward: Ksh 50</div>
-                </div>
-                <button onclick="claimTask()" style="background:var(--blue-main); color:white; border:none; padding:8px 15px; border-radius:10px; font-weight:600; font-size:0.8rem;">Claim</button>
-            </div>
-        <% }); %>
-    </div>
-</div>
-
-<div id="city-sec" class="hidden">
-    <div style="padding: 20px;">
-        <h3>Investment Cities</h3>
-        <div style="display: grid; gap: 15px;">
-            <% const tiers = [['CITY A', 1500, 50], ['CITY B', 3200, 110], ['CITY C', 7200, 250], ['CITY D', 15000, 600]]; %>
-            <% tiers.forEach(t => { %>
-                <div style="background:white; padding:20px; border-radius:20px; display:flex; justify-content:space-between; align-items:center;">
-                    <div>
-                        <div style="font-weight:700;"><%= t[0] %></div>
-                        <div style="font-size:0.8rem; color:#6B7280;">Cost: Ksh <%= t[1] %></div>
-                        <div style="font-size:0.8rem; color:#059669; font-weight:600;">Daily: Ksh <%= t[2] %></div>
-                    </div>
-                    <button onclick="invest('<%= t[0] %>', <%= t[1] %>)" style="background:var(--blue-main); color:white; border:none; padding:10px 20px; border-radius:12px; font-weight:600;">Invest</button>
-                </div>
-            <% }); %>
+<div id="menu-sec" class="hidden">
+    <div style="padding: 30px 20px; background: white; display: flex; align-items: center; gap: 15px;">
+        <div style="width: 50px; height: 50px; background: #3B82F6; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700;">B</div>
+        <div>
+            <div style="font-weight: 700;">User: <%= user.phone %></div>
+            <div style="font-size: 0.8rem; color: var(--text-gray);">Status: Active</div>
         </div>
     </div>
+    <div class="menu-list">
+        <div class="menu-item"><span>My Information</span><span>›</span></div>
+        <div class="menu-item" onclick="window.open('https://wa.me/254106305272')">
+            <span>Manager WhatsApp</span><span style="color:var(--text-gray); font-size:0.8rem;">0106305272 ›</span>
+        </div>
+    </div>
+    <button class="logout-btn" onclick="location.href='/logout'">Log out</button>
 </div>
+
+<div id="depModal" class="modal"><div class="modal-content">
+    <h3>Deposit</h3>
+    <p>Send to: <b>0733319700</b></p>
+    <input type="text" id="d_msg" placeholder="Paste M-PESA Confirmation Message" style="width:100%; padding:12px; margin-bottom:10px; border:1px solid #DDD; border-radius:10px;">
+    <button class="btn-blue" onclick="submitDeposit()">Submit</button>
+    <button onclick="closeModal('depModal')" style="width:100%; background:none; border:none; margin-top:10px;">Cancel</button>
+</div></div>
 
 <nav class="bottom-nav">
-    <a href="javascript:void(0)" class="nav-item active" onclick="switchTab('home', this)">
-        <span class="nav-icon">🏠</span>Home
-    </a>
-    <a href="javascript:void(0)" class="nav-item" onclick="switchTab('task', this)">
-        <span class="nav-icon">⚡</span>Task
-    </a>
-    <a href="javascript:void(0)" class="nav-item" onclick="switchTab('city', this)">
-        <span class="nav-icon">🏙️</span>City
-    </a>
+    <div class="nav-item active" onclick="switchTab('home', this)"><div>🏠</div>Home</div>
+    <div class="nav-item" onclick="switchTab('menu', this)"><div>👤</div>MENU</div>
 </nav>
 
 <script>
-    function switchTab(tabId, el) {
-        // Hide all
-        document.getElementById('home-sec').classList.add('hidden');
-        document.getElementById('task-sec').classList.add('hidden');
-        document.getElementById('city-sec').classList.add('hidden');
-        
-        // Show selected
-        document.getElementById(tabId + '-sec').classList.remove('hidden');
-        
-        // Update nav UI
-        document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+    function switchTab(id, el) {
+        document.getElementById('home-sec').classList.toggle('hidden', id !== 'home');
+        document.getElementById('menu-sec').classList.toggle('hidden', id !== 'menu');
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         el.classList.add('active');
     }
-
-    async function invest(city, cost) {
-        const res = await fetch('/invest', {
+    function showModal(id) { document.getElementById(id).style.display = 'block'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+    
+    async function submitDeposit() {
+        const msg = document.getElementById('d_msg').value;
+        const res = await fetch('/deposit', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ city, cost, user_id: '<%= user.id %>' })
+            body: JSON.stringify({ evidence: msg, user_id: '<%= user.id %>' })
         });
         const data = await res.json();
         alert(data.message);
-        if(data.success) location.reload();
-    }
-
-    async function claimTask() {
-        const res = await fetch('/claim_task', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ user_id: '<%= user.id %>' })
-        });
-        const data = await res.json();
-        alert(data.message);
-        if(data.success) location.reload();
+        if(data.success) closeModal('depModal');
     }
 </script>
-
 </body>
 </html>
