@@ -3,97 +3,189 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BITREX | Trade with Transparency</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>BITREX | Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #635BFF; --bg: #F8FAFC; --card: #FFFFFF; --text: #1E293B; --success: #00FFC2; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 90px; }
-        .header { background: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #EEE; position: sticky; top: 0; z-index: 100; }
-        .balance-card { background: linear-gradient(135deg, var(--primary), #4F46E5); color: white; margin: 15px; padding: 25px; border-radius: 24px; box-shadow: 0 10px 20px rgba(99, 91, 255, 0.2); }
-        .city-scroll { display: flex; overflow-x: auto; padding: 10px 15px; gap: 15px; scrollbar-width: none; }
-        .city-card { min-width: 160px; background: white; padding: 20px; border-radius: 20px; border: 1px solid #E2E8F0; text-align: center; }
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #EEE; }
-        .nav-item { text-align: center; font-size: 0.75rem; color: #64748B; cursor: pointer; }
-        .nav-item.active { color: var(--primary); font-weight: 700; }
-        .task-item { background: white; margin: 10px 15px; padding: 15px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #F1F5F9; }
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); }
-        .modal-content { background: white; margin: 20% auto; padding: 25px; border-radius: 24px; width: 85%; max-width: 350px; }
-        .btn-main { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 12px; width: 100%; cursor: pointer; font-weight: 600; }
+        :root { --blue-main: #3B82F6; --bg-light: #F3F4F6; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-light); margin: 0; padding-bottom: 90px; color: #1F2937; }
+        
+        /* Top Blue Stats Card - Matches PANEX Style */
+        .stats-header { background: linear-gradient(180deg, #3B82F6 0%, #2563EB 100%); color: white; padding: 30px 20px 50px 20px; border-bottom-left-radius: 30px; border-bottom-right-radius: 30px; text-align: center; position: relative; }
+        .balance-label { font-size: 0.85rem; opacity: 0.9; margin-bottom: 5px; }
+        .balance-main { font-size: 2.2rem; font-weight: 700; margin-bottom: 20px; }
+        
+        .income-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; background: rgba(255, 255, 255, 0.15); border-radius: 20px; padding: 15px; backdrop-filter: blur(5px); }
+        .income-item div:first-child { font-size: 0.7rem; opacity: 0.8; margin-bottom: 8px; text-transform: uppercase; }
+        .income-item div:last-child { font-weight: 700; font-size: 1.1rem; }
+
+        /* Quick Action Grid (Top-up/Withdraw) */
+        .action-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; padding: 0 20px; margin-top: -30px; position: relative; z-index: 10; }
+        .action-card { background: white; padding: 18px 10px; border-radius: 18px; text-align: center; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); cursor: pointer; transition: transform 0.2s; }
+        .action-card:active { transform: scale(0.95); }
+        .action-icon { font-size: 1.6rem; margin-bottom: 8px; display: block; }
+        .action-label { font-size: 0.75rem; font-weight: 600; color: #4B5563; }
+
+        /* My City Section */
+        .section-container { padding: 20px; }
+        .section-title { font-size: 1rem; font-weight: 700; margin-bottom: 12px; display: block; }
+        .city-status-card { background: white; padding: 15px; border-radius: 20px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+        .city-img-box { width: 90px; height: 65px; border-radius: 12px; background: #E5E7EB; background-size: cover; background-position: center; }
+        .city-info { flex: 1; }
+        .city-name { font-weight: 700; font-size: 1rem; margin-bottom: 4px; }
+        .city-days { font-size: 0.75rem; color: #9CA3AF; }
+        .city-badge { color: #F97316; font-weight: 700; font-size: 0.8rem; }
+
+        /* Bottom Nav - Fixed with Home, Task, City */
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #E5E7EB; z-index: 1000; }
+        .nav-item { text-align: center; font-size: 0.7rem; color: #9CA3AF; text-decoration: none; font-weight: 500; }
+        .nav-item.active { color: var(--blue-main); }
+        .nav-icon { font-size: 1.4rem; margin-bottom: 4px; display: block; }
+
+        /* Hidden Sections */
         .hidden { display: none; }
+        .task-list { padding: 15px; }
+        .task-card { background: white; margin-bottom: 10px; padding: 15px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <span style="font-weight: 800; color: var(--primary);">BITREX</span>
-        <div style="font-size: 0.8rem; background: #F1F5F9; padding: 5px 12px; border-radius: 20px;">📍 <%= user.active_city || 'None' %></div>
-    </div>
-
-    <div id="home-sec">
-        <div class="balance-card">
-            <div style="opacity: 0.8; font-size: 0.9rem;">Available Balance</div>
-            <h2 style="font-size: 2.2rem; margin: 10px 0;">Ksh <%= user.balance %></h2>
-            <div style="display: flex; gap: 10px; margin-top: 15px;">
-                <button onclick="showModal('depModal')" style="flex:1; background:rgba(255,255,255,0.2); border:none; color:white; padding:10px; border-radius:10px;">Deposit</button>
-                <button onclick="showModal('witModal')" style="flex:1; background:rgba(255,255,255,0.2); border:none; color:white; padding:10px; border-radius:10px;">Withdraw</button>
+<div id="home-sec">
+    <div class="stats-header">
+        <div class="balance-label">Account balance</div>
+        <div class="balance-main">Ksh <%= user.balance %></div>
+        
+        <div class="income-grid">
+            <div class="income-item">
+                <div>Today's income</div>
+                <div><%= user.todays_income || 0 %></div>
+            </div>
+            <div class="income-item">
+                <div>This month's</div>
+                <div><%= user.monthly_income || 0 %></div>
+            </div>
+            <div class="income-item">
+                <div>Total income</div>
+                <div><%= user.total_income || 0 %></div>
             </div>
         </div>
+    </div>
 
-        <h3 style="padding: 0 20px;">City Investment Tiers</h3>
-        <div class="city-scroll">
-            <% const tiers = [['CITY A', 1500, 50], ['CITY B', 3200, 110], ['CITY C', 7200, 250], ['CITY D', 12000, 400], ['CITY E', 15000, 500]]; %>
+    <div class="action-grid">
+        <div class="action-card" onclick="location.href='/deposit'">
+            <span class="action-icon">💳</span>
+            <span class="action-label">Account top-up</span>
+        </div>
+        <div class="action-card" onclick="location.href='/withdraw'">
+            <span class="action-icon">📥</span>
+            <span class="action-label">Withdrawal</span>
+        </div>
+        <div class="action-card">
+            <span class="action-icon">📈</span>
+            <span class="action-label">Income details</span>
+        </div>
+    </div>
+
+    <div class="section-container">
+        <span class="section-title">My City</span>
+        <div class="city-status-card">
+            <div class="city-img-box" style="background-image: url('https://images.unsplash.com/photo-1514924013411-cbf25faa35bb?q=80&w=200');"></div>
+            <div class="city-info">
+                <div class="city-name"><%= user.active_city || 'None' %></div>
+                <div class="city-days">Joined Time <%= user.days_worked || 0 %>/365</div>
+            </div>
+            <div class="city-badge">
+                <%= user.active_city !== 'None' ? 'Completed' : 'Pending' %>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="task-sec" class="hidden">
+    <div style="padding: 20px; background: white; text-align: center; border-bottom: 1px solid #EEE;">
+        <h3 style="margin: 0;">Daily Tasks</h3>
+    </div>
+    <div class="task-list">
+        <% const products = ['2.5L Vaccum Flask', 'Mini massage gun', 'Blood glucose machine', 'Electric blender', 'Modern soldering gun', 'Television set', 'Electric meter', 'Smart phones', 'HD Camera High pixel', 'Iron sheets', 'Plumbing tools', 'Furniture', 'Wi-Fi systems', 'Laptops', 'Textiles', 'Paints', 'Cosmetics', 'Electrical tools', 'Shoes', 'Gas cookers', 'Electric heater']; %>
+        <% products.forEach(p => { %>
+            <div class="task-card">
+                <div>
+                    <div style="font-weight:600; font-size:0.9rem;"><%= p %></div>
+                    <div style="color:var(--blue-main); font-size:0.8rem; font-weight:700;">Reward: Ksh 50</div>
+                </div>
+                <button onclick="claimTask()" style="background:var(--blue-main); color:white; border:none; padding:8px 15px; border-radius:10px; font-weight:600; font-size:0.8rem;">Claim</button>
+            </div>
+        <% }); %>
+    </div>
+</div>
+
+<div id="city-sec" class="hidden">
+    <div style="padding: 20px;">
+        <h3>Investment Cities</h3>
+        <div style="display: grid; gap: 15px;">
+            <% const tiers = [['CITY A', 1500, 50], ['CITY B', 3200, 110], ['CITY C', 7200, 250], ['CITY D', 15000, 600]]; %>
             <% tiers.forEach(t => { %>
-                <div class="city-card">
-                    <div style="font-weight:700;"><%= t[0] %></div>
-                    <div style="color: #059669; font-weight: 700; font-size: 0.8rem;">+ Ksh <%= t[2] %>/day</div>
-                    <p style="font-size: 0.8rem; color: #64748B;">Cost: Ksh <%= t[1] %></p>
-                    <button class="btn-main" style="padding: 8px;" onclick="handleAction('/invest', { city: '<%= t[0] %>', cost: <%= t[1] %>, user_id: '<%= user.id %>' })">Invest</button>
+                <div style="background:white; padding:20px; border-radius:20px; display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <div style="font-weight:700;"><%= t[0] %></div>
+                        <div style="font-size:0.8rem; color:#6B7280;">Cost: Ksh <%= t[1] %></div>
+                        <div style="font-size:0.8rem; color:#059669; font-weight:600;">Daily: Ksh <%= t[2] %></div>
+                    </div>
+                    <button onclick="invest('<%= t[0] %>', <%= t[1] %>)" style="background:var(--blue-main); color:white; border:none; padding:10px 20px; border-radius:12px; font-weight:600;">Invest</button>
                 </div>
             <% }); %>
         </div>
     </div>
+</div>
 
-    <div id="task-sec" class="hidden">
-        <h3 style="padding: 20px;">Daily Product Tasks</h3>
-        <% const products = ['2.5L Vaccum Flask', 'Mini massage gun', 'Blood glucose machine', 'Electric blender', 'Modern soldering gun', 'Television set', 'Electric meter', 'Smart phones', 'HD Camera High pixel', 'Iron sheets', 'Plumbing tools', 'Furniture', 'Wi-Fi systems', 'Laptops', 'Textiles', 'Paints', 'Cosmetics', 'Electrical tools', 'Shoes', 'Gas cookers', 'Electric heater']; %>
-        <% products.forEach(p => { %>
-            <div class="task-item">
-                <div>
-                    <div style="font-weight: 600;"><%= p %></div>
-                    <div style="color: var(--primary); font-size: 0.8rem;">Reward: Ksh 50</div>
-                </div>
-                <button onclick="handleAction('/claim_task', { product: '<%= p %>', user_id: '<%= user.id %>' })" style="background:#F1F5F9; border:none; padding:8px 15px; border-radius:10px; font-weight:600;">Claim</button>
-            </div>
-        <% }); %>
-    </div>
+<nav class="bottom-nav">
+    <a href="javascript:void(0)" class="nav-item active" onclick="switchTab('home', this)">
+        <span class="nav-icon">🏠</span>Home
+    </a>
+    <a href="javascript:void(0)" class="nav-item" onclick="switchTab('task', this)">
+        <span class="nav-icon">⚡</span>Task
+    </a>
+    <a href="javascript:void(0)" class="nav-item" onclick="switchTab('city', this)">
+        <span class="nav-icon">🏙️</span>City
+    </a>
+</nav>
 
-    <nav class="bottom-nav">
-        <div class="nav-item active" onclick="switchTab('home')"><span style="display:block; font-size:1.2rem;">🏠</span>Home</div>
-        <div class="nav-item" onclick="switchTab('task')"><span style="display:block; font-size:1.2rem;">⚡</span>Task</div>
-        <div class="nav-item" onclick="showModal('witModal')"><span style="display:block; font-size:1.2rem;">💳</span>Wallet</div>
-    </nav>
+<script>
+    function switchTab(tabId, el) {
+        // Hide all
+        document.getElementById('home-sec').classList.add('hidden');
+        document.getElementById('task-sec').classList.add('hidden');
+        document.getElementById('city-sec').classList.add('hidden');
+        
+        // Show selected
+        document.getElementById(tabId + '-sec').classList.remove('hidden');
+        
+        // Update nav UI
+        document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+        el.classList.add('active');
+    }
 
-    <div id="depModal" class="modal"><div class="modal-content">
-        <h3>Deposit</h3><p>M-PESA: 0733319700</p>
-        <input type="number" id="damt" placeholder="Amount">
-        <input type="text" id="devid" placeholder="M-PESA Message">
-        <button class="btn-main" onclick="handleAction('/deposit', { amount: document.getElementById('damt').value, evidence: document.getElementById('devid').value, user_id: '<%= user.id %>' })">Submit</button>
-        <button onclick="closeModal('depModal')" style="width:100%; border:none; background:none; margin-top:10px;">Cancel</button>
-    </div></div>
+    async function invest(city, cost) {
+        const res = await fetch('/invest', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ city, cost, user_id: '<%= user.id %>' })
+        });
+        const data = await res.json();
+        alert(data.message);
+        if(data.success) location.reload();
+    }
 
-    <script>
-        function showModal(id) { document.getElementById(id).style.display = 'block'; }
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-        function switchTab(tab) {
-            document.getElementById('home-sec').classList.toggle('hidden', tab !== 'home');
-            document.getElementById('task-sec').classList.toggle('hidden', tab !== 'task');
-        }
-        async function handleAction(url, body) {
-            const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-            const data = await res.json();
-            alert(data.message);
-            if (data.success) location.reload();
-        }
-    </script>
+    async function claimTask() {
+        const res = await fetch('/claim_task', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ user_id: '<%= user.id %>' })
+        });
+        const data = await res.json();
+        alert(data.message);
+        if(data.success) location.reload();
+    }
+</script>
+
 </body>
 </html>
