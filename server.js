@@ -85,6 +85,60 @@ app.post('/claim_task', async (req, res) => {
     res.json({ success: true, message: "Task claimed successfully!" });
 });
 
+// --- INVESTMENT ROUTE (Multi-City Support) ---
+app.post('/invest', async (req, res) => {
+    const { city, cost, user_id } = req.body;
+    const incomeMap = { 'CITY A': 50, 'CITY B': 100, 'CITY C': 250, 'CITY D': 400, 'CITY E': 500 };
+
+    const { data: user } = await supabase.from('users').select('balance').eq('id', user_id).single();
+    if (user.balance < cost) return res.json({ success: false, message: "Inadequate balance" });
+
+    // Deduct balance and record the NEW city
+    await supabase.from('users').update({ balance: user.balance - cost }).eq('id', user_id);
+    await supabase.from('user_cities').insert([{ user_id, city_name: city, daily_income: incomeMap[city] }]);
+
+    res.json({ success: true, message: `Successfully joined ${city}!` });
+});
+
+// --- TASK CLAIMING ROUTE (Fixes Balance Not Increasing) ---
+app.post('/claim_task', async (req, res) => {
+    const { user_id } = req.body;
+
+    const { data: user } = await supabase.from('users').select('*').eq('id', user_id).single();
+    const { data: cities } = await supabase.from('user_cities').select('daily_income').eq('user_id', user_id);
+
+    if (!cities || cities.length === 0) return res.json({ success: false, message: "Join a city first!" });
+
+    // Calculate sum of daily income from ALL joined cities
+    const totalDailyReward = cities.reduce((sum, c) => sum + c.daily_income, 0);
+    
+    if (user.tasks_today >= 1) return res.json({ success: false, message: "Tasks already completed today!" });
+
+    // Increase balance by the summed amount
+    const newBalance = (user.balance || 0) + totalDailyReward;
+    await supabase.from('users').update({
+        balance: newBalance,
+        todays_income: totalDailyReward,
+        total_income: (user.total_income || 0) + totalDailyReward,
+        tasks_today: 1 
+    }).eq('id', user_id);
+
+    res.json({ success: true, message: `Ksh ${totalDailyReward} added to balance!` });
+});
+
+// --- WITHDRAWAL ROUTE (Ksh 500 Min) ---
+app.post('/withdraw', async (req, res) => {
+    const { amount, user_id } = req.body;
+    if (amount < 500) return res.json({ success: false, message: "Minimum withdrawal is Ksh 500" });
+
+    const { data: user } = await supabase.from('users').select('balance').eq('id', user_id).single();
+    if (user.balance < amount) return res.json({ success: false, message: "Inadequate balance" });
+
+    await supabase.from('users').update({ balance: user.balance - amount }).eq('id', user_id);
+    await supabase.from('transactions').insert([{ user_id, amount, type: 'withdrawal', status: 'pending' }]);
+    res.json({ success: true, message: "Withdrawal submitted!" });
+});
+
 // 2. FIXED ADMIN APPROVAL (Reflects on balance)
 app.post('/admin/approve', async (req, res) => {
     const { trans_id, user_id, amount } = req.body;
