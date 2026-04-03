@@ -2,200 +2,62 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BITREX | Wealth Evolution</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BITREX | Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary: #635BFF;
-            --success: #00FFC2;
-            --bg: #F8FAFC;
-            --card-bg: #FFFFFF;
-            --text: #1E293B;
-            --text-light: #64748B;
-        }
-
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: var(--bg); 
-            color: var(--text); 
-            margin: 0; 
-            padding-bottom: 80px; 
-        }
-
-        .header {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(10px);
-            padding: 20px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            border-bottom: 1px solid #E2E8F0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .balance-card {
-            background: linear-gradient(135deg, var(--primary), #4F46E5);
-            color: white;
-            margin: 20px;
-            padding: 30px;
-            border-radius: 24px;
-            box-shadow: 0 10px 25px rgba(99, 91, 255, 0.3);
-        }
-
-        .balance-amount { font-size: 2.2rem; font-weight: 700; margin: 0; }
-
-        .section-title { padding: 0 20px; font-weight: 700; margin-top: 20px; }
-        
-        .city-scroll {
-            display: flex;
-            overflow-x: auto;
-            padding: 10px 20px;
-            gap: 15px;
-            scrollbar-width: none;
-        }
-
-        .city-card {
-            min-width: 170px;
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            border: 1px solid #F1F5F9;
-            text-align: center;
-        }
-
-        .city-profit { 
-            color: var(--success); 
-            font-weight: 700; 
-            background: #00ffc215; 
-            padding: 4px 8px; 
-            border-radius: 6px; 
-            font-size: 0.85rem;
-        }
-
-        .btn-primary { 
-            background: var(--primary); 
-            color: white; 
-            border: none; 
-            padding: 10px; 
-            border-radius: 12px; 
-            font-weight: 600; 
-            width: 100%; 
-            margin-top: 10px;
-            cursor: pointer;
-        }
-
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            background: white;
-            display: flex;
-            justify-content: space-around;
-            padding: 15px 0;
-            border-top: 1px solid #E2E8F0;
-        }
-
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); }
-        .modal-content { background: white; margin: 20% auto; padding: 25px; border-radius: 24px; width: 80%; max-width: 350px; }
-
-        #loginPage { padding: 50px 20px; text-align: center; }
-        #appPage { display: none; }
+        :root { --primary: #635BFF; --bg: #F8FAFC; --card: #FFFFFF; --text: #1E293B; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .logo { font-weight: 800; font-size: 1.5rem; color: var(--primary); }
+        .balance-card { background: var(--primary); color: white; padding: 30px; border-radius: 24px; box-shadow: 0 10px 20px rgba(99, 91, 255, 0.2); margin-bottom: 30px; }
+        .balance-label { font-size: 0.9rem; opacity: 0.9; }
+        .balance-amount { font-size: 2.5rem; font-weight: 700; margin: 10px 0; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        .invest-card { background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid #E2E8F0; transition: 0.3s; }
+        .invest-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        .city-name { font-weight: 700; font-size: 1.2rem; margin-bottom: 5px; }
+        .price { color: var(--primary); font-weight: 700; font-size: 1.1rem; }
+        .btn-invest { width: 100%; padding: 12px; background: #F1F5F9; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; margin-top: 15px; }
+        .btn-invest:hover { background: var(--primary); color: white; }
     </style>
 </head>
 <body>
 
-<!-- LOGIN -->
-<div id="loginPage">
-    <h1 style="color: var(--primary);">BITREX</h1>
-    <input type="text" id="login-phone" placeholder="Phone Number">
-    <input type="password" id="login-pass" placeholder="Password">
-    <button class="btn-primary" onclick="login()">Sign In</button>
-</div>
-
-<!-- APP -->
-<div id="appPage">
-
     <div class="header">
-        <span style="font-weight: 700;">BITREX</span>
-        <div id="userCity"></div>
+        <div class="logo">BITREX</div>
+        <div>Welcome, <strong><%= user.name %></strong></div>
     </div>
 
     <div class="balance-card">
-        <div>Total Balance</div>
-        <h2 class="balance-amount">Ksh <span id="balance">0</span></h2>
-        <button onclick="showModal('depositModal')">Deposit</button>
+        <div class="balance-label">Total Balance</div>
+        <div class="balance-amount">Ksh <%= user.balance %></div>
+        <div style="font-size: 0.8rem;">Status: Active Account</div>
     </div>
 
-</div>
+    <h3>Investment Packages</h3>
+    <div class="grid">
+        <div class="invest-card">
+            <div class="city-name">Nakuru City</div>
+            <div class="price">Ksh 500</div>
+            <p>Daily Earn: Ksh 50</p>
+            <button class="btn-invest">Invest Now</button>
+        </div>
 
-<!-- MODALS -->
-<div id="depositModal" class="modal">
-    <div class="modal-content">
-        <h3>Deposit</h3>
-        <input type="number" id="dep-amount">
-        <textarea id="dep-evidence"></textarea>
-        <button class="btn-primary" onclick="submitDeposit()">Submit</button>
+        <div class="invest-card">
+            <div class="city-name">Lodwar Town</div>
+            <div class="price">Ksh 1,000</div>
+            <p>Daily Earn: Ksh 110</p>
+            <button class="btn-invest">Invest Now</button>
+        </div>
+        
+        <div class="invest-card">
+            <div class="city-name">Nairobi Hub</div>
+            <div class="price">Ksh 5,000</div>
+            <p>Daily Earn: Ksh 600</p>
+            <button class="btn-invest">Invest Now</button>
+        </div>
     </div>
-</div>
-
-<script>
-const API = "https://bitrex-irdo.onrender.com";
-let userId = localStorage.getItem("userId");
-
-function showModal(id){ document.getElementById(id).style.display='block'; }
-
-async function login(){
-    const phone = document.getElementById('login-phone').value;
-    const password = document.getElementById('login-pass').value;
-
-    const res = await fetch(API + "/auth/login", {
-        method:"POST",
-        headers:{ "Content-Type":"application/json" },
-        body: JSON.stringify({ phone, password })
-    });
-
-    const data = await res.json();
-
-    if(data.success){
-        localStorage.setItem("userId", data.user.id);
-        location.reload();
-    } else {
-        alert(data.message);
-    }
-}
-
-async function loadUser(){
-    if(!userId) return;
-
-    document.getElementById("loginPage").style.display="none";
-    document.getElementById("appPage").style.display="block";
-
-    const res = await fetch(API + "/user/" + userId);
-    const data = await res.json();
-
-    document.getElementById("balance").innerText = data.balance || 0;
-    document.getElementById("userCity").innerText = data.active_city || "No City";
-}
-
-async function submitDeposit(){
-    const amount = document.getElementById('dep-amount').value;
-    const evidence = document.getElementById('dep-evidence').value;
-
-    await fetch(API + "/submit_deposit", {
-        method:"POST",
-        headers:{ "Content-Type":"application/json" },
-        body: JSON.stringify({ userId, amount, evidence })
-    });
-
-    alert("Deposit sent");
-}
-
-loadUser();
-</script>
 
 </body>
 </html>
