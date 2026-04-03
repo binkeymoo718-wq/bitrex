@@ -46,6 +46,45 @@ app.post('/invest', async (req, res) => {
     res.json({ success: true, message: `Invested in ${city}!` });
 });
 
+// Task Limits per City
+const TASK_LIMITS = {
+    'CITY A': 1,  // Rewards Ksh 50
+    'CITY B': 2,  // Rewards Ksh 100
+    'CITY C': 5,  // Rewards Ksh 250
+    'CITY D': 8,  // Rewards Ksh 400
+    'CITY E': 10  // Rewards Ksh 500
+};
+
+app.post('/claim_task', async (req, res) => {
+    const { user_id } = req.body;
+    
+    // 1. Fetch user data
+    const { data: user } = await supabase.from('users').select('*').eq('id', user_id).single();
+    
+    // 2. Validation
+    if (!user.active_city || user.active_city === 'None') {
+        return res.json({ success: false, message: "No investment found. Join a city first!" });
+    }
+
+    const limit = TASK_LIMITS[user.active_city] || 0;
+    if (user.tasks_completed_today >= limit) {
+        return res.json({ success: false, message: "Task limit reached for today!" });
+    }
+
+    // 3. Update Balances
+    const newBalance = user.balance + 50;
+    const newTodayIncome = user.todays_income + 50;
+    const newCompleted = user.tasks_completed_today + 1;
+
+    await supabase.from('users').update({
+        balance: newBalance,
+        todays_income: newTodayIncome,
+        tasks_completed_today: newCompleted
+    }).eq('id', user_id);
+
+    res.json({ success: true, message: "Task claimed successfully!" });
+});
+
 // 2. FIXED ADMIN APPROVAL (Reflects on balance)
 app.post('/admin/approve', async (req, res) => {
     const { trans_id, user_id, amount } = req.body;
