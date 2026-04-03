@@ -5,89 +5,69 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>BITREX</title>
     <style>
-        :root { --blue: #3B82F6; --bg: #F3F4F6; }
-        body { font-family: sans-serif; background: var(--bg); margin: 0; padding-bottom: 80px; }
-        .top-id { text-align: right; padding: 10px 20px; background: var(--blue); color: white; font-weight: bold; font-size: 0.8rem; }
-        .stats { background: linear-gradient(var(--blue), #2563EB); color: white; padding: 30px 20px 60px; text-align: center; border-radius: 0 0 35px 35px; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 0 20px; margin-top: -30px; }
-        .card { background: white; padding: 15px; border-radius: 15px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        :root { --blue: #3B82F6; --bg: #F0F4F8; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; padding-bottom: 80px; }
+        
+        /* Header & Balance */
+        .header { background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%); color: white; padding: 20px 20px 50px; border-radius: 0 0 40px 40px; text-align: center; position: relative; }
+        .top-id { position: absolute; top: 15px; right: 20px; font-size: 0.8rem; font-weight: bold; }
+        .balance-title { font-size: 0.9rem; opacity: 0.8; margin-top: 20px; }
+        .balance-amt { font-size: 2.5rem; font-weight: 800; margin: 10px 0; }
+        
+        /* Income Box */
+        .income-box { background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); border-radius: 20px; display: grid; grid-template-columns: 1fr 1fr 1fr; padding: 15px; margin-top: 20px; }
+        .income-item div:first-child { font-size: 0.65rem; margin-bottom: 5px; }
+        .income-item div:last-child { font-weight: 700; font-size: 1rem; }
+
+        /* Actions */
+        .action-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; padding: 0 20px; margin-top: -30px; }
+        .action-card { background: white; padding: 20px 10px; border-radius: 20px; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+
+        /* City List */
+        .section-title { padding: 25px 20px 10px; font-weight: 800; color: #1E293B; }
+        .city-card { background: white; margin: 0 20px 12px; padding: 15px; border-radius: 20px; display: flex; align-items: center; justify-content: space-between; }
+        
+        /* Nav */
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; border-top: 1px solid #E2E8F0; padding: 10px 0; }
+        .nav-item { flex: 1; text-align: center; font-size: 0.7rem; color: #64748B; cursor: pointer; }
+        .nav-item.active { color: var(--blue); font-weight: 800; }
         .hidden { display: none; }
-        .nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; border-top: 1px solid #DDD; }
-        .nav-item { flex: 1; text-align: center; padding: 12px; font-size: 0.7rem; color: #888; cursor: pointer; }
-        .nav-item.active { color: var(--blue); font-weight: bold; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; }
-        .modal-box { background: white; margin: 20% auto; padding: 25px; border-radius: 20px; width: 80%; max-width: 400px; }
-        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #DDD; border-radius: 8px; box-sizing: border-box; }
     </style>
 </head>
 <body>
 
-<div class="top-id">ID: <%= user.phone %></div>
-
 <div id="home-sec">
-    <div class="stats">
-        <div style="opacity: 0.8;">Account balance</div>
-        <h1 style="margin: 10px 0;">Ksh <%= user.balance %></h1>
-        <div style="display: flex; justify-content: space-around; font-size: 0.75rem;">
-            <div>Today<br><b><%= user.todays_income || 0 %></b></div>
-            <div>Month<br><b><%= user.monthly_income || 0 %></b></div>
-            <div>Total<br><b><%= user.total_income || 0 %></b></div>
+    <div class="header">
+        <div class="top-id"><%= user.phone %></div>
+        <div class="balance-title">Account balance</div>
+        <div class="balance-amt"><%= user.balance %></div>
+        <div class="income-box">
+            <div class="income-item"><div>Today</div><div><%= user.todays_income || 0 %></div></div>
+            <div class="income-item"><div>Month</div><div><%= user.monthly_income || 0 %></div></div>
+            <div class="income-item"><div>Total</div><div><%= user.total_income || 0 %></div></div>
         </div>
     </div>
-    <div class="grid">
-        <div class="card" onclick="showModal('depModal')">💳<br>Top-up</div>
-        <div class="card" onclick="showModal('witModal')">📥<br>Withdraw</div>
-        <div class="card">📊<br>Details</div>
+
+    <div class="action-grid">
+        <div class="action-card" onclick="location.href='/topup'">Top-up</div>
+        <div class="action-card" onclick="location.href='/withdraw'">Withdraw</div>
+        <div class="action-card">Earnings</div>
     </div>
-    <div style="padding: 20px;">
-        <h4 style="margin-bottom: 10px;">Joined Cities</h4>
-        <% if (userCities && userCities.length > 0) { %>
-            <% userCities.forEach(city => { %>
-                <div style="background:white; padding:15px; border-radius:12px; margin-bottom:10px; display:flex; justify-content:space-between;">
-                    <b>🏙️ <%= city.city_name %></b>
-                    <span style="color:#10B981;">Daily: Ksh <%= city.daily_income %></span>
-                </div>
-            <% }); %>
-        <% } %>
-    </div>
+
+    <div class="section-title">My City</div>
+    <% userCities.forEach(city => { %>
+        <div class="city-card">
+            <div><b>🏙️ <%= city.city_name %></b><br><small>Daily: Ksh <%= city.daily_income %></small></div>
+            <div style="color: #10B981; font-weight: bold;">Completed</div>
+        </div>
+    <% }); %>
 </div>
 
-<div id="task-sec" class="hidden" style="padding: 20px;">
-    <h3>Daily Tasks</h3>
-    <button onclick="claimTask()" style="width:100%; background:var(--blue); color:white; border:none; padding:15px; border-radius:12px;">Claim All City Rewards</button>
-</div>
-
-<div id="depModal" class="modal"><div class="modal-box">
-    <h3>Top-up</h3>
-    <input type="number" id="d_amt" placeholder="Amount">
-    <input type="text" id="d_msg" placeholder="M-PESA Message">
-    <button onclick="submitDeposit()" style="width:100%; background:var(--blue); color:white; border:none; padding:12px; border-radius:8px;">Submit</button>
-</div></div>
-
-<div id="witModal" class="modal"><div class="modal-box">
-    <h3>Withdrawal</h3>
-    <input type="number" id="w_amt" placeholder="Amount (Min 500)">
-    <button onclick="submitWithdraw()" style="width:100%; background:var(--blue); color:white; border:none; padding:12px; border-radius:8px;">Withdraw</button>
-</div></div>
-
-<nav class="nav">
-    <div class="nav-item active" onclick="tab('home', this)">🏠<br>Home</div>
-    <div class="nav-item" onclick="tab('task', this)">⚡<br>Task</div>
-    <div class="nav-item" onclick="tab('menu', this)">👤<br>MENU</div>
+<nav class="bottom-nav">
+    <div class="nav-item active">🏠<br>Work</div>
+    <div class="nav-item" onclick="location.href='/tasks'">⚡<br>Finance</div>
+    <div class="nav-item" onclick="location.href='/menu'">👤<br>Homer</div>
 </nav>
 
-<script>
-    function tab(id, el) {
-        ['home', 'task', 'menu'].forEach(s => { if(document.getElementById(s+'-sec')) document.getElementById(s+'-sec').classList.add('hidden') });
-        document.getElementById(id+'-sec').classList.remove('hidden');
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        el.classList.add('active');
-    }
-    function showModal(id) { document.getElementById(id).style.display='block'; }
-    async function claimTask() {
-        const res = await fetch('/claim_task', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ user_id: '<%= user.id %>' }) });
-        const d = await res.json(); alert(d.message); if(d.success) location.reload();
-    }
-</script>
 </body>
 </html>
