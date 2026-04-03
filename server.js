@@ -3,11 +3,11 @@ const { createClient } = require('@supabase/supabase-js');
 const path = require('path');
 const app = express();
 
-// --- CONFIGURATION ---
-// Replace these with your actual Supabase credentials from your dashboard
-const supabaseUrl = 'YOUR_SUPABASE_URL'; 
-const supabaseKey = 'YOUR_SUPABASE_ANON_KEY';
-const supabase = createClient(supabaseUrl, supabaseKey);
+//  DATABASE CONFIGURATION
+const supabase = createClient(
+    process.env.SUPABASE_URL, 
+    process.env.SUPABASE_KEY
+);
 
 const ADMIN_PASS = '1234'; // Change this to your preferred admin password
 
