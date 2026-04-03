@@ -28,6 +28,50 @@ app.get('/admin/dashboard', async (req, res) => {
     const { data } = await supabase.from('transactions').select('*').eq('status', 'pending');
     res.render('admin', { pendingTransactions: data || [] });
 });
+// ... (Your existing express and supabase setup)
+
+// 1. FIXED INVESTMENT (Subtracts money)
+app.post('/invest', async (req, res) => {
+    const { city, cost, user_id } = req.body;
+    const { data: user } = await supabase.from('users').select('balance').eq('id', user_id).single();
+
+    if (user.balance < cost) return res.json({ success: false, message: "Inadequate Balance!" });
+
+    // Deduct and Update
+    const { error } = await supabase.from('users')
+        .update({ balance: user.balance - cost, active_city: city })
+        .eq('id', user_id);
+
+    if (error) return res.json({ success: false, message: "Update Failed" });
+    res.json({ success: true, message: `Invested in ${city}!` });
+});
+
+// 2. FIXED ADMIN APPROVAL (Reflects on balance)
+app.post('/admin/approve', async (req, res) => {
+    const { trans_id, user_id, amount } = req.body;
+
+    // A: Mark transaction as approved
+    await supabase.from('transactions').update({ status: 'approved' }).eq('id', trans_id);
+
+    // B: Fetch current user balance
+    const { data: user } = await supabase.from('users').select('balance').eq('id', user_id).single();
+
+    // C: Add the money to their account
+    await supabase.from('users').update({ balance: user.balance + parseFloat(amount) }).eq('id', user_id);
+
+    res.json({ success: true, message: "Approved and balance updated!" });
+});
+
+// 3. FIXED TASK (Checks if invested first)
+app.post('/claim_task', async (req, res) => {
+    const { user_id } = req.body;
+    const { data: user } = await supabase.from('users').select('*').eq('id', user_id).single();
+
+    if (user.active_city === 'None') return res.json({ success: false, message: "Invest in a City first!" });
+
+    await supabase.from('users').update({ balance: user.balance + 50 }).eq('id', user_id);
+    res.json({ success: true, message: "Ksh 50 earned!" });
+});
 
 // --- AUTH LOGIC ---
 
