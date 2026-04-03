@@ -9,42 +9,42 @@
         :root { --blue-main: #3B82F6; --bg-light: #F3F4F6; --text-gray: #6B7280; }
         body { font-family: 'Inter', sans-serif; background: var(--bg-light); margin: 0; padding-bottom: 100px; color: #1F2937; }
         
-        /* Stats Header - Matches PANEX Style */
-        .stats-header { background: linear-gradient(180deg, #3B82F6 0%, #2563EB 100%); color: white; padding: 35px 20px 60px 20px; border-bottom-left-radius: 35px; border-bottom-right-radius: 35px; text-align: center; position: relative; }
-        .balance-main { font-size: 2.5rem; font-weight: 700; margin: 10px 0; }
-        .income-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; background: rgba(255, 255, 255, 0.18); border-radius: 20px; padding: 18px; backdrop-filter: blur(8px); margin-top: 15px; }
-        .income-item div:first-child { font-size: 0.7rem; opacity: 0.85; margin-bottom: 5px; }
-        .income-item div:last-child { font-weight: 700; font-size: 1rem; }
+        /* User Phone Display - Top Right (PANEX style) */
+        .top-header { padding: 10px 20px; display: flex; justify-content: flex-end; background: #3B82F6; color: white; font-size: 0.75rem; font-weight: 600; }
 
-        /* Action Grid */
+        /* Stats Header */
+        .stats-header { background: linear-gradient(180deg, #3B82F6 0%, #2563EB 100%); color: white; padding: 25px 20px 60px 20px; border-bottom-left-radius: 35px; border-bottom-right-radius: 35px; text-align: center; position: relative; }
+        .balance-main { font-size: 2.3rem; font-weight: 700; margin: 5px 0; }
+        .income-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; background: rgba(255, 255, 255, 0.18); border-radius: 20px; padding: 15px; backdrop-filter: blur(8px); margin-top: 15px; }
+        .income-item div:first-child { font-size: 0.65rem; opacity: 0.85; margin-bottom: 3px; }
+        .income-item div:last-child { font-weight: 700; font-size: 0.95rem; }
+
+        /* Quick Action Grid */
         .action-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; padding: 0 20px; margin-top: -35px; position: relative; z-index: 10; }
-        .action-card { background: white; padding: 20px 10px; border-radius: 20px; text-align: center; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); cursor: pointer; }
-        .action-icon { font-size: 1.8rem; margin-bottom: 8px; display: block; }
-        .action-label { font-size: 0.75rem; font-weight: 600; color: #4B5563; }
+        .action-card { background: white; padding: 18px 10px; border-radius: 20px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.08); cursor: pointer; }
+        .action-icon { font-size: 1.6rem; margin-bottom: 5px; display: block; }
+        .action-label { font-size: 0.7rem; font-weight: 600; color: #4B5563; }
 
-        /* Menu Section - Matches sample image */
-        .menu-list { padding: 20px; }
-        .menu-item { background: white; padding: 18px; margin-bottom: 2px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
-        .menu-item:first-child { border-top-left-radius: 15px; border-top-right-radius: 15px; }
-        .menu-item:last-child { border-bottom-left-radius: 15px; border-bottom-right-radius: 15px; }
-        .logout-btn { background: #3B82F6; color: white; border: none; padding: 15px; border-radius: 30px; width: 90%; margin: 20px 5%; font-weight: 700; }
-
-        /* Modals */
-        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); }
-        .modal-content { background: white; margin: 15% auto; padding: 25px; border-radius: 25px; width: 85%; max-width: 380px; }
-        .btn-blue { background: var(--blue-main); color: white; border: none; padding: 12px; border-radius: 12px; width: 100%; font-weight: 600; margin-top: 10px; }
-        .hidden { display: none; }
-        
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #E5E7EB; z-index: 1000; }
+        /* Bottom Nav */
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #E5E7EB; z-index: 1000; }
         .nav-item { text-align: center; font-size: 0.7rem; color: #9CA3AF; text-decoration: none; cursor: pointer; flex: 1; }
         .nav-item.active { color: var(--blue-main); font-weight: 700; }
+
+        /* Sections */
+        .hidden { display: none; }
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); }
+        .modal-content { background: white; margin: 20% auto; padding: 25px; border-radius: 25px; width: 85%; max-width: 380px; }
+        .btn-blue { background: var(--blue-main); color: white; border: none; padding: 12px; border-radius: 12px; width: 100%; font-weight: 600; margin-top: 10px; }
+        input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #DDD; border-radius: 10px; box-sizing: border-box; }
     </style>
 </head>
 <body>
 
+<div class="top-header">ID: <%= user.phone %></div>
+
 <div id="home-sec">
     <div class="stats-header">
-        <div style="font-size: 0.85rem; opacity: 0.9;">Account balance</div>
+        <div style="font-size: 0.8rem; opacity: 0.9;">Account balance</div>
         <div class="balance-main">Ksh <%= user.balance %></div>
         <div class="income-grid">
             <div class="income-item"><div>Today's income</div><div><%= user.todays_income || 0 %></div></div>
@@ -52,63 +52,116 @@
             <div class="income-item"><div>Total income</div><div><%= user.total_income || 0 %></div></div>
         </div>
     </div>
+
     <div class="action-grid">
         <div class="action-card" onclick="showModal('depModal')"><span class="action-icon">💳</span><span class="action-label">Account top-up</span></div>
         <div class="action-card" onclick="showModal('witModal')"><span class="action-icon">📥</span><span class="action-label">Withdrawal</span></div>
-        <div class="action-card"><span class="action-icon">📈</span><span class="action-label">Income details</span></div>
+        <div class="action-card"><span class="action-icon">📊</span><span class="action-label">Earnings</span></div>
+    </div>
+
+    <div style="padding: 25px 20px 0 20px; font-weight: 700;">Active Status</div>
+    <div style="background: white; margin: 15px 20px; padding: 15px; border-radius: 20px; display: flex; align-items: center; gap: 15px;">
+        <div style="width:60px; height:60px; background:#F3F4F6; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.5rem;">🏙️</div>
+        <div>
+            <div style="font-weight: 700;"><%= user.active_city || 'No City' %></div>
+            <div style="font-size: 0.75rem; color: var(--text-gray);">Days worked: <%= user.days_worked || 0 %></div>
+        </div>
+    </div>
+</div>
+
+<div id="task-sec" class="hidden">
+    <div style="padding: 20px; background: white; text-align: center; font-weight: 700; border-bottom: 1px solid #EEE;">Daily Product Tasks</div>
+    <div style="padding: 15px;">
+        <% const products = ['2.5L Vaccum Flask', 'Mini massage gun', 'Blood glucose machine', 'Electric blender', 'Modern soldering gun', 'Television set', 'Electric meter', 'Smart phones', 'HD Camera High pixel', 'Iron sheets', 'Plumbing tools', 'Furniture', 'Wi-Fi systems', 'Laptops', 'Textiles', 'Paints', 'Cosmetics', 'Electrical tools', 'Shoes', 'Gas cookers', 'Electric heater']; %>
+        <% products.forEach(p => { %>
+            <div style="background:white; margin-bottom:10px; padding:15px; border-radius:15px; display:flex; justify-content:space-between; align-items:center;">
+                <div style="font-weight:600; font-size:0.85rem;"><%= p %></div>
+                <button onclick="claimTask()" style="background:var(--blue-main); color:white; border:none; padding:8px 15px; border-radius:10px; font-size:0.8rem;">Claim Ksh 50</button>
+            </div>
+        <% }); %>
+    </div>
+</div>
+
+<div id="city-sec" class="hidden">
+    <div style="padding: 20px;">
+        <h3 style="margin-bottom: 15px;">Cities</h3>
+        <% const tiers = [['CITY A', 1500], ['CITY B', 3200], ['CITY C', 7200], ['CITY D', 15000], ['CITY E', 25000]]; %>
+        <% tiers.forEach(t => { %>
+            <div style="background:white; padding:18px; border-radius:20px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
+                <div><div style="font-weight:700;"><%= t[0] %></div><div style="font-size:0.8rem; color:var(--text-gray);">Ksh <%= t[1] %></div></div>
+                <button onclick="invest('<%= t[0] %>', <%= t[1] %>)" style="background:var(--blue-main); color:white; border:none; padding:10px 20px; border-radius:12px;">Join</button>
+            </div>
+        <% }); %>
     </div>
 </div>
 
 <div id="menu-sec" class="hidden">
-    <div style="padding: 30px 20px; background: white; display: flex; align-items: center; gap: 15px;">
-        <div style="width: 50px; height: 50px; background: #3B82F6; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700;">B</div>
-        <div>
-            <div style="font-weight: 700;">User: <%= user.phone %></div>
-            <div style="font-size: 0.8rem; color: var(--text-gray);">Status: Active</div>
+    <div style="padding: 25px; background: white; margin-bottom: 15px;">
+        <div style="font-weight: 700; font-size: 1.1rem;">My Account</div>
+        <div style="font-size: 0.85rem; color: var(--text-gray);"><%= user.phone %></div>
+    </div>
+    <div style="padding: 0 15px;">
+        <div style="background:white; border-radius:20px;">
+            <div style="padding:15px; border-bottom:1px solid #F3F4F6;" onclick="window.open('https://wa.me/254106305272')">Manager WhatsApp (0106305272)</div>
+            <div style="padding:15px; border-bottom:1px solid #F3F4F6;">Withdrawal Info</div>
+            <div style="padding:15px;" onclick="location.href='/logout'">Log Out</div>
         </div>
     </div>
-    <div class="menu-list">
-        <div class="menu-item"><span>My Information</span><span>›</span></div>
-        <div class="menu-item" onclick="window.open('https://wa.me/254106305272')">
-            <span>Manager WhatsApp</span><span style="color:var(--text-gray); font-size:0.8rem;">0106305272 ›</span>
-        </div>
-    </div>
-    <button class="logout-btn" onclick="location.href='/logout'">Log out</button>
 </div>
 
 <div id="depModal" class="modal"><div class="modal-content">
-    <h3>Deposit</h3>
-    <p>Send to: <b>0733319700</b></p>
-    <input type="text" id="d_msg" placeholder="Paste M-PESA Confirmation Message" style="width:100%; padding:12px; margin-bottom:10px; border:1px solid #DDD; border-radius:10px;">
+    <h3>Account Top-up</h3>
+    <p style="font-size:0.8rem;">Send to: <b>0733319700</b></p>
+    <input type="number" id="d_amt" placeholder="Enter Amount">
+    <input type="text" id="d_msg" placeholder="M-PESA Confirmation Message">
     <button class="btn-blue" onclick="submitDeposit()">Submit</button>
     <button onclick="closeModal('depModal')" style="width:100%; background:none; border:none; margin-top:10px;">Cancel</button>
 </div></div>
 
+<div id="witModal" class="modal"><div class="modal-content">
+    <h3>Withdrawal</h3>
+    <p style="font-size:0.8rem; color:var(--text-gray);">Min: Ksh 500 | Available: Ksh <%= user.balance %></p>
+    <input type="number" id="w_amt" placeholder="Enter Amount (Min 500)">
+    <button class="btn-blue" onclick="submitWithdraw()">Request Withdrawal</button>
+    <button onclick="closeModal('witModal')" style="width:100%; background:none; border:none; margin-top:10px;">Cancel</button>
+</div></div>
+
 <nav class="bottom-nav">
     <div class="nav-item active" onclick="switchTab('home', this)"><div>🏠</div>Home</div>
+    <div class="nav-item" onclick="switchTab('task', this)"><div>⚡</div>Task</div>
+    <div class="nav-item" onclick="switchTab('city', this)"><div>🏙️</div>City</div>
     <div class="nav-item" onclick="switchTab('menu', this)"><div>👤</div>MENU</div>
 </nav>
 
 <script>
     function switchTab(id, el) {
-        document.getElementById('home-sec').classList.toggle('hidden', id !== 'home');
-        document.getElementById('menu-sec').classList.toggle('hidden', id !== 'menu');
+        ['home', 'task', 'city', 'menu'].forEach(s => document.getElementById(s + '-sec').classList.add('hidden'));
+        document.getElementById(id + '-sec').classList.remove('hidden');
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         el.classList.add('active');
     }
     function showModal(id) { document.getElementById(id).style.display = 'block'; }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
     
+    async function claimTask() {
+        const res = await fetch('/claim_task', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ user_id: '<%= user.id %>' }) });
+        const data = await res.json(); alert(data.message); if(data.success) location.reload();
+    }
     async function submitDeposit() {
+        const amount = document.getElementById('d_amt').value;
         const msg = document.getElementById('d_msg').value;
-        const res = await fetch('/deposit', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ evidence: msg, user_id: '<%= user.id %>' })
-        });
-        const data = await res.json();
-        alert(data.message);
-        if(data.success) closeModal('depModal');
+        const res = await fetch('/deposit', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ amount, evidence: msg, user_id: '<%= user.id %>' }) });
+        const data = await res.json(); alert(data.message); if(data.success) closeModal('depModal');
+    }
+    async function submitWithdraw() {
+        const amount = document.getElementById('w_amt').value;
+        if(amount < 500) return alert("Minimum withdrawal is Ksh 500");
+        const res = await fetch('/withdraw', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ amount, user_id: '<%= user.id %>' }) });
+        const data = await res.json(); alert(data.message); if(data.success) location.reload();
+    }
+    async function invest(city, cost) {
+        const res = await fetch('/invest', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ city, cost, user_id: '<%= user.id %>' }) });
+        const data = await res.json(); alert(data.message); if(data.success) location.reload();
     }
 </script>
 </body>
