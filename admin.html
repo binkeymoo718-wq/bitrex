@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BITREX Admin | Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #635BFF;
+            --success: #10B981;
+            --danger: #EF4444;
+            --bg: #F8FAFC;
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: var(--bg); 
+            margin: 0; 
+            padding: 40px 20px; 
+            color: #1E293B;
+        }
+
+        .container { 
+            max-width: 1100px; 
+            margin: 0 auto; 
+            background: white; 
+            padding: 30px; 
+            border-radius: 20px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
+        }
+
+        .header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-bottom: 2px solid #F1F5F9; 
+            padding-bottom: 20px; 
+            margin-bottom: 30px;
+        }
+
+        h2 { margin: 0; color: var(--primary); font-weight: 800; }
+
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 15px; background: #F1F5F9; font-size: 0.8rem; text-transform: uppercase; color: #64748B; }
+        td { padding: 15px; border-bottom: 1px solid #F1F5F9; font-size: 0.9rem; }
+
+        .evidence-box { 
+            max-width: 350px; 
+            font-size: 0.75rem; 
+            color: #475569; 
+            background: #F8FAFC; 
+            padding: 10px; 
+            border-radius: 8px;
+            white-space: pre-wrap;
+            border: 1px solid #E2E8F0;
+        }
+
+        .btn { 
+            padding: 8px 16px; 
+            border-radius: 10px; 
+            border: none; 
+            font-weight: 600; 
+            cursor: pointer; 
+            font-size: 0.8rem; 
+            transition: 0.2s;
+        }
+
+        .btn-approve { background: var(--success); color: white; margin-right: 5px; }
+        .btn-approve:hover { background: #059669; }
+
+        .btn-reject { background: var(--danger); color: white; }
+        .btn-reject:hover { background: #DC2626; }
+
+        .empty { text-align: center; padding: 50px; color: #94A3B8; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h2>BITREX Admin</h2>
+            <button onclick="location.reload()" style="background:none; border:1px solid #E2E8F0; padding:8px 15px; border-radius:8px; cursor:pointer;">Refresh List</button>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Amount</th>
+                    <th>M-PESA Message / Evidence</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (pendingTransactions.length === 0) { %>
+                    <tr><td colspan="4" class="empty">No pending deposits to verify.</td></tr>
+                <% } %>
+
+                <% pendingTransactions.forEach(t => { %>
+                    <tr>
+                        <td><%= new Date(t.created_at).toLocaleDateString() %></td>
+                        <td><strong>Ksh <%= t.amount %></strong></td>
+                        <td><div class="evidence-box"><%= t.evidence %></div></td>
+                        <td>
+                            <button class="btn btn-approve" onclick="handleAction('<%= t.id %>', 'approve')">Approve ✅</button>
+                            <button class="btn btn-reject" onclick="handleAction('<%= t.id %>', 'reject')">Reject ❌</button>
+                        </td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        async function handleAction(transactionId, action) {
+            const adminPass = prompt("Enter Admin Password:");
+            if (!adminPass) return;
+
+            const endpoint = action === 'approve' ? '/admin/approve_deposit' : '/admin/reject_deposit';
+            
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ transactionId, adminPass })
+                });
+
+                const result = await response.json();
+                alert(result.message);
+                if (result.success) location.reload();
+            } catch (err) {
+                alert("Error: " + err.message);
+            }
+        }
+    </script>
+</body>
+</html>
