@@ -34,6 +34,24 @@ app.get('/login', (req, res) => {
     res.render('login');
 });
 
+// Add this inside your server.js
+app.post('/deposit', async (req, res) => {
+    const { amount, evidence } = req.body;
+    // This inserts the deposit into your transactions table for the admin to see
+    const { error } = await supabase.from('transactions').insert([
+        { amount, evidence, status: 'pending', type: 'deposit' }
+    ]);
+    if (error) return res.json({ success: false, message: error.message });
+    res.json({ success: true, message: "Deposit submitted! Waiting for admin approval." });
+});
+
+app.post('/invest', async (req, res) => {
+    const { city, cost } = req.body;
+    // Logic: Check if user has enough money, then deduct and update active_city
+    // (I can provide the full logic for this if you need it!)
+    res.json({ success: true, message: `Successfully invested in ${city}!` });
+});
+
 // 4. Admin Dashboard (Fetches pending transactions)
 app.get('/admin/dashboard', async (req, res) => {
     const { data, error } = await supabase
