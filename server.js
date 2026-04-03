@@ -112,6 +112,98 @@ app.post('/claim_task', async (req, res) => {
     res.json({ success: true, message: "Ksh 50 earned!" });
 });
 
+// --- WITHDRAWAL ROUTE ---
+app.post('/withdraw', async (req, res) => {
+    const { amount, user_id } = req.body;
+    const withdrawAmount = parseFloat(amount);
+
+    // 1. Check Minimum
+    if (withdrawAmount < 500) {
+        return res.json({ success: false, message: "Minimum withdrawal is Ksh 500" });
+    }
+
+    // 2. Fetch User Balance
+    const { data: user, error: userError } = await supabase
+        .from('users')
+        .select('balance, phone')
+        .eq('id', user_id)
+        .single();
+
+    if (!user || user.balance < withdrawAmount) {
+        return res.json({ success: false, message: "Inadequate balance for this withdrawal." });
+    }
+
+    // 3. Deduct Balance & Create Pending Transaction
+    const newBalance = user.balance - withdrawAmount;
+    
+    // Update balance
+    await supabase.from('users').update({ balance: newBalance }).eq('id', user_id);
+
+    // Record in transactions table for Admin to see
+    const { error: transError } = await supabase.from('transactions').insert([
+        { 
+            user_id, 
+            amount: withdrawAmount, 
+            type: 'withdrawal', 
+            status: 'pending', 
+            evidence: `Withdrawal request from ${user.phone}` 
+        }
+    ]);
+
+    if (transError) return res.json({ success: false, message: "Database Error. Try again." });
+
+    res.json({ success: true, message: "Withdrawal request submitted! Admin will process it soon." });
+});
+
+// --- DEPOSIT ROUTE (Updated with Amount & Evidence) ---
+app.post('/deposit', async (req, res) => {
+    const { amount, evidence, user_id } = req.body;
+
+    if (!amount || !evidence) {
+        return res.json({ success: false, message: "Please provide both amount and M-PESA message." });
+    }
+
+    const { error } = await supabase.from('transactions').insert([
+        { user_id, amount: parseFloat(amount), evidence, type: 'deposit', status: 'pending' }
+    ]);
+
+    if (error) return res.json({ success: false, message: "Error submitting deposit." });
+    res.json({ success: true, message: "Top-up submitted! Wait for admin approval." });
+});
+
+// --- TASK CLAIMING (With City Limits) ---
+const CITY_LIMITS = {
+    'CITY A': 1, 'CITY B': 2, 'CITY C': 5, 'CITY D': 8, 'CITY E': 10
+};
+
+app.post('/claim_task', async (req, res) => {
+    const { user_id } = req.body;
+    const { data: user } = await supabase.from('users').select('*').eq('id', user_id).single();
+
+    if (!user.active_city || user.active_city === 'None') {
+        return res.json({ success: false, message: "Please join a City first!" });
+    }
+
+    const dailyLimit = CITY_LIMITS[user.active_city] || 0;
+    
+    // We assume you have a 'tasks_today' column in your DB
+    if ((user.tasks_today || 0) >= dailyLimit) {
+        return res.json({ success: false, message: `Task limit reached for ${user.active_city}!` });
+    }
+
+    const newBalance = user.balance + 50;
+    const newTodayIncome = (user.todays_income || 0) + 50;
+    const newTasksToday = (user.tasks_today || 0) + 1;
+
+    await supabase.from('users').update({ 
+        balance: newBalance, 
+        todays_income: newTodayIncome,
+        tasks_today: newTasksToday 
+    }).eq('id', user_id);
+
+    res.json({ success: true, message: "Ksh 50 added to your account!" });
+});
+
 // --- AUTH LOGIC ---
 
 app.post('/signup', async (req, res) => {
