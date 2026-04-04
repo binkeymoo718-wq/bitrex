@@ -3,40 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BITREX | Dashboard</title>
+    <title>BITREX | Trade with Transparency</title>
     <style>
         :root { --primary-blue: #2b7fff; --bg: #f0f4f7; }
         body { font-family: sans-serif; background: var(--bg); margin: 0; padding-bottom: 80px; }
+        .hidden { display: none !important; } /* Fix: Modal will not show on login */
         
-        /* Dashboard Header */
+        /* Header */
         .header { background: var(--primary-blue); color: white; padding: 40px 20px 70px; text-align: center; border-radius: 0 0 35px 35px; position: relative; }
-        .user-phone { position: absolute; top: 15px; right: 20px; font-size: 14px; font-weight: bold; }
         .balance-box { font-size: 40px; font-weight: 800; margin: 10px 0; }
         
-        .stats-row { display: flex; justify-content: space-around; background: rgba(255,255,255,0.15); padding: 15px; border-radius: 15px; margin-top: 20px; }
-        .stat-box div:first-child { font-size: 11px; opacity: 0.8; }
-        .stat-box div:last-child { font-size: 16px; font-weight: bold; }
-
         /* Action Buttons */
-        .action-container { display: flex; gap: 10px; margin: -40px 15px 20px; }
+        .action-container { display: flex; gap: 10px; margin: -40px 15px 20px; position: relative; z-index: 10; }
         .action-btn { background: white; flex: 1; padding: 15px; border-radius: 15px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); cursor: pointer; }
         .action-btn span { font-size: 11px; font-weight: bold; color: #444; }
 
-        /* Sections */
-        .card { background: white; margin: 10px 15px; padding: 15px; border-radius: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .hidden { display: none; }
-        .btn { border: none; border-radius: 10px; padding: 12px; width: 100%; cursor: pointer; font-weight: bold; }
-        
-        /* Job List UI */
+        /* Job Card */
         .job-title-bar { background: #c5ff8c; padding: 15px; text-align: center; font-weight: bold; border-radius: 15px 15px 0 0; }
-        .job-card { border-bottom: 1px dashed #eee; padding: 15px 0; }
-        .job-card h4 { margin: 0 0 5px; color: #1a3c61; }
-        .job-card p { font-size: 11px; color: #888; margin: 0; }
+        .job-card { background: white; margin: 10px; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
 
-        /* Modal Overlay */
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; display: flex; align-items: center; justify-content: center; }
-
-        /* Bottom Nav */
+        /* Modals */
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; display: flex; align-items: center; justify-content: center; }
+        
         .nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; padding: 10px 0; border-top: 1px solid #eee; }
         .nav-item { flex: 1; text-align: center; font-size: 11px; color: #888; cursor: pointer; }
         .nav-item.active { color: var(--primary-blue); font-weight: bold; }
@@ -45,79 +33,78 @@
 <body>
 
     <div class="header">
-        <div class="user-phone"><%= user.phone %></div>
         <div style="font-size: 14px; opacity: 0.9;">Account balance</div>
-        <div class="balance-box"><%= user.balance %></div>
-        
-        <div class="stats-row">
-            <div class="stat-box"><div>Today</div><div><%= user.todays_income || 0 %></div></div>
-            <div class="stat-box"><div>Month</div><div><%= user.monthly_income || 0 %></div></div>
-            <div class="stat-box"><div>Total</div><div><%= user.total_income || 0 %></div></div>
+        <div class="balance-box">Ksh <%= user.balance %></div>
+        <div style="display: flex; justify-content: space-around; margin-top: 20px;">
+            <div><small>Today</small><br><b><%= user.todays_income || 0 %></b></div>
+            <div><small>Month</small><br><b><%= user.monthly_income || 0 %></b></div>
+            <div><small>Total</small><br><b><%= user.total_income || 0 %></b></div>
         </div>
     </div>
 
     <div class="action-container">
-        <div class="action-btn" onclick="openModal('deposit')"><span>💳 Top-up</span></div>
-        <div class="action-btn" onclick="openModal('withdraw')"><span>📥 Withdraw</span></div>
+        <div class="action-btn" onclick="toggleModal('deposit', true)"><span>💳 Top-up</span></div>
+        <div class="action-btn" onclick="toggleModal('withdraw', true)"><span>📥 Withdraw</span></div>
         <div class="action-btn" onclick="showSec('menu', this)"><span>👤 Profile</span></div>
     </div>
 
     <div id="home-sec">
         <div style="margin: 15px; font-weight: bold;">My Active Cities</div>
-        <div class="card">
+        <div class="job-card">
             <% if (userCities.length > 0) { %>
                 <% userCities.forEach(city => { %>
                     <div style="padding: 10px 0; border-bottom: 1px solid #eee;">🏙️ <b><%= city.city_name %></b> - Active</div>
                 <% }); %>
             <% } else { %>
-                <p style="text-align: center; color: #999;">Join a city to start earning.</p>
+                <p style="text-align: center; color: #999;">Join a city in the "City" tab to see it here.</p>
             <% } %>
         </div>
     </div>
 
     <div id="task-sec" class="hidden">
-        <div class="card" style="padding: 0;">
-            <div class="job-title-bar">List of jobs</div>
-            <div style="padding: 15px;">
-                <% const jobs = ["AQ Smart Blood Glucose Meter", "Manicure Set", "women's perfume", "Mini massage gun", "2.5L Vacuum Flask", "Electric blender", "Modern soldering gun", "Television set", "Electric meter", "Smart phones", "HD Camera", "Iron sheets", "Plumbing tools", "Furniture", "Wi-Fi systems", "Laptops", "Textiles", "Paints", "Cosmetics", "Electrical tools", "Shoes", "Gas cookers", "Electric heater", "Air Fryer", "Pressure Cooker", "Microwave Oven", "Non-stick Cookware", "Water Dispenser", "Juicer Cup", "Electric Kettle", "Subwoofer", "Android TV Box", "Bluetooth Speaker", "Gaming Console", "Smart Watch", "Wireless Earbuds", "Solar Lighting"]; %>
-                <% jobs.forEach(job => { %>
-                    <div class="job-card">
-                        <h4><%= job %></h4>
-                        <p>Start working after midnight. Reward: Ksh 50</p>
-                        <button class="btn" style="background: black; color: white; margin-top: 10px;" onclick="doTask()">Start working</button>
+        <div class="job-title-bar">List of jobs</div>
+        <% const jobs = ["AQ Smart Blood Glucose Meter", "Manicure Set", "women's perfume", "Mini massage gun", "2.5L Vacuum Flask", "Electric blender", "Modern soldering gun", "Smart phones", "HD Camera", "Laptops", "Air Fryer", "Smart Watch"]; %>
+        <% jobs.forEach(job => { %>
+            <div class="job-card">
+                <div style="display: flex; justify-content: space-between;">
+                    <div>
+                        <h4 style="margin: 0; color: #1a3c61;"><%= job %></h4>
+                        <p style="font-size: 11px; color: #888;">Work available after midnight.</p>
                     </div>
-                <% }); %>
+                </div>
+                <div style="border-top: 1px dashed #ddd; margin-top: 10px; padding-top: 10px; font-size: 12px;">Payment: 50.00 KSh</div>
+                <button onclick="doTask()" style="background:black; color:white; width:100%; padding:10px; border-radius:5px; margin-top:10px; border:none; cursor:pointer;">Start working</button>
             </div>
-        </div>
+        <% }); %>
     </div>
 
     <div id="city-sec" class="hidden">
         <div style="margin: 15px; font-weight: bold;">Investment Packages</div>
         <% const cityData = [{n:'CITY A', c:1500, d:50}, {n:'CITY B', c:3200, d:100}, {n:'CITY C', c:7200, d:200}, {n:'CITY D', c:12000, d:400}, {n:'CITY E', c:15000, d:500}]; %>
         <% cityData.forEach(c => { %>
-            <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="job-card" style="display:flex; justify-content:space-between; align-items:center;">
                 <div><b><%= c.n %></b><br><small>Cost: Ksh <%= c.c %> | Daily: Ksh <%= c.d %></small></div>
-                <button class="btn" style="width: 80px; background: var(--primary-blue); color: white;" onclick="joinCity('<%= c.n %>')">Join</button>
+                <button onclick="joinCity('<%= c.n %>')" style="background:var(--primary-blue); color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer;">Join</button>
             </div>
         <% }); %>
     </div>
 
     <div id="menu-sec" class="hidden">
-        <div class="card">
-            <p><b>Referral Code:</b> <%= user.referral_code %></p>
-            <button class="btn" style="background: #25d366; color: white; margin-bottom: 10px;" onclick="window.open('https://wa.me/254106305272')">WhatsApp Manager</button>
-            <button class="btn" style="background: #eee;" onclick="location.href='/logout'">Log Out</button>
+        <div class="job-card">
+            <p><b>Phone:</b> <%= user.phone %></p>
+            <p><b>Referral:</b> <%= user.referral_code %></p>
+            <button onclick="location.href='/logout'" style="background:#ff4d4d; color:white; width:100%; padding:10px; border:none; border-radius:5px; cursor:pointer;">Log Out</button>
         </div>
     </div>
 
-    <div id="modal-overlay" class="overlay hidden">
-        <div class="card" id="deposit-box" class="hidden" style="width: 80%;">
+    <div id="deposit-modal" class="overlay hidden">
+        <div style="background:white; padding:20px; border-radius:15px; width:85%; max-width:400px;">
             <h3>Top-up</h3>
-            <p>Send to 0733319700</p>
-            <input type="number" id="dep-amt" placeholder="Amount" class="btn" style="border: 1px solid #ddd; margin-bottom: 10px;">
-            <input type="text" id="dep-ev" placeholder="M-PESA Code" class="btn" style="border: 1px solid #ddd; margin-bottom: 10px;">
-            <button class="btn" style="background: var(--primary-blue); color: white;" onclick="submitDep()">Submit</button>
-            <button class="btn" style="margin-top: 5px;" onclick="closeModal()">Close</button>
+            <p>Send to M-PESA: <b>0733319700</b></p>
+            <input type="number" id="amt" placeholder="Amount" style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:5px;">
+            <input type="text" id="code" placeholder="M-PESA Transaction Code" style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:5px;">
+            <button onclick="alert('Submitted for review')" style="background:var(--primary-blue); color:white; width:100%; padding:12px; border:none; border-radius:8px;">Submit</button>
+            <button onclick="toggleModal('deposit', false)" style="width:100%; padding:10px; border:none; background:none; margin-top:10px; color:#666;">Close</button>
         </div>
     </div>
 
@@ -136,6 +123,12 @@
             el.classList.add('active');
         }
 
+        function toggleModal(type, show) {
+            const modal = document.getElementById(type + '-modal');
+            if (show) modal.classList.remove('hidden');
+            else modal.classList.add('hidden');
+        }
+
         async function joinCity(name) {
             if(!confirm("Join " + name + "?")) return;
             const res = await fetch('/invest', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ city_name: name, user_id: '<%= user.id %>' }) });
@@ -144,18 +137,8 @@
             if(data.success) location.reload();
         }
 
-        function openModal(type) { 
-            document.getElementById('modal-overlay').classList.remove('hidden'); 
-        }
-        function closeModal() { 
-            document.getElementById('modal-overlay').classList.add('hidden'); 
-        }
-
-        async function doTask() {
-            const res = await fetch('/claim_task', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ user_id: '<%= user.id %>' }) });
-            const data = await res.json();
-            alert(data.message);
-            if(data.success) location.reload();
+        function doTask() {
+            alert("Work in progress. Income will be added after midnight.");
         }
     </script>
 </body>
