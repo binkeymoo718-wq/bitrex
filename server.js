@@ -55,29 +55,37 @@ app.get('/dashboard', async (req, res) => {
     res.render('index', { user, userCities: userCities || [] });
 });
 
-// --- INVESTMENT LOGIC ---
-app.post('/invest', async (req, res) => {
-    const { city_name, user_id } = req.body;
-    const cityData = CITIES[city_name];
+// --- TASK LOGIC (Increments Today's Income) ---
+app.post('/claim_task', async (req, res) => {
+    const { user_id } = req.body;
+    const reward = 50;
     
+    const { data: user } = await supabase.from('users').select('*').eq('id', user_id).single();
+    
+    // Update balance and today's income
+    const { error } = await supabase.from('users').update({
+        balance: (user.balance || 0) + reward,
+        todays_income: (user.todays_income || 0) + reward,
+        total_income: (user.total_income || 0) + reward
+    }).eq('id', user_id);
+
+    if (error) return res.json({ success: false, message: "Task failed" });
+    res.json({ success: true, message: `Task complete! Ksh ${reward} added to today's income.` });
+});
+
+// --- WITHDRAWAL ROUTE ---
+app.post('/withdraw', async (req, res) => {
+    const { amount, user_id } = req.body;
     const { data: user } = await supabase.from('users').select('balance').eq('id', user_id).single();
-    
-    if (!user || user.balance < cityData.cost) {
-        return res.json({ success: false, message: "Inadequate balance to join " + city_name });
-    }
 
-    // Subtract amount and update database
-    const newBalance = user.balance - cityData.cost;
-    await supabase.from('users').update({ balance: newBalance }).eq('id', user_id);
-    
-    await supabase.from('user_cities').insert([{ 
-        user_id: parseInt(user_id), 
-        city_name: city_name, 
-        daily_income: cityData.daily, 
-        max_tasks: cityData.tasks 
-    }]);
+    if (amount < 500) return res.json({ success: false, message: "Minimum withdrawal is Ksh 500" });
+    if (user.balance < amount) return res.json({ success: false, message: "Insufficient balance" });
 
-    res.json({ success: true, message: "Joined successfully!" });
+    // Deduct and log transaction
+    await supabase.from('users').update({ balance: user.balance - amount }).eq('id', user_id);
+    await supabase.from('transactions').insert([{ user_id, amount, type: 'withdrawal', status: 'pending' }]);
+
+    res.json({ success: true, message: "Withdrawal request sent for approval!" });
 });
 
 app.listen(3000, () => console.log("BITREX Server Live"));
