@@ -1,86 +1,224 @@
-const express = require('express');
-const { createClient } = require('@supabase/supabase-js');
-const session = require('express-session');
-require('dotenv').config();
+const express = require("express");
+const cors = require("cors");
+const bodyParser = require("body-parser");
+const { createClient } = require("@supabase/supabase-js");
 
 const app = express();
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
+app.use(cors());
+app.use(bodyParser.json());
+app.use(express.static("public"));
 
-app.set('view engine', 'ejs');
-app.use(express.static('public'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.set("view engine", "ejs");
 
-app.use(session({
-    secret: 'bitrex_final_production_99',
-    resave: false,
-    saveUninitialized: false,
-    cookie: { secure: false } 
-}));
+//  DATABASE CONFIGURATION
+const supabase = createClient(
+    process.env.SUPABASE_URL, 
+    process.env.SUPABASE_KEY
+);
 
-const CITIES = {
-    'CITY A': { cost: 1500, daily: 50, tasks: 1 },
-    'CITY B': { cost: 3200, daily: 100, tasks: 2 },
-    'CITY C': { cost: 7200, daily: 200, tasks: 4 },
-    'CITY D': { cost: 12000, daily: 400, tasks: 8 },
-    'CITY E': { cost: 15000, daily: 500, tasks: 10 }
+// ================= AUTH =================
+
+// SIGNUP
+app.post("/auth/signup", async (req, res) => {
+  const { phone, email, password, referral } = req.body;
+
+  const referral_code = "REF" + Math.floor(Math.random() * 1000000);
+
+  const { error } = await supabase.from("users").insert([
+    {
+      phone,
+      email,
+      password,
+      referral_code,
+      referred_by: referral || null,
+      balance: 0,
+      total_earnings: 0
+    }
+  ]);
+
+  if (error) return res.json({ success: false, message: error.message });
+
+  res.json({ success: true, message: "Account created" });
+});
+
+// LOGIN
+app.post("/auth/login", async (req, res) => {
+  const { phone, password } = req.body;
+
+  const { data: user } = await supabase
+    .from("users")
+    .select("*")
+    .eq("phone", phone)
+    .single();
+
+  if (!user) return res.json({ success: false, message: "User not found" });
+
+  if (user.password !== password)
+    return res.json({ success: false, message: "Wrong password" });
+
+  res.json({ success: true, user });
+});
+
+// ================= INVEST =================
+
+app.post("/invest", async (req, res) => {
+  const { userId, city, cost } = req.body;
+
+  const { data: user } = await supabase
+    .from("users")
+    .select("*")
+    .eq("id", userId)
+    .single();
+
+  if (user.balance < cost)
+    return res.json({ success: false, message: "Insufficient balance" });
+
+  await supabase.from("investments").insert([
+    {
+      user_id: userId,
+      city,
+      cost,
+      created_at: new Date()
+    }
+  ]);
+
+  await supabase
+    .from("users")
+    .update({ balance: user.balance - cost })
+    .eq("id", userId);
+
+  res.json({ success: true, message: "Investment successful" });
+});
+
+// ================= TASK =================
+
+const cityLimits = {
+  "CITY A": 1,
+  "CITY B": 2,
+  "CITY C": 4,
+  "CITY D": 8,
+  "CITY E": 10
 };
 
-// --- ROUTES ---
-app.get('/', (req, res) => res.redirect('/login'));
-app.get('/login', (req, res) => res.render('login'));
-app.get('/logout', (req, res) => {
-    req.session.destroy();
-    res.redirect('/login');
+app.post("/task", async (req, res) => {
+  const { userId } = req.body;
+
+  const { data: investments } = await supabase
+    .from("investments")
+    .select("*")
+    .eq("user_id", userId);
+
+  if (!investments.length)
+    return res.json({ success: false, message: "No city invested" });
+
+  let totalLimit = 0;
+  investments.forEach(i => totalLimit += cityLimits[i.city]);
+
+  const { data: todayTasks } = await supabase
+    .from("tasks")
+    .select("*")
+    .eq("user_id", userId);
+
+  if (todayTasks.length >= totalLimit)
+    return res.json({ success: false, message: "Task limit reached" });
+
+  await supabase.from("tasks").insert([{ user_id: userId }]);
+
+  const { data: user } = await supabase
+    .from("users")
+    .select("*")
+    .eq("id", userId)
+    .single();
+
+  await supabase
+    .from("users")
+    .update({
+      balance: user.balance + 50,
+      total_earnings: user.total_earnings + 50
+    })
+    .eq("id", userId);
+
+  res.json({ success: true, message: "Task completed +50 Ksh" });
 });
 
-app.post('/login', async (req, res) => {
-    const { phone, password } = req.body;
-    const { data: user } = await supabase.from('users').select('*').eq('phone', phone).eq('password', password).single();
-    if (user) { 
-        req.session.user_id = user.id; 
-        res.redirect('/dashboard'); 
-    } else { res.send("Invalid details."); }
+// ================= DEPOSIT =================
+
+app.post("/deposit", async (req, res) => {
+  const { userId, amount, evidence } = req.body;
+
+  if (amount < 300)
+    return res.json({ success: false, message: "Min deposit 300" });
+
+  await supabase.from("transactions").insert([
+    {
+      user_id: userId,
+      amount,
+      evidence,
+      status: "pending"
+    }
+  ]);
+
+  res.json({ success: true, message: "Pending admin approval" });
 });
 
-app.get('/dashboard', async (req, res) => {
-    const user_id = req.session.user_id;
-    if (!user_id) return res.redirect('/login');
-    const { data: user } = await supabase.from('users').select('*').eq('id', user_id).single();
-    const { data: userCities } = await supabase.from('user_cities').select('*').eq('user_id', user_id);
-    res.render('index', { user, userCities: userCities || [] });
+// ================= WITHDRAW =================
+
+app.post("/withdraw", async (req, res) => {
+  const { userId, amount } = req.body;
+
+  if (amount < 500)
+    return res.json({ success: false, message: "Min withdraw 500" });
+
+  const { data: user } = await supabase
+    .from("users")
+    .select("*")
+    .eq("id", userId)
+    .single();
+
+  if (user.balance < amount)
+    return res.json({ success: false, message: "Insufficient balance" });
+
+  await supabase
+    .from("users")
+    .update({ balance: user.balance - amount })
+    .eq("id", userId);
+
+  await supabase.from("transactions").insert([
+    {
+      user_id: userId,
+      amount,
+      type: "withdraw",
+      status: "pending"
+    }
+  ]);
+
+  res.json({ success: true, message: "Withdrawal requested" });
 });
 
-app.post('/invest', async (req, res) => {
-    const { city_name, user_id } = req.body;
-    const cityData = CITIES[city_name];
-    const { data: user } = await supabase.from('users').select('balance').eq('id', user_id).single();
-    if (user.balance < cityData.cost) return res.json({ success: false, message: "Inadequate balance" });
+// ================= ADMIN =================
 
-    await supabase.from('users').update({ balance: user.balance - cityData.cost }).eq('id', user_id);
-    await supabase.from('user_cities').insert([{ user_id: parseInt(user_id), city_name, daily_income: cityData.daily, max_tasks: cityData.tasks }]);
-    res.json({ success: true, message: "Joined successfully!" });
+app.post("/admin/approve", async (req, res) => {
+  const { id } = req.body;
+
+  const { data: tx } = await supabase
+    .from("transactions")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  await supabase.rpc("increment_balance", {
+    user_id: tx.user_id,
+    amount_to_add: tx.amount
+  });
+
+  await supabase
+    .from("transactions")
+    .update({ status: "approved" })
+    .eq("id", id);
+
+  res.json({ success: true });
 });
 
-app.post('/claim_task', async (req, res) => {
-    const { user_id } = req.body;
-    const reward = 50;
-    const { data: user } = await supabase.from('users').select('*').eq('id', user_id).single();
-    await supabase.from('users').update({
-        balance: (user.balance || 0) + reward,
-        todays_income: (user.todays_income || 0) + reward,
-        total_income: (user.total_income || 0) + reward
-    }).eq('id', user_id);
-    res.json({ success: true, message: "Task complete! Ksh 50 added to today's income." });
-});
+// ================= START =================
 
-app.post('/withdraw', async (req, res) => {
-    const { amount, user_id } = req.body;
-    const { data: user } = await supabase.from('users').select('balance').eq('id', user_id).single();
-    if (user.balance < amount) return res.json({ success: false, message: "Insufficient balance" });
-    await supabase.from('users').update({ balance: user.balance - amount }).eq('id', user_id);
-    await supabase.from('transactions').insert([{ user_id, amount, type: 'withdrawal', status: 'pending' }]);
-    res.json({ success: true, message: "Withdrawal request sent!" });
-});
-
-app.listen(3000, () => console.log("Server Live on 3000"));
+app.listen(3000, () => console.log("Server running"));
