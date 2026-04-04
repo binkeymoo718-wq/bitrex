@@ -3,26 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BITREX | Trade with Transparency</title>
+    <title>BITREX | Dashboard</title>
     <style>
         :root { --primary-blue: #2b7fff; --bg: #f0f4f7; }
         body { font-family: sans-serif; background: var(--bg); margin: 0; padding-bottom: 80px; }
-        .hidden { display: none !important; } /* Fix: Modal will not show on login */
+        .hidden { display: none !important; }
         
-        /* Header */
         .header { background: var(--primary-blue); color: white; padding: 40px 20px 70px; text-align: center; border-radius: 0 0 35px 35px; position: relative; }
         .balance-box { font-size: 40px; font-weight: 800; margin: 10px 0; }
         
-        /* Action Buttons */
         .action-container { display: flex; gap: 10px; margin: -40px 15px 20px; position: relative; z-index: 10; }
         .action-btn { background: white; flex: 1; padding: 15px; border-radius: 15px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); cursor: pointer; }
-        .action-btn span { font-size: 11px; font-weight: bold; color: #444; }
 
-        /* Job Card */
-        .job-title-bar { background: #c5ff8c; padding: 15px; text-align: center; font-weight: bold; border-radius: 15px 15px 0 0; }
         .job-card { background: white; margin: 10px; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-
-        /* Modals */
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; display: flex; align-items: center; justify-content: center; }
         
         .nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; padding: 10px 0; border-top: 1px solid #eee; }
@@ -49,75 +42,56 @@
     </div>
 
     <div id="home-sec">
-        <div style="margin: 15px; font-weight: bold;">My Active Cities</div>
+        <div style="margin: 15px; font-weight: bold;">Active City</div>
         <div class="job-card">
             <% if (userCities.length > 0) { %>
                 <% userCities.forEach(city => { %>
-                    <div style="padding: 10px 0; border-bottom: 1px solid #eee;">🏙️ <b><%= city.city_name %></b> - Active</div>
+                    <div style="padding: 10px 0;">🏙️ <b><%= city.city_name %></b> - Active</div>
                 <% }); %>
             <% } else { %>
-                <p style="text-align: center; color: #999;">Join a city in the "City" tab to see it here.</p>
+                <p style="text-align: center; color: #999;">No cities joined.</p>
             <% } %>
         </div>
     </div>
 
     <div id="task-sec" class="hidden">
-        <div class="job-title-bar">List of jobs</div>
-        <% const jobs = ["AQ Smart Blood Glucose Meter", "Manicure Set", "women's perfume", "Mini massage gun", "2.5L Vacuum Flask", "Electric blender", "Modern soldering gun", "Smart phones", "HD Camera", "Laptops", "Air Fryer", "Smart Watch"]; %>
-        <% jobs.forEach(job => { %>
-            <div class="job-card">
-                <div style="display: flex; justify-content: space-between;">
-                    <div>
-                        <h4 style="margin: 0; color: #1a3c61;"><%= job %></h4>
-                        <p style="font-size: 11px; color: #888;">Work available after midnight.</p>
-                    </div>
-                </div>
-                <div style="border-top: 1px dashed #ddd; margin-top: 10px; padding-top: 10px; font-size: 12px;">Payment: 50.00 KSh</div>
-                <button onclick="doTask()" style="background:black; color:white; width:100%; padding:10px; border-radius:5px; margin-top:10px; border:none; cursor:pointer;">Start working</button>
-            </div>
-        <% }); %>
-    </div>
-
-    <div id="city-sec" class="hidden">
-        <div style="margin: 15px; font-weight: bold;">Investment Packages</div>
-        <% const cityData = [{n:'CITY A', c:1500, d:50}, {n:'CITY B', c:3200, d:100}, {n:'CITY C', c:7200, d:200}, {n:'CITY D', c:12000, d:400}, {n:'CITY E', c:15000, d:500}]; %>
-        <% cityData.forEach(c => { %>
-            <div class="job-card" style="display:flex; justify-content:space-between; align-items:center;">
-                <div><b><%= c.n %></b><br><small>Cost: Ksh <%= c.c %> | Daily: Ksh <%= c.d %></small></div>
-                <button onclick="joinCity('<%= c.n %>')" style="background:var(--primary-blue); color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer;">Join</button>
-            </div>
-        <% }); %>
-    </div>
-
-    <div id="menu-sec" class="hidden">
         <div class="job-card">
-            <p><b>Phone:</b> <%= user.phone %></p>
-            <p><b>Referral:</b> <%= user.referral_code %></p>
-            <button onclick="location.href='/logout'" style="background:#ff4d4d; color:white; width:100%; padding:10px; border:none; border-radius:5px; cursor:pointer;">Log Out</button>
+            <h4>Daily Job List</h4>
+            <p>Click below to complete your daily work.</p>
+            <button onclick="doTask()" style="background:black; color:white; width:100%; padding:12px; border-radius:5px; border:none;">Start working</button>
+        </div>
+    </div>
+
+    <div id="withdraw-modal" class="overlay hidden">
+        <div style="background:white; padding:20px; border-radius:15px; width:85%; max-width:400px;">
+            <h3>Withdraw</h3>
+            <p>Min Withdrawal: Ksh 500</p>
+            <input type="number" id="wit-amt" placeholder="Amount" style="width:100%; padding:10px; margin-bottom:10px; box-sizing:border-box;">
+            <button onclick="submitWit()" style="background:var(--primary-blue); color:white; width:100%; padding:12px; border:none; border-radius:8px;">Withdraw Now</button>
+            <button onclick="toggleModal('withdraw', false)" style="width:100%; padding:10px; border:none; background:none; margin-top:10px;">Cancel</button>
         </div>
     </div>
 
     <div id="deposit-modal" class="overlay hidden">
         <div style="background:white; padding:20px; border-radius:15px; width:85%; max-width:400px;">
             <h3>Top-up</h3>
-            <p>Send to M-PESA: <b>0733319700</b></p>
-            <input type="number" id="amt" placeholder="Amount" style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:5px;">
-            <input type="text" id="code" placeholder="M-PESA Transaction Code" style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:5px;">
-            <button onclick="alert('Submitted for review')" style="background:var(--primary-blue); color:white; width:100%; padding:12px; border:none; border-radius:8px;">Submit</button>
-            <button onclick="toggleModal('deposit', false)" style="width:100%; padding:10px; border:none; background:none; margin-top:10px; color:#666;">Close</button>
+            <p>Send to: 0733319700</p>
+            <input type="number" id="dep-amt" placeholder="Amount" style="width:100%; padding:10px; margin-bottom:10px; box-sizing:border-box;">
+            <input type="text" id="dep-code" placeholder="M-PESA Code" style="width:100%; padding:10px; margin-bottom:10px; box-sizing:border-box;">
+            <button onclick="alert('Submitted')" style="background:var(--primary-blue); color:white; width:100%; padding:12px; border:none; border-radius:8px;">Submit</button>
+            <button onclick="toggleModal('deposit', false)" style="width:100%; padding:10px; border:none; background:none; margin-top:10px;">Close</button>
         </div>
     </div>
 
     <div class="nav">
         <div class="nav-item active" onclick="showSec('home', this)">🏠<br>Home</div>
         <div class="nav-item" onclick="showSec('task', this)">⚡<br>Task</div>
-        <div class="nav-item" onclick="showSec('city', this)">🏙️<br>City</div>
         <div class="nav-item" onclick="showSec('menu', this)">👤<br>Menu</div>
     </div>
 
     <script>
         function showSec(id, el) {
-            ['home', 'task', 'city', 'menu'].forEach(s => document.getElementById(s + '-sec').classList.add('hidden'));
+            ['home', 'task', 'menu'].forEach(s => document.getElementById(s + '-sec').classList.add('hidden'));
             document.getElementById(id + '-sec').classList.remove('hidden');
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             el.classList.add('active');
@@ -129,16 +103,19 @@
             else modal.classList.add('hidden');
         }
 
-        async function joinCity(name) {
-            if(!confirm("Join " + name + "?")) return;
-            const res = await fetch('/invest', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ city_name: name, user_id: '<%= user.id %>' }) });
+        async function doTask() {
+            const res = await fetch('/claim_task', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ user_id: '<%= user.id %>' }) });
             const data = await res.json();
             alert(data.message);
             if(data.success) location.reload();
         }
 
-        function doTask() {
-            alert("Work in progress. Income will be added after midnight.");
+        async function submitWit() {
+            const amount = document.getElementById('wit-amt').value;
+            const res = await fetch('/withdraw', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ amount, user_id: '<%= user.id %>' }) });
+            const data = await res.json();
+            alert(data.message);
+            if(data.success) location.reload();
         }
     </script>
 </body>
