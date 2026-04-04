@@ -2,72 +2,91 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BITREX</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BITREX Dashboard</title>
     <style>
-        :root { --blue: #3B82F6; --bg: #F0F4F8; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; padding-bottom: 80px; }
-        
-        /* Header & Balance */
-        .header { background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%); color: white; padding: 20px 20px 50px; border-radius: 0 0 40px 40px; text-align: center; position: relative; }
-        .top-id { position: absolute; top: 15px; right: 20px; font-size: 0.8rem; font-weight: bold; }
-        .balance-title { font-size: 0.9rem; opacity: 0.8; margin-top: 20px; }
-        .balance-amt { font-size: 2.5rem; font-weight: 800; margin: 10px 0; }
-        
-        /* Income Box */
-        .income-box { background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); border-radius: 20px; display: grid; grid-template-columns: 1fr 1fr 1fr; padding: 15px; margin-top: 20px; }
-        .income-item div:first-child { font-size: 0.65rem; margin-bottom: 5px; }
-        .income-item div:last-child { font-weight: 700; font-size: 1rem; }
-
-        /* Actions */
-        .action-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; padding: 0 20px; margin-top: -30px; }
-        .action-card { background: white; padding: 20px 10px; border-radius: 20px; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
-
-        /* City List */
-        .section-title { padding: 25px 20px 10px; font-weight: 800; color: #1E293B; }
-        .city-card { background: white; margin: 0 20px 12px; padding: 15px; border-radius: 20px; display: flex; align-items: center; justify-content: space-between; }
-        
-        /* Nav */
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; border-top: 1px solid #E2E8F0; padding: 10px 0; }
-        .nav-item { flex: 1; text-align: center; font-size: 0.7rem; color: #64748B; cursor: pointer; }
-        .nav-item.active { color: var(--blue); font-weight: 800; }
+        body { font-family: sans-serif; background: #f4f7f6; margin: 0; padding-bottom: 70px; }
+        .header { background: #1a73e8; color: white; padding: 20px; text-align: center; position: relative; }
+        .user-id { position: absolute; top: 10px; right: 10px; font-size: 12px; }
+        .card { background: white; margin: 15px; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .btn-deposit { background: #34a853; color: white; }
+        .btn-withdraw { background: #ea4335; color: white; }
+        .nav-bar { position: fixed; bottom: 0; width: 100%; background: white; display: flex; border-top: 1px solid #ddd; }
+        .nav-item { flex: 1; text-align: center; padding: 15px; font-size: 12px; color: #555; cursor: pointer; }
+        .nav-item.active { color: #1a73e8; font-weight: bold; }
         .hidden { display: none; }
     </style>
 </head>
 <body>
 
-<div id="home-sec">
-    <div class="header">
-        <div class="top-id"><%= user.phone %></div>
-        <div class="balance-title">Account balance</div>
-        <div class="balance-amt"><%= user.balance %></div>
-        <div class="income-box">
-            <div class="income-item"><div>Today</div><div><%= user.todays_income || 0 %></div></div>
-            <div class="income-item"><div>Month</div><div><%= user.monthly_income || 0 %></div></div>
-            <div class="income-item"><div>Total</div><div><%= user.total_income || 0 %></div></div>
-        </div>
+<div class="header">
+    <div class="user-id">ID: <%= user.phone %></div>
+    <h3>Balance Overview</h3>
+    <h1 id="balance-display">Ksh <%= user.balance %></h1>
+    <div style="display: flex; justify-content: space-around; font-size: 14px;">
+        <div>Today: <%= user.todays_income || 0 %></div>
+        <div>Total: <%= user.total_income || 0 %></div>
     </div>
-
-    <div class="action-grid">
-        <div class="action-card" onclick="location.href='/topup'">Top-up</div>
-        <div class="action-card" onclick="location.href='/withdraw'">Withdraw</div>
-        <div class="action-card">Earnings</div>
-    </div>
-
-    <div class="section-title">My City</div>
-    <% userCities.forEach(city => { %>
-        <div class="city-card">
-            <div><b>🏙️ <%= city.city_name %></b><br><small>Daily: Ksh <%= city.daily_income %></small></div>
-            <div style="color: #10B981; font-weight: bold;">Completed</div>
-        </div>
-    <% }); %>
 </div>
 
-<nav class="bottom-nav">
-    <div class="nav-item active">🏠<br>Work</div>
-    <div class="nav-item" onclick="location.href='/tasks'">⚡<br>Finance</div>
-    <div class="nav-item" onclick="location.href='/menu'">👤<br>Homer</div>
-</nav>
+<div id="home-sec">
+    <div class="card">
+        <h4>Wallet Operations</h4>
+        <button class="btn btn-deposit" onclick="showDeposit()">Deposit (Min 300)</button>
+        <button class="btn btn-withdraw" onclick="showWithdraw()">Withdraw (Min 500)</button>
+    </div>
+
+    <div class="card">
+        <h4>Active Status</h4>
+        <% if (userCities.length > 0) { %>
+            <% userCities.forEach(city => { %>
+                <div style="border-bottom: 1px solid #eee; padding: 10px 0;">
+                    <b>🏙️ <%= city.city_name %></b> - Days Active: 0
+                </div>
+            <% }); %>
+        <% } else { %>
+            <p>No active investments.</p>
+        <% } %>
+    </div>
+</div>
+
+<div id="task-sec" class="hidden">
+    <div class="card">
+        <h4>Daily Tasks (<%= user.tasks_today || 0 %> Completed)</h4>
+        <div style="max-height: 400px; overflow-y: auto;">
+            <div onclick="doTask('2.5L Vacuum Flask')" style="padding: 15px; border-bottom: 1px solid #eee;">2.5L Vacuum Flask - Ksh 50</div>
+            <div onclick="doTask('Mini Massage Gun')" style="padding: 15px; border-bottom: 1px solid #eee;">Mini Massage Gun - Ksh 50</div>
+            <div onclick="doTask('Electric Blender')" style="padding: 15px; border-bottom: 1px solid #eee;">Electric Blender - Ksh 50</div>
+            </div>
+    </div>
+</div>
+
+<div class="nav-bar">
+    <div class="nav-item active" onclick="showSec('home')">Home</div>
+    <div class="nav-item" onclick="showSec('task')">Tasks</div>
+    <div class="nav-item" onclick="location.href='/cities'">Cities</div>
+    <div class="nav-item" onclick="location.href='/menu'">Menu</div>
+</div>
+
+<script>
+    function showSec(name) {
+        document.getElementById('home-sec').classList.add('hidden');
+        document.getElementById('task-sec').classList.add('hidden');
+        document.getElementById(name + '-sec').classList.remove('hidden');
+    }
+
+    async function doTask(item) {
+        const res = await fetch('/claim_task', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ user_id: '<%= user.id %>' })
+        });
+        const data = await res.json();
+        alert(data.message);
+        if(data.success) location.reload();
+    }
+</script>
 
 </body>
 </html>
