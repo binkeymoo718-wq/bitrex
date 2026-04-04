@@ -12,20 +12,29 @@ app.use(express.static('public'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// This prevents "Internal Server Error" by keeping you logged in
 app.use(session({
-    secret: 'bitrex_8822_secret',
+    secret: 'bitrex_final_secure_99',
     resave: false,
     saveUninitialized: true
 }));
 
-// --- ROUTES ---
+const CITIES = {
+    'CITY A': { cost: 1500, daily: 50, tasks: 1 },
+    'CITY B': { cost: 3200, daily: 100, tasks: 2 },
+    'CITY C': { cost: 7200, daily: 200, tasks: 4 },
+    'CITY D': { cost: 12000, daily: 400, tasks: 8 },
+    'CITY E': { cost: 15000, daily: 500, tasks: 10 }
+};
 
-// Fix: Root redirect
+// --- ROUTES ---
 app.get('/', (req, res) => res.redirect('/login'));
 
 app.get('/login', (req, res) => res.render('login'));
-app.get('/signup', (req, res) => res.render('signup'));
+
+app.get('/logout', (req, res) => {
+    req.session.destroy();
+    res.redirect('/login');
+});
 
 app.get('/dashboard', async (req, res) => {
     const user_id = req.session.user_id;
@@ -37,69 +46,80 @@ app.get('/dashboard', async (req, res) => {
     res.render('index', { user, userCities: userCities || [] });
 });
 
-// --- TASK LOGIC (Cumulative & Working) ---
-app.post('/claim_task', async (req, res) => {
-    const user_id = req.session.user_id;
-    if (!user_id) return res.json({ success: false, message: "Session expired." });
+// --- INVESTMENT LOGIC (Subtracts balance & joins) ---
+app.post('/invest', async (req, res) => {
+    const { city_name, user_id } = req.body;
+    const cityData = CITIES[city_name];
+    
+    const { data: user } = await supabase.from('users').select('balance').eq('id', user_id).single();
+    
+    if (!user || user.balance < cityData.cost) {
+        return res.json({ success: false, message: "Inadequate balance to join " + city_name });
+    }
 
+    // 1. Subtract cost & update balance
+    const newBalance = user.balance - cityData.cost;
+    await supabase.from('users').update({ balance: newBalance }).eq('id', user_id);
+    
+    // 2. Register city
+    await supabase.from('user_cities').insert([{ 
+        user_id: parseInt(user_id), 
+        city_name: city_name, 
+        daily_income: cityData.daily, 
+        max_tasks: cityData.tasks 
+    }]);
+
+    res.json({ success: true, message: "Joined successfully!" });
+});
+
+// --- TASK CLAIMING ---
+app.post('/claim_task', async (req, res) => {
+    const { user_id } = req.body;
     const { data: user } = await supabase.from('users').select('*').eq('id', user_id).single();
     const { data: cities } = await supabase.from('user_cities').select('*').eq('user_id', user_id);
 
-    if (!cities || cities.length === 0) return res.json({ success: false, message: "Join a city first!" });
+    if (!cities || cities.length === 0) return res.json({ success: false, message: "No active city!" });
 
     const totalMaxTasks = cities.reduce((sum, c) => sum + (c.max_tasks || 0), 0);
-    if (user.tasks_today >= totalMaxTasks) return res.json({ success: false, message: "Task limit reached!" });
+    if (user.tasks_today >= totalMaxTasks) return res.json({ success: false, message: "Number of task limit reached!" });
 
-    // Math fix: Ensure these are treated as numbers
     const reward = 50; 
-    const newBalance = Number(user.balance || 0) + reward;
-
     await supabase.from('users').update({
-        balance: newBalance,
-        todays_income: Number(user.todays_income || 0) + reward,
-        total_income: Number(user.total_income || 0) + reward,
+        balance: (user.balance || 0) + reward,
+        todays_income: (user.todays_income || 0) + reward,
+        total_income: (user.total_income || 0) + reward,
         tasks_today: (user.tasks_today || 0) + 1
     }).eq('id', user_id);
 
-    res.json({ success: true, message: `Ksh ${reward} added!` });
+    res.json({ success: true, message: "Task completed! Ksh 50 earned." });
 });
 
-// --- DEPOSIT & WITHDRAWAL ---
+// --- DEPOSIT/WITHDRAW ---
 app.post('/deposit', async (req, res) => {
-    const { amount, evidence } = req.body;
-    const user_id = req.session.user_id;
-    
-    await supabase.from('transactions').insert([{ 
-        user_id, amount: Number(amount), evidence, type: 'deposit', status: 'pending' 
-    }]);
-    res.json({ success: true, message: "Submitted to admin!" });
+    const { amount, evidence, user_id } = req.body;
+    if (amount < 300) return res.json({ success: false, message: "Min deposit Ksh 300" });
+    await supabase.from('transactions').insert([{ user_id, amount, evidence, type: 'deposit', status: 'pending' }]);
+    res.json({ success: true, message: "Deposit submitted for approval!" });
 });
 
 app.post('/withdraw', async (req, res) => {
-    const { amount } = req.body;
-    const user_id = req.session.user_id;
+    const { amount, user_id } = req.body;
     const { data: user } = await supabase.from('users').select('balance').eq('id', user_id).single();
 
-    if (Number(user.balance) < Number(amount)) return res.json({ success: false, message: "Insufficient funds" });
+    if (amount < 500) return res.json({ success: false, message: "Min withdrawal Ksh 500" });
+    if (user.balance < amount) return res.json({ success: false, message: "Insufficient balance" });
 
-    await supabase.from('users').update({ balance: Number(user.balance) - Number(amount) }).eq('id', user_id);
-    await supabase.from('transactions').insert([{ 
-        user_id, amount: Number(amount), type: 'withdrawal', status: 'pending' 
-    }]);
-    res.json({ success: true, message: "Withdrawal processing." });
+    await supabase.from('users').update({ balance: user.balance - amount }).eq('id', user_id);
+    await supabase.from('transactions').insert([{ user_id, amount, type: 'withdrawal', status: 'pending' }]);
+    res.json({ success: true, message: "Withdrawal request sent!" });
 });
 
-// --- AUTH LOGIC ---
+// --- AUTH ---
 app.post('/login', async (req, res) => {
     const { phone, password } = req.body;
     const { data: user } = await supabase.from('users').select('*').eq('phone', phone).eq('password', password).single();
-    if (user) {
-        req.session.user_id = user.id; // Save BIGINT ID to session
-        res.redirect('/dashboard');
-    } else {
-        res.send("Invalid details.");
-    }
+    if (user) { req.session.user_id = user.id; res.redirect('/dashboard'); }
+    else { res.send("Invalid credentials."); }
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`BITREX running on ${PORT}`));
+app.listen(3000, () => console.log("Server active on port 3000"));
