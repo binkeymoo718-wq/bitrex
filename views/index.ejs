@@ -1,145 +1,121 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BITREX | Trade with Transparency</title>
-    <style>
-        :root { --primary-blue: #2b7fff; --bg: #f0f4f7; }
-        body { font-family: sans-serif; background: var(--bg); margin: 0; padding-bottom: 80px; }
-        .hidden { display: none !important; } /* Fix: Modal will not show on login */
-        
-        /* Header */
-        .header { background: var(--primary-blue); color: white; padding: 40px 20px 70px; text-align: center; border-radius: 0 0 35px 35px; position: relative; }
-        .balance-box { font-size: 40px; font-weight: 800; margin: 10px 0; }
-        
-        /* Action Buttons */
-        .action-container { display: flex; gap: 10px; margin: -40px 15px 20px; position: relative; z-index: 10; }
-        .action-btn { background: white; flex: 1; padding: 15px; border-radius: 15px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); cursor: pointer; }
-        .action-btn span { font-size: 11px; font-weight: bold; color: #444; }
-
-        /* Job Card */
-        .job-title-bar { background: #c5ff8c; padding: 15px; text-align: center; font-weight: bold; border-radius: 15px 15px 0 0; }
-        .job-card { background: white; margin: 10px; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-
-        /* Modals */
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; display: flex; align-items: center; justify-content: center; }
-        
-        .nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; padding: 10px 0; border-top: 1px solid #eee; }
-        .nav-item { flex: 1; text-align: center; font-size: 11px; color: #888; cursor: pointer; }
-        .nav-item.active { color: var(--primary-blue); font-weight: bold; }
-    </style>
+<title>BITREX</title>
+<style>
+body { font-family: Arial; margin:0; background:#f5f5f5; }
+.header { padding:15px; background:#635BFF; color:white; display:flex; justify-content:space-between;}
+.card { margin:15px; padding:20px; background:white; border-radius:10px;}
+button { padding:10px; border:none; background:#635BFF; color:white; border-radius:5px;}
+.bottom { position:fixed; bottom:0; width:100%; background:white; display:flex; justify-content:space-around; padding:10px;}
+</style>
 </head>
+
 <body>
 
-    <div class="header">
-        <div style="font-size: 14px; opacity: 0.9;">Account balance</div>
-        <div class="balance-box">Ksh <%= user.balance %></div>
-        <div style="display: flex; justify-content: space-around; margin-top: 20px;">
-            <div><small>Today</small><br><b><%= user.todays_income || 0 %></b></div>
-            <div><small>Month</small><br><b><%= user.monthly_income || 0 %></b></div>
-            <div><small>Total</small><br><b><%= user.total_income || 0 %></b></div>
-        </div>
-    </div>
+<% if (!user) { %>
 
-    <div class="action-container">
-        <div class="action-btn" onclick="toggleModal('deposit', true)"><span>💳 Top-up</span></div>
-        <div class="action-btn" onclick="toggleModal('withdraw', true)"><span>📥 Withdraw</span></div>
-        <div class="action-btn" onclick="showSec('menu', this)"><span>👤 Profile</span></div>
-    </div>
+<div style="padding:40px;">
+<h2>BITREX</h2>
+<input id="phone" placeholder="Phone"><br><br>
+<input id="pass" type="password" placeholder="Password"><br><br>
+<button onclick="login()">Login</button>
+</div>
 
-    <div id="home-sec">
-        <div style="margin: 15px; font-weight: bold;">My Active Cities</div>
-        <div class="job-card">
-            <% if (userCities.length > 0) { %>
-                <% userCities.forEach(city => { %>
-                    <div style="padding: 10px 0; border-bottom: 1px solid #eee;">🏙️ <b><%= city.city_name %></b> - Active</div>
-                <% }); %>
-            <% } else { %>
-                <p style="text-align: center; color: #999;">Join a city in the "City" tab to see it here.</p>
-            <% } %>
-        </div>
-    </div>
+<% } else { %>
 
-    <div id="task-sec" class="hidden">
-        <div class="job-title-bar">List of jobs</div>
-        <% const jobs = ["AQ Smart Blood Glucose Meter", "Manicure Set", "women's perfume", "Mini massage gun", "2.5L Vacuum Flask", "Electric blender", "Modern soldering gun", "Smart phones", "HD Camera", "Laptops", "Air Fryer", "Smart Watch"]; %>
-        <% jobs.forEach(job => { %>
-            <div class="job-card">
-                <div style="display: flex; justify-content: space-between;">
-                    <div>
-                        <h4 style="margin: 0; color: #1a3c61;"><%= job %></h4>
-                        <p style="font-size: 11px; color: #888;">Work available after midnight.</p>
-                    </div>
-                </div>
-                <div style="border-top: 1px dashed #ddd; margin-top: 10px; padding-top: 10px; font-size: 12px;">Payment: 50.00 KSh</div>
-                <button onclick="doTask()" style="background:black; color:white; width:100%; padding:10px; border-radius:5px; margin-top:10px; border:none; cursor:pointer;">Start working</button>
-            </div>
-        <% }); %>
-    </div>
+<div class="header">
+<span>BITREX</span>
+<span><%= user.phone %></span>
+</div>
 
-    <div id="city-sec" class="hidden">
-        <div style="margin: 15px; font-weight: bold;">Investment Packages</div>
-        <% const cityData = [{n:'CITY A', c:1500, d:50}, {n:'CITY B', c:3200, d:100}, {n:'CITY C', c:7200, d:200}, {n:'CITY D', c:12000, d:400}, {n:'CITY E', c:15000, d:500}]; %>
-        <% cityData.forEach(c => { %>
-            <div class="job-card" style="display:flex; justify-content:space-between; align-items:center;">
-                <div><b><%= c.n %></b><br><small>Cost: Ksh <%= c.c %> | Daily: Ksh <%= c.d %></small></div>
-                <button onclick="joinCity('<%= c.n %>')" style="background:var(--primary-blue); color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer;">Join</button>
-            </div>
-        <% }); %>
-    </div>
+<div class="card">
+<h3>Balance: Ksh <%= user.balance %></h3>
+<button onclick="deposit()">Deposit</button>
+<button onclick="withdraw()">Withdraw</button>
+</div>
 
-    <div id="menu-sec" class="hidden">
-        <div class="job-card">
-            <p><b>Phone:</b> <%= user.phone %></p>
-            <p><b>Referral:</b> <%= user.referral_code %></p>
-            <button onclick="location.href='/logout'" style="background:#ff4d4d; color:white; width:100%; padding:10px; border:none; border-radius:5px; cursor:pointer;">Log Out</button>
-        </div>
-    </div>
+<div class="card">
+<h3>Invest</h3>
+<button onclick="invest('CITY A',1500)">CITY A</button>
+<button onclick="invest('CITY B',3200)">CITY B</button>
+<button onclick="invest('CITY C',7200)">CITY C</button>
+<button onclick="invest('CITY D',12000)">CITY D</button>
+<button onclick="invest('CITY E',15000)">CITY E</button>
+</div>
 
-    <div id="deposit-modal" class="overlay hidden">
-        <div style="background:white; padding:20px; border-radius:15px; width:85%; max-width:400px;">
-            <h3>Top-up</h3>
-            <p>Send to M-PESA: <b>0733319700</b></p>
-            <input type="number" id="amt" placeholder="Amount" style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:5px;">
-            <input type="text" id="code" placeholder="M-PESA Transaction Code" style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:5px;">
-            <button onclick="alert('Submitted for review')" style="background:var(--primary-blue); color:white; width:100%; padding:12px; border:none; border-radius:8px;">Submit</button>
-            <button onclick="toggleModal('deposit', false)" style="width:100%; padding:10px; border:none; background:none; margin-top:10px; color:#666;">Close</button>
-        </div>
-    </div>
+<div class="card">
+<h3>Tasks</h3>
+<button onclick="task()">Do Task (+50)</button>
+</div>
 
-    <div class="nav">
-        <div class="nav-item active" onclick="showSec('home', this)">🏠<br>Home</div>
-        <div class="nav-item" onclick="showSec('task', this)">⚡<br>Task</div>
-        <div class="nav-item" onclick="showSec('city', this)">🏙️<br>City</div>
-        <div class="nav-item" onclick="showSec('menu', this)">👤<br>Menu</div>
-    </div>
+<div class="bottom">
+<div>🏠</div>
+<div onclick="task()">⚡</div>
+<div>📊</div>
+<div>👤</div>
+</div>
 
-    <script>
-        function showSec(id, el) {
-            ['home', 'task', 'city', 'menu'].forEach(s => document.getElementById(s + '-sec').classList.add('hidden'));
-            document.getElementById(id + '-sec').classList.remove('hidden');
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            el.classList.add('active');
-        }
+<% } %>
 
-        function toggleModal(type, show) {
-            const modal = document.getElementById(type + '-modal');
-            if (show) modal.classList.remove('hidden');
-            else modal.classList.add('hidden');
-        }
+<script>
+let userId = localStorage.getItem("userId");
 
-        async function joinCity(name) {
-            if(!confirm("Join " + name + "?")) return;
-            const res = await fetch('/invest', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ city_name: name, user_id: '<%= user.id %>' }) });
-            const data = await res.json();
-            alert(data.message);
-            if(data.success) location.reload();
-        }
+async function login(){
+ const res = await fetch('/auth/login',{
+  method:'POST',
+  headers:{'Content-Type':'application/json'},
+  body:JSON.stringify({
+   phone:document.getElementById('phone').value,
+   password:document.getElementById('pass').value
+  })
+ });
+ const data = await res.json();
+ if(data.success){
+  localStorage.setItem("userId", data.user.id);
+  location.reload();
+ } else alert(data.message);
+}
 
-        function doTask() {
-            alert("Work in progress. Income will be added after midnight.");
-        }
-    </script>
+async function invest(city,cost){
+ await fetch('/invest',{
+  method:'POST',
+  headers:{'Content-Type':'application/json'},
+  body:JSON.stringify({userId, city, cost})
+ });
+ alert("Invested");
+}
+
+async function task(){
+ const res = await fetch('/task',{
+  method:'POST',
+  headers:{'Content-Type':'application/json'},
+  body:JSON.stringify({userId})
+ });
+ const data = await res.json();
+ alert(data.message);
+}
+
+async function deposit(){
+ const amount = prompt("Enter amount");
+ await fetch('/deposit',{
+  method:'POST',
+  headers:{'Content-Type':'application/json'},
+  body:JSON.stringify({userId, amount, evidence:"mpesa"})
+ });
+ alert("Submitted");
+}
+
+async function withdraw(){
+ const amount = prompt("Enter amount");
+ await fetch('/withdraw',{
+  method:'POST',
+  headers:{'Content-Type':'application/json'},
+  body:JSON.stringify({userId, amount})
+ });
+ alert("Requested");
+}
+</script>
+
 </body>
 </html>
