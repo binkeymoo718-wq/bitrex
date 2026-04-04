@@ -3,118 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BITREX | Trade with Transparency</title>
+    <title>BITREX | Dashboard</title>
     <style>
-        :root { --primary-blue: #2b7fff; --bg-gray: #f0f4f7; --card-white: #ffffff; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg-gray); margin: 0; padding-bottom: 80px; color: #333; }
+        :root { --primary-blue: #2b7fff; --bg: #f0f4f7; }
+        body { font-family: sans-serif; background: var(--bg); margin: 0; padding-bottom: 80px; }
         
-        /* Header & Balance Section */
-        .blue-header { background: var(--primary-blue); color: white; padding: 40px 20px 80px 20px; text-align: center; border-radius: 0 0 40px 40px; position: relative; }
-        .user-id { position: absolute; top: 15px; right: 20px; font-weight: bold; font-size: 14px; }
-        .balance-label { font-size: 14px; opacity: 0.9; }
-        .balance-amount { font-size: 36px; font-weight: 800; margin: 10px 0; }
+        /* Dashboard Header */
+        .header { background: var(--primary-blue); color: white; padding: 40px 20px 70px; text-align: center; border-radius: 0 0 35px 35px; position: relative; }
+        .user-phone { position: absolute; top: 15px; right: 20px; font-size: 14px; font-weight: bold; }
+        .balance-box { font-size: 40px; font-weight: 800; margin: 10px 0; }
         
-        /* Stats Bar */
-        .stats-container { display: flex; justify-content: space-around; background: rgba(255,255,255,0.1); padding: 15px; border-radius: 15px; margin-top: 20px; }
-        .stat-item div:first-child { font-size: 12px; opacity: 0.8; }
-        .stat-item div:last-child { font-size: 16px; font-weight: bold; }
+        .stats-row { display: flex; justify-content: space-around; background: rgba(255,255,255,0.15); padding: 15px; border-radius: 15px; margin-top: 20px; }
+        .stat-box div:first-child { font-size: 11px; opacity: 0.8; }
+        .stat-box div:last-child { font-size: 16px; font-weight: bold; }
 
-        /* Quick Actions */
-        .action-row { display: flex; gap: 10px; margin: -50px 15px 20px 15px; }
-        .action-card { background: white; flex: 1; padding: 15px; border-radius: 15px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.08); cursor: pointer; }
-        .action-card img { width: 30px; margin-bottom: 5px; }
-        .action-card span { display: block; font-size: 11px; font-weight: bold; color: #555; }
+        /* Action Buttons */
+        .action-container { display: flex; gap: 10px; margin: -40px 15px 20px; }
+        .action-btn { background: white; flex: 1; padding: 15px; border-radius: 15px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); cursor: pointer; }
+        .action-btn span { font-size: 11px; font-weight: bold; color: #444; }
 
-        /* General UI Components */
-        .section-title { margin: 15px; font-size: 18px; font-weight: bold; color: #1a3c61; }
-        .card { background: white; margin: 10px 15px; padding: 15px; border-radius: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        /* Sections */
+        .card { background: white; margin: 10px 15px; padding: 15px; border-radius: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .hidden { display: none; }
-        .btn { border: none; border-radius: 10px; padding: 12px; font-weight: bold; width: 100%; cursor: pointer; transition: 0.3s; }
+        .btn { border: none; border-radius: 10px; padding: 12px; width: 100%; cursor: pointer; font-weight: bold; }
+        
+        /* Job List UI */
+        .job-title-bar { background: #c5ff8c; padding: 15px; text-align: center; font-weight: bold; border-radius: 15px 15px 0 0; }
+        .job-card { border-bottom: 1px dashed #eee; padding: 15px 0; }
+        .job-card h4 { margin: 0 0 5px; color: #1a3c61; }
+        .job-card p { font-size: 11px; color: #888; margin: 0; }
 
-        /* Task List UI */
-        .task-header { background: #c5ff8c; padding: 15px; text-align: center; font-weight: bold; border-radius: 20px 20px 0 0; }
-        .task-item { border-bottom: 1px dashed #eee; padding: 15px 0; display: flex; justify-content: space-between; align-items: center; }
-        .task-info h4 { margin: 0 0 5px 0; color: #1a3c61; font-size: 15px; }
-        .task-info p { margin: 0; font-size: 11px; color: #888; }
-        .task-reward { font-size: 12px; color: #666; margin: 10px 0; }
+        /* Modal Overlay */
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; display: flex; align-items: center; justify-content: center; }
 
         /* Bottom Nav */
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; border-top: 1px solid #eee; padding: 10px 0; }
+        .nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; padding: 10px 0; border-top: 1px solid #eee; }
         .nav-item { flex: 1; text-align: center; font-size: 11px; color: #888; cursor: pointer; }
         .nav-item.active { color: var(--primary-blue); font-weight: bold; }
-        .nav-item i { display: block; font-size: 20px; margin-bottom: 3px; }
     </style>
 </head>
 <body>
 
-    <div class="blue-header">
-        <div class="user-id">ID: <%= user.phone %></div>
-        <div class="balance-label">Account balance</div>
-        <div class="balance-amount">Ksh <%= user.balance %></div>
+    <div class="header">
+        <div class="user-phone"><%= user.phone %></div>
+        <div style="font-size: 14px; opacity: 0.9;">Account balance</div>
+        <div class="balance-box"><%= user.balance %></div>
         
-        <div class="stats-container">
-            <div class="stat-item"><div>Today's income</div><div><%= user.todays_income || 0 %></div></div>
-            <div class="stat-item"><div>This month's</div><div><%= user.monthly_income || 0 %></div></div>
-            <div class="stat-item"><div>Total income</div><div><%= user.total_income || 0 %></div></div>
+        <div class="stats-row">
+            <div class="stat-box"><div>Today</div><div><%= user.todays_income || 0 %></div></div>
+            <div class="stat-box"><div>Month</div><div><%= user.monthly_income || 0 %></div></div>
+            <div class="stat-box"><div>Total</div><div><%= user.total_income || 0 %></div></div>
         </div>
     </div>
 
-    <div class="action-row">
-        <div class="action-card" onclick="showModal('deposit')">
-            <span>💳 Account top-up</span>
-        </div>
-        <div class="action-card" onclick="showModal('withdraw')">
-            <span>📥 Withdrawal</span>
-        </div>
-        <div class="action-card" onclick="showSec('menu', document.getElementById('nav-menu'))">
-            <span>📊 Earnings</span>
-        </div>
+    <div class="action-container">
+        <div class="action-btn" onclick="openModal('deposit')"><span>💳 Top-up</span></div>
+        <div class="action-btn" onclick="openModal('withdraw')"><span>📥 Withdraw</span></div>
+        <div class="action-btn" onclick="showSec('menu', this)"><span>👤 Profile</span></div>
     </div>
 
     <div id="home-sec">
-        <div class="section-title">Active Status</div>
+        <div style="margin: 15px; font-weight: bold;">My Active Cities</div>
         <div class="card">
-            <% if (userCities && userCities.length > 0) { %>
+            <% if (userCities.length > 0) { %>
                 <% userCities.forEach(city => { %>
-                    <div style="display: flex; align-items: center; gap: 15px; padding: 10px 0;">
-                        <span style="font-size: 30px;">🏙️</span>
-                        <div>
-                            <div style="font-weight: bold;"><%= city.city_name %></div>
-                            <div style="font-size: 12px; color: #888;">Days worked: 0</div>
-                        </div>
-                    </div>
+                    <div style="padding: 10px 0; border-bottom: 1px solid #eee;">🏙️ <b><%= city.city_name %></b> - Active</div>
                 <% }); %>
             <% } else { %>
-                <p style="text-align: center; color: #888;">No active city investments. Visit 'City' to join.</p>
+                <p style="text-align: center; color: #999;">Join a city to start earning.</p>
             <% } %>
         </div>
     </div>
 
     <div id="task-sec" class="hidden">
-        <div class="card" style="padding: 0; overflow: hidden;">
-            <div class="task-header">List of jobs</div>
+        <div class="card" style="padding: 0;">
+            <div class="job-title-bar">List of jobs</div>
             <div style="padding: 15px;">
-                <% 
-                const tasks = [
-                    "AQ Smart Blood Glucose Meter", "Manicure Set", "women's perfume", "Mini massage gun",
-                    "2.5L Vacuum Flask", "Electric blender", "Modern soldering gun", "Television set",
-                    "Electric meter", "Smart phones", "HD Camera High pixel", "Iron sheets",
-                    "Plumbing tools", "Furniture", "Wi-Fi systems", "Laptops", "Textiles",
-                    "Paints", "Cosmetics", "Electrical tools", "Shoes", "Gas cookers",
-                    "Electric heater", "Air Fryer (4L or 5L)", "Electric Pressure Cooker",
-                    "Microwave Oven", "Non-stick Cookware Set", "Water Dispenser", "Rechargeable Juicer",
-                    "Electric Kettle", "Subwoofer System", "Android TV Box", "Bluetooth Speaker",
-                    "Gaming Console", "Smart Watch (Series 8/9)", "Wireless Earbuds", "Solar Lighting"
-                ]; 
-                %>
-                <% tasks.forEach(task => { %>
-                    <div class="task-item">
-                        <div class="task-info">
-                            <h4><%= task %></h4>
-                            <p>You can start working every day after midnight.</p>
-                            <div class="task-reward">Automatic payment upon completion: 50.00 KSh</div>
-                            <button class="btn" style="background: black; color: white;" onclick="claimTask('<%= task %>')">Start working</button>
-                        </div>
+                <% const jobs = ["AQ Smart Blood Glucose Meter", "Manicure Set", "women's perfume", "Mini massage gun", "2.5L Vacuum Flask", "Electric blender", "Modern soldering gun", "Television set", "Electric meter", "Smart phones", "HD Camera", "Iron sheets", "Plumbing tools", "Furniture", "Wi-Fi systems", "Laptops", "Textiles", "Paints", "Cosmetics", "Electrical tools", "Shoes", "Gas cookers", "Electric heater", "Air Fryer", "Pressure Cooker", "Microwave Oven", "Non-stick Cookware", "Water Dispenser", "Juicer Cup", "Electric Kettle", "Subwoofer", "Android TV Box", "Bluetooth Speaker", "Gaming Console", "Smart Watch", "Wireless Earbuds", "Solar Lighting"]; %>
+                <% jobs.forEach(job => { %>
+                    <div class="job-card">
+                        <h4><%= job %></h4>
+                        <p>Start working after midnight. Reward: Ksh 50</p>
+                        <button class="btn" style="background: black; color: white; margin-top: 10px;" onclick="doTask()">Start working</button>
                     </div>
                 <% }); %>
             </div>
@@ -122,45 +92,40 @@
     </div>
 
     <div id="city-sec" class="hidden">
-        <div class="section-title">City Investments</div>
-        <% const cities = [
-            {n:'CITY A', c:1500, d:50, t:1}, {n:'CITY B', c:3200, d:100, t:2},
-            {n:'CITY C', c:7200, d:200, t:4}, {n:'CITY D', c:12000, d:400, t:8},
-            {n:'CITY E', c:15000, d:500, t:10}
-        ]; %>
-        <% cities.forEach(c => { %>
-            <div class="card">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <div style="font-weight: bold; font-size: 18px;"><%= c.n %></div>
-                        <div style="font-size: 13px; color: #666;">Investment: Ksh <%= c.c %></div>
-                        <div style="font-size: 13px; color: #34a853; font-weight: bold;">Daily: Ksh <%= c.d %> (<%= c.t %> Tasks)</div>
-                    </div>
-                    <button class="btn" style="width: 100px; background: var(--primary-blue); color: white;" onclick="buyCity('<%= c.n %>', <%= c.c %>)">Join</button>
-                </div>
+        <div style="margin: 15px; font-weight: bold;">Investment Packages</div>
+        <% const cityData = [{n:'CITY A', c:1500, d:50}, {n:'CITY B', c:3200, d:100}, {n:'CITY C', c:7200, d:200}, {n:'CITY D', c:12000, d:400}, {n:'CITY E', c:15000, d:500}]; %>
+        <% cityData.forEach(c => { %>
+            <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
+                <div><b><%= c.n %></b><br><small>Cost: Ksh <%= c.c %> | Daily: Ksh <%= c.d %></small></div>
+                <button class="btn" style="width: 80px; background: var(--primary-blue); color: white;" onclick="joinCity('<%= c.n %>')">Join</button>
             </div>
         <% }); %>
     </div>
 
     <div id="menu-sec" class="hidden">
-        <div class="section-title">Account Menu</div>
         <div class="card">
-            <div style="margin-bottom: 20px;">
-                <label style="font-size: 12px; color: #888;">Your Referral Code</label>
-                <div style="background: #f9f9f9; padding: 12px; border-radius: 10px; font-weight: bold; border: 1px dashed #ccc;">
-                    <%= user.referral_code %>
-                </div>
-            </div>
-            <button class="btn" style="background: #25d366; color: white; margin-bottom: 10px;" onclick="window.open('https://wa.me/254106305272')">Contact Manager</button>
-            <button class="btn" style="background: #eee; color: #333;" onclick="location.href='/logout'">Log Out</button>
+            <p><b>Referral Code:</b> <%= user.referral_code %></p>
+            <button class="btn" style="background: #25d366; color: white; margin-bottom: 10px;" onclick="window.open('https://wa.me/254106305272')">WhatsApp Manager</button>
+            <button class="btn" style="background: #eee;" onclick="location.href='/logout'">Log Out</button>
         </div>
     </div>
 
-    <div class="bottom-nav">
+    <div id="modal-overlay" class="overlay hidden">
+        <div class="card" id="deposit-box" class="hidden" style="width: 80%;">
+            <h3>Top-up</h3>
+            <p>Send to 0733319700</p>
+            <input type="number" id="dep-amt" placeholder="Amount" class="btn" style="border: 1px solid #ddd; margin-bottom: 10px;">
+            <input type="text" id="dep-ev" placeholder="M-PESA Code" class="btn" style="border: 1px solid #ddd; margin-bottom: 10px;">
+            <button class="btn" style="background: var(--primary-blue); color: white;" onclick="submitDep()">Submit</button>
+            <button class="btn" style="margin-top: 5px;" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+
+    <div class="nav">
         <div class="nav-item active" onclick="showSec('home', this)">🏠<br>Home</div>
-        <div id="nav-task" class="nav-item" onclick="showSec('task', this)">⚡<br>Task</div>
+        <div class="nav-item" onclick="showSec('task', this)">⚡<br>Task</div>
         <div class="nav-item" onclick="showSec('city', this)">🏙️<br>City</div>
-        <div id="nav-menu" class="nav-item" onclick="showSec('menu', this)">👤<br>Menu</div>
+        <div class="nav-item" onclick="showSec('menu', this)">👤<br>Menu</div>
     </div>
 
     <script>
@@ -169,27 +134,25 @@
             document.getElementById(id + '-sec').classList.remove('hidden');
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             el.classList.add('active');
-            window.scrollTo(0,0);
         }
 
-        async function claimTask(name) {
-            const res = await fetch('/claim_task', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ user_id: '<%= user.id %>' })
-            });
+        async function joinCity(name) {
+            if(!confirm("Join " + name + "?")) return;
+            const res = await fetch('/invest', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ city_name: name, user_id: '<%= user.id %>' }) });
             const data = await res.json();
             alert(data.message);
             if(data.success) location.reload();
         }
 
-        async function buyCity(name, cost) {
-            if(!confirm(`Invest in ${name} for Ksh ${cost}?`)) return;
-            const res = await fetch('/invest', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ city_name: name, user_id: '<%= user.id %>' })
-            });
+        function openModal(type) { 
+            document.getElementById('modal-overlay').classList.remove('hidden'); 
+        }
+        function closeModal() { 
+            document.getElementById('modal-overlay').classList.add('hidden'); 
+        }
+
+        async function doTask() {
+            const res = await fetch('/claim_task', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ user_id: '<%= user.id %>' }) });
             const data = await res.json();
             alert(data.message);
             if(data.success) location.reload();
