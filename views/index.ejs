@@ -1,36 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Dashboard</title>
+<style>
+body{font-family:sans-serif;background:#f2f2f2;padding:20px}
+.card{background:#fff;padding:15px;border-radius:10px;margin-bottom:10px}
+button{padding:10px;margin-top:10px;width:100%}
+</style>
+</head>
+
+<body>
+
+<h2>Balance: Ksh <%= user?.balance || 0 %></h2>
+
+<div class="card">
+Today: <%= user?.todays_income || 0 %><br>
+Month: <%= user?.monthly_income || 0 %><br>
+Total: <%= user?.total_income || 0 %>
+</div>
+
+<div class="card">
+<h3>Tasks</h3>
+<button onclick="doTask()">Do Task (+50)</button>
+</div>
+
+<div class="card">
+<h3>Invest</h3>
+<button onclick="joinCity('CITY A')">Join CITY A</button>
+<button onclick="joinCity('CITY B')">Join CITY B</button>
+</div>
+
+<div class="card">
+<h3>Deposit</h3>
+<input id="amt" placeholder="Amount"><br>
+<input id="code" placeholder="Code"><br>
+<button onclick="deposit()">Submit</button>
+</div>
+
+<div class="card">
+<h3>Withdraw</h3>
+<button onclick="withdraw()">Withdraw</button>
+</div>
+
+<br>
+<a href="/logout">Logout</a>
+
 <script>
-async function doTask() {
-    const res = await fetch('/claim_task', { method: 'POST' });
-    const data = await res.json();
-    alert(data.message);
-    if (data.success) location.reload();
+async function doTask(){
+let r=await fetch('/claim_task',{method:'POST'});
+let d=await r.json();alert(d.message);location.reload();
 }
 
-async function withdraw() {
-    const amount = prompt("Enter amount");
-    if (!amount) return;
-
-    const res = await fetch('/withdraw', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ amount })
-    });
-
-    const data = await res.json();
-    alert(data.message);
+async function joinCity(name){
+let r=await fetch('/invest',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({city_name:name})});
+let d=await r.json();alert(d.message);location.reload();
 }
 
-async function submitDeposit() {
-    const amount = document.getElementById('amt').value;
-    const code = document.getElementById('code').value;
+async function withdraw(){
+let amount=prompt("Amount");
+let r=await fetch('/withdraw',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount})});
+let d=await r.json();alert(d.message);
+}
 
-    const res = await fetch('/deposit', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ amount, code })
-    });
-
-    const data = await res.json();
-    alert(data.message);
+async function deposit(){
+let amount=document.getElementById('amt').value;
+let code=document.getElementById('code').value;
+let r=await fetch('/deposit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount,code})});
+let d=await r.json();alert(d.message);
 }
 </script>
+
+</body>
+</html>
