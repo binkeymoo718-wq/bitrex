@@ -38,7 +38,7 @@ app.get('/login', (req, res) => {
   res.render('login', { error: null });
 });
 
-// 🔐 LOGIN FIXED
+// LOGIN
 app.post('/login', async (req, res) => {
   const { phone, password } = req.body;
 
@@ -52,12 +52,11 @@ app.post('/login', async (req, res) => {
 
   let isMatch = false;
 
-  if (user.password.startsWith('$2b$')) {
+  if (user.password && user.password.startsWith('$2b$')) {
     isMatch = await bcrypt.compare(password, user.password);
   } else {
     isMatch = password === user.password;
 
-    // upgrade to hashed
     if (isMatch) {
       const hashed = await bcrypt.hash(password, 10);
       await supabase.from('users')
@@ -85,6 +84,7 @@ app.post('/register', async (req, res) => {
     password: hashed,
     balance: 0,
     todays_income: 0,
+    monthly_income: 0,
     total_income: 0
   }]);
 
@@ -93,12 +93,37 @@ app.post('/register', async (req, res) => {
 
 // DASHBOARD
 app.get('/dashboard', auth, async (req, res) => {
-  const user_id = req.session.user_id;
+  try {
+    const user_id = req.session.user_id;
 
-  const { data: user } = await supabase.from('users').select('*').eq('id', user_id).single();
-  const { data: userCities } = await supabase.from('user_cities').select('*').eq('user_id', user_id);
+    const { data: user } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', user_id)
+      .single();
 
-  res.render('index', { user, userCities: userCities || [] });
+    if (!user) return res.send("User not found");
+
+    // prevent null crash
+    user.balance = user.balance || 0;
+    user.todays_income = user.todays_income || 0;
+    user.monthly_income = user.monthly_income || 0;
+    user.total_income = user.total_income || 0;
+
+    const { data: userCities } = await supabase
+      .from('user_cities')
+      .select('*')
+      .eq('user_id', user_id);
+
+    res.render('index', {
+      user,
+      userCities: userCities || []
+    });
+
+  } catch (err) {
+    console.log(err);
+    res.send("Dashboard error");
+  }
 });
 
 // INVEST
@@ -109,7 +134,7 @@ app.post('/invest', auth, async (req, res) => {
   const city = CITIES[city_name];
   const { data: user } = await supabase.from('users').select('*').eq('id', user_id).single();
 
-  if (user.balance < city.cost) {
+  if (!user || user.balance < city.cost) {
     return res.json({ success: false, message: 'Insufficient balance' });
   }
 
@@ -125,7 +150,7 @@ app.post('/invest', auth, async (req, res) => {
     tasks_done: 0
   }]);
 
-  res.json({ success: true, message: 'Investment successful' });
+  res.json({ success: true, message: 'Joined successfully' });
 });
 
 // TASK
@@ -137,8 +162,8 @@ app.post('/claim_task', auth, async (req, res) => {
   let total = 0;
   let done = 0;
 
-  cities.forEach(c => {
-    total += c.max_tasks;
+  (cities || []).forEach(c => {
+    total += c.max_tasks || 0;
     done += c.tasks_done || 0;
   });
 
@@ -151,7 +176,7 @@ app.post('/claim_task', auth, async (req, res) => {
   const { data: user } = await supabase.from('users').select('*').eq('id', user_id).single();
 
   await supabase.from('users').update({
-    balance: user.balance + reward,
+    balance: (user.balance || 0) + reward,
     todays_income: (user.todays_income || 0) + reward,
     total_income: (user.total_income || 0) + reward
   }).eq('id', user_id);
@@ -170,7 +195,7 @@ app.post('/withdraw', auth, async (req, res) => {
 
   const { data: user } = await supabase.from('users').select('*').eq('id', user_id).single();
 
-  if (user.balance < amount) {
+  if (!user || user.balance < amount) {
     return res.json({ success: false, message: 'Insufficient balance' });
   }
 
