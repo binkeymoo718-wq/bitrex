@@ -1,31 +1,4 @@
 <script>
-function showSec(id, el) {
-    ['home', 'task', 'city', 'menu'].forEach(s => document.getElementById(s + '-sec').classList.add('hidden'));
-    document.getElementById(id + '-sec').classList.remove('hidden');
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    el.classList.add('active');
-}
-
-function toggleModal(type, show) {
-    const modal = document.getElementById(type + '-modal');
-    if (show) modal.classList.remove('hidden');
-    else modal.classList.add('hidden');
-}
-
-async function joinCity(name) {
-    if(!confirm("Join " + name + "?")) return;
-
-    const res = await fetch('/invest', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ city_name: name })
-    });
-
-    const data = await res.json();
-    alert(data.message);
-    if(data.success) location.reload();
-}
-
 async function doTask() {
     const res = await fetch('/claim_task', { method: 'POST' });
     const data = await res.json();
