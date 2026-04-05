@@ -31,9 +31,14 @@ function auth(req, res, next) {
   next();
 }
 
+// ROUTES
 app.get('/', (req, res) => res.redirect('/login'));
-app.get('/login', (req, res) => res.render('login'));
 
+app.get('/login', (req, res) => {
+  res.render('login', { error: null });
+});
+
+// 🔐 LOGIN FIXED
 app.post('/login', async (req, res) => {
   const { phone, password } = req.body;
 
@@ -43,15 +48,50 @@ app.post('/login', async (req, res) => {
     .eq('phone', phone)
     .single();
 
-  if (!user) return res.send('User not found');
+  if (!user) return res.render('login', { error: 'User not found' });
 
-  const match = await bcrypt.compare(password, user.password);
-  if (!match) return res.send('Wrong password');
+  let isMatch = false;
+
+  if (user.password.startsWith('$2b$')) {
+    isMatch = await bcrypt.compare(password, user.password);
+  } else {
+    isMatch = password === user.password;
+
+    // upgrade to hashed
+    if (isMatch) {
+      const hashed = await bcrypt.hash(password, 10);
+      await supabase.from('users')
+        .update({ password: hashed })
+        .eq('id', user.id);
+    }
+  }
+
+  if (!isMatch) return res.render('login', { error: 'Wrong password' });
 
   req.session.user_id = user.id;
   res.redirect('/dashboard');
 });
 
+// REGISTER
+app.get('/register', (req, res) => res.render('register'));
+
+app.post('/register', async (req, res) => {
+  const { phone, password } = req.body;
+
+  const hashed = await bcrypt.hash(password, 10);
+
+  await supabase.from('users').insert([{
+    phone,
+    password: hashed,
+    balance: 0,
+    todays_income: 0,
+    total_income: 0
+  }]);
+
+  res.redirect('/login');
+});
+
+// DASHBOARD
 app.get('/dashboard', auth, async (req, res) => {
   const user_id = req.session.user_id;
 
@@ -61,6 +101,7 @@ app.get('/dashboard', auth, async (req, res) => {
   res.render('index', { user, userCities: userCities || [] });
 });
 
+// INVEST
 app.post('/invest', auth, async (req, res) => {
   const user_id = req.session.user_id;
   const { city_name } = req.body;
@@ -87,23 +128,21 @@ app.post('/invest', auth, async (req, res) => {
   res.json({ success: true, message: 'Investment successful' });
 });
 
+// TASK
 app.post('/claim_task', auth, async (req, res) => {
   const user_id = req.session.user_id;
 
-  const { data: cities } = await supabase
-    .from('user_cities')
-    .select('*')
-    .eq('user_id', user_id);
+  const { data: cities } = await supabase.from('user_cities').select('*').eq('user_id', user_id);
 
-  let totalTasks = 0;
-  let doneTasks = 0;
+  let total = 0;
+  let done = 0;
 
   cities.forEach(c => {
-    totalTasks += c.max_tasks;
-    doneTasks += c.tasks_done || 0;
+    total += c.max_tasks;
+    done += c.tasks_done || 0;
   });
 
-  if (doneTasks >= totalTasks) {
+  if (done >= total) {
     return res.json({ success: false, message: 'Daily limit reached' });
   }
 
@@ -118,12 +157,13 @@ app.post('/claim_task', auth, async (req, res) => {
   }).eq('id', user_id);
 
   await supabase.from('user_cities')
-    .update({ tasks_done: doneTasks + 1 })
+    .update({ tasks_done: done + 1 })
     .eq('user_id', user_id);
 
   res.json({ success: true, message: 'Task completed +50 Ksh' });
 });
 
+// WITHDRAW
 app.post('/withdraw', auth, async (req, res) => {
   const user_id = req.session.user_id;
   const { amount } = req.body;
@@ -148,6 +188,7 @@ app.post('/withdraw', auth, async (req, res) => {
   res.json({ success: true, message: 'Withdrawal submitted' });
 });
 
+// DEPOSIT
 app.post('/deposit', auth, async (req, res) => {
   const user_id = req.session.user_id;
   const { amount, code } = req.body;
@@ -160,7 +201,7 @@ app.post('/deposit', auth, async (req, res) => {
     reference: code
   }]);
 
-  res.json({ success: true, message: 'Deposit submitted for approval' });
+  res.json({ success: true, message: 'Deposit submitted' });
 });
 
 app.get('/logout', (req, res) => {
