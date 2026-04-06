@@ -1,13 +1,14 @@
 {
-  "name": "income-platform",
+  "name": "bitrex-platform",
   "version": "1.0.0",
-  "description": "Online business platform with investments, daily tasks, and income tracking",
+  "description": "BITREX - Online business platform with investments, daily tasks, and income tracking",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js"
   },
   "keywords": [
+    "bitrex",
     "business",
     "investment",
     "income",
@@ -25,8 +26,8 @@
     "cors": "^2.8.5",
     "ejs": "^3.1.9",
     "express-session": "^1.17.3",
-    "multer": "^1.4.5-lts.1",
-    "axios": "^1.4.0"
+    "connect-mongo": "^5.0.1",
+    "multer": "^1.4.5-lts.1"
   },
   "devDependencies": {
     "nodemon": "^2.0.20"
