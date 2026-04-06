@@ -3,143 +3,512 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BITREX | Trade with Transparency</title>
+    <title>Income Platform - Earn Daily</title>
     <style>
-        :root { --primary-blue: #2b7fff; --bg: #f0f4f7; }
-        body { font-family: sans-serif; background: var(--bg); margin: 0; padding-bottom: 80px; }
-        .hidden { display: none !important; } /* Fix: Modal will not show on login */
-        
-        /* Header */
-        .header { background: var(--primary-blue); color: white; padding: 40px 20px 70px; text-align: center; border-radius: 0 0 35px 35px; position: relative; }
-        .balance-box { font-size: 40px; font-weight: 800; margin: 10px 0; }
-        
-        /* Action Buttons */
-        .action-container { display: flex; gap: 10px; margin: -40px 15px 20px; position: relative; z-index: 10; }
-        .action-btn { background: white; flex: 1; padding: 15px; border-radius: 15px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); cursor: pointer; }
-        .action-btn span { font-size: 11px; font-weight: bold; color: #444; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-        /* Job Card */
-        .job-title-bar { background: #c5ff8c; padding: 15px; text-align: center; font-weight: bold; border-radius: 15px 15px 0 0; }
-        .job-card { background: white; margin: 10px; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
 
-        /* Modals */
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; display: flex; align-items: center; justify-content: center; }
-        
-        .nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; padding: 10px 0; border-top: 1px solid #eee; }
-        .nav-item { flex: 1; text-align: center; font-size: 11px; color: #888; cursor: pointer; }
-        .nav-item.active { color: var(--primary-blue); font-weight: bold; }
+        .container {
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo h1 {
+            color: #667eea;
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .logo p {
+            color: #999;
+            font-size: 14px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            background: none;
+            border: none;
+            color: #999;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tab-btn.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #333;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .password-group {
+            position: relative;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 45px;
+            cursor: pointer;
+            color: #667eea;
+            font-size: 18px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin-top: 10px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .switch-auth {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .switch-auth a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .switch-auth a:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            background-color: #fee;
+            color: #c33;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            display: none;
+            border-left: 4px solid #c33;
+        }
+
+        .error-message.show {
+            display: block;
+            animation: shake 0.3s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .success-message {
+            background-color: #efe;
+            color: #3c3;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            display: none;
+            border-left: 4px solid #3c3;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        .referral-info {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #667eea30;
+            margin-top: 15px;
+        }
+
+        .referral-info p {
+            color: #666;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-group input {
+            flex: 1;
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #667eea;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            color: #667eea;
+            font-size: 14px;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            margin-bottom: 0;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        @media (max-width: 600px) {
+            .card {
+                padding: 30px 20px;
+            }
+
+            .logo h1 {
+                font-size: 26px;
+            }
+        }
     </style>
 </head>
 <body>
+    <div class="container">
+        <div class="card">
+            <div class="logo">
+                <h1>💰 IncomePro</h1>
+                <p>Start Earning Daily Today</p>
+            </div>
 
-    <div class="header">
-        <div style="font-size: 14px; opacity: 0.9;">Account balance</div>
-        <div class="balance-box">Ksh <%= user.balance %></div>
-        <div style="display: flex; justify-content: space-around; margin-top: 20px;">
-            <div><small>Today</small><br><b><%= user.todays_income || 0 %></b></div>
-            <div><small>Month</small><br><b><%= user.monthly_income || 0 %></b></div>
-            <div><small>Total</small><br><b><%= user.total_income || 0 %></b></div>
-        </div>
-    </div>
+            <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
 
-    <div class="action-container">
-        <div class="action-btn" onclick="toggleModal('deposit', true)"><span>💳 Top-up</span></div>
-        <div class="action-btn" onclick="toggleModal('withdraw', true)"><span>📥 Withdraw</span></div>
-        <div class="action-btn" onclick="showSec('menu', this)"><span>👤 Profile</span></div>
-    </div>
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('login')">Login</button>
+                <button class="tab-btn" onclick="switchTab('signup')">Sign Up</button>
+            </div>
 
-    <div id="home-sec">
-        <div style="margin: 15px; font-weight: bold;">My Active Cities</div>
-        <div class="job-card">
-            <% if (userCities.length > 0) { %>
-                <% userCities.forEach(city => { %>
-                    <div style="padding: 10px 0; border-bottom: 1px solid #eee;">🏙️ <b><%= city.city_name %></b> - Active</div>
-                <% }); %>
-            <% } else { %>
-                <p style="text-align: center; color: #999;">Join a city in the "City" tab to see it here.</p>
-            <% } %>
-        </div>
-    </div>
-
-    <div id="task-sec" class="hidden">
-        <div class="job-title-bar">List of jobs</div>
-        <% const jobs = ["AQ Smart Blood Glucose Meter", "Manicure Set", "women's perfume", "Mini massage gun", "2.5L Vacuum Flask", "Electric blender", "Modern soldering gun", "Smart phones", "HD Camera", "Laptops", "Air Fryer", "Smart Watch"]; %>
-        <% jobs.forEach(job => { %>
-            <div class="job-card">
-                <div style="display: flex; justify-content: space-between;">
-                    <div>
-                        <h4 style="margin: 0; color: #1a3c61;"><%= job %></h4>
-                        <p style="font-size: 11px; color: #888;">Work available after midnight.</p>
+            <!-- Login Tab -->
+            <div class="tab-content active" id="login">
+                <form onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label>📱 Phone Number</label>
+                        <input type="tel" id="loginPhone" placeholder="e.g., +254706123456" required>
                     </div>
+
+                    <div class="form-group password-group">
+                        <label>🔐 Password</label>
+                        <input type="password" id="loginPassword" placeholder="Enter your password" required>
+                        <span class="toggle-password" onclick="togglePassword('loginPassword')">👁️</span>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Login</button>
+
+                    <div class="loading" id="loginLoading">
+                        <div class="spinner"></div>
+                        <p>Logging in...</p>
+                    </div>
+                </form>
+
+                <div class="switch-auth">
+                    Don't have an account? <a onclick="switchTab('signup')">Sign Up Now</a>
                 </div>
-                <div style="border-top: 1px dashed #ddd; margin-top: 10px; padding-top: 10px; font-size: 12px;">Payment: 50.00 KSh</div>
-                <button onclick="doTask()" style="background:black; color:white; width:100%; padding:10px; border-radius:5px; margin-top:10px; border:none; cursor:pointer;">Start working</button>
             </div>
-        <% }); %>
-    </div>
 
-    <div id="city-sec" class="hidden">
-        <div style="margin: 15px; font-weight: bold;">Investment Packages</div>
-        <% const cityData = [{n:'CITY A', c:1500, d:50}, {n:'CITY B', c:3200, d:100}, {n:'CITY C', c:7200, d:200}, {n:'CITY D', c:12000, d:400}, {n:'CITY E', c:15000, d:500}]; %>
-        <% cityData.forEach(c => { %>
-            <div class="job-card" style="display:flex; justify-content:space-between; align-items:center;">
-                <div><b><%= c.n %></b><br><small>Cost: Ksh <%= c.c %> | Daily: Ksh <%= c.d %></small></div>
-                <button onclick="joinCity('<%= c.n %>')" style="background:var(--primary-blue); color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer;">Join</button>
+            <!-- Signup Tab -->
+            <div class="tab-content" id="signup">
+                <form onsubmit="handleSignup(event)">
+                    <div class="form-group">
+                        <label>📱 Phone Number</label>
+                        <input type="tel" id="signupPhone" placeholder="e.g., +254706123456" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>📧 Email Address</label>
+                        <input type="email" id="signupEmail" placeholder="your@email.com" required>
+                    </div>
+
+                    <div class="form-group password-group">
+                        <label>🔐 Password (6-8 characters)</label>
+                        <input type="password" id="signupPassword" placeholder="Create password" minlength="6" maxlength="8" required>
+                        <span class="toggle-password" onclick="togglePassword('signupPassword')">👁️</span>
+                    </div>
+
+                    <div class="form-group password-group">
+                        <label>🔐 Confirm Password</label>
+                        <input type="password" id="signupConfirmPassword" placeholder="Confirm password" minlength="6" maxlength="8" required>
+                        <span class="toggle-password" onclick="togglePassword('signupConfirmPassword')">👁️</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>🎁 Referral Code (Optional)</label>
+                        <input type="text" id="referralCode" placeholder="Enter referral code if invited">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Create Account</button>
+
+                    <div class="loading" id="signupLoading">
+                        <div class="spinner"></div>
+                        <p>Creating account...</p>
+                    </div>
+                </form>
+
+                <div class="referral-info">
+                    <p><strong>💡 Tip:</strong> If a friend invited you, enter their referral code to get started. You'll both benefit from the referral program!</p>
+                </div>
+
+                <div class="switch-auth">
+                    Already have an account? <a onclick="switchTab('login')">Login Here</a>
+                </div>
             </div>
-        <% }); %>
-    </div>
-
-    <div id="menu-sec" class="hidden">
-        <div class="job-card">
-            <p><b>Phone:</b> <%= user.phone %></p>
-            <p><b>Referral:</b> <%= user.referral_code %></p>
-            <button onclick="location.href='/logout'" style="background:#ff4d4d; color:white; width:100%; padding:10px; border:none; border-radius:5px; cursor:pointer;">Log Out</button>
         </div>
-    </div>
-
-    <div id="deposit-modal" class="overlay hidden">
-        <div style="background:white; padding:20px; border-radius:15px; width:85%; max-width:400px;">
-            <h3>Top-up</h3>
-            <p>Send to M-PESA: <b>0733319700</b></p>
-            <input type="number" id="amt" placeholder="Amount" style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:5px;">
-            <input type="text" id="code" placeholder="M-PESA Transaction Code" style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:5px;">
-            <button onclick="alert('Submitted for review')" style="background:var(--primary-blue); color:white; width:100%; padding:12px; border:none; border-radius:8px;">Submit</button>
-            <button onclick="toggleModal('deposit', false)" style="width:100%; padding:10px; border:none; background:none; margin-top:10px; color:#666;">Close</button>
-        </div>
-    </div>
-
-    <div class="nav">
-        <div class="nav-item active" onclick="showSec('home', this)">🏠<br>Home</div>
-        <div class="nav-item" onclick="showSec('task', this)">⚡<br>Task</div>
-        <div class="nav-item" onclick="showSec('city', this)">🏙️<br>City</div>
-        <div class="nav-item" onclick="showSec('menu', this)">👤<br>Menu</div>
     </div>
 
     <script>
-        function showSec(id, el) {
-            ['home', 'task', 'city', 'menu'].forEach(s => document.getElementById(s + '-sec').classList.add('hidden'));
-            document.getElementById(id + '-sec').classList.remove('hidden');
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            el.classList.add('active');
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(tab).classList.add('active');
+            event.target.classList.add('active');
+
+            // Reset forms and messages
+            document.getElementById('errorMessage').classList.remove('show');
+            document.getElementById('successMessage').classList.remove('show');
         }
 
-        function toggleModal(type, show) {
-            const modal = document.getElementById(type + '-modal');
-            if (show) modal.classList.remove('hidden');
-            else modal.classList.add('hidden');
+        function togglePassword(id) {
+            const input = document.getElementById(id);
+            input.type = input.type === 'password' ? 'text' : 'password';
         }
 
-        async function joinCity(name) {
-            if(!confirm("Join " + name + "?")) return;
-            const res = await fetch('/invest', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ city_name: name, user_id: '<%= user.id %>' }) });
-            const data = await res.json();
-            alert(data.message);
-            if(data.success) location.reload();
+        function showError(message) {
+            const errorEl = document.getElementById('errorMessage');
+            errorEl.textContent = message;
+            errorEl.classList.add('show');
+            setTimeout(() => errorEl.classList.remove('show'), 5000);
         }
 
-        function doTask() {
-            alert("Work in progress. Income will be added after midnight.");
+        function showSuccess(message) {
+            const successEl = document.getElementById('successMessage');
+            successEl.textContent = message;
+            successEl.classList.add('show');
+            setTimeout(() => successEl.classList.remove('show'), 5000);
         }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const phone = document.getElementById('loginPhone').value;
+            const password = document.getElementById('loginPassword').value;
+
+            document.getElementById('loginLoading').style.display = 'block';
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    localStorage.setItem('userId', data.userId);
+                    localStorage.setItem('token', data.token);
+                    showSuccess('Login successful! Redirecting...');
+                    setTimeout(() => window.location.href = '/dashboard', 1500);
+                } else {
+                    showError(data.message || 'Login failed');
+                }
+            } catch (error) {
+                showError('Connection error. Please try again.');
+            } finally {
+                document.getElementById('loginLoading').style.display = 'none';
+            }
+        }
+
+        async function handleSignup(e) {
+            e.preventDefault();
+            const phone = document.getElementById('signupPhone').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            const confirmPassword = document.getElementById('signupConfirmPassword').value;
+            const referralCode = document.getElementById('referralCode').value;
+
+            document.getElementById('signupLoading').style.display = 'block';
+
+            try {
+                const response = await fetch('/api/auth/signup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone, email, password, confirmPassword, referralCode })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showSuccess('Account created! Your referral code: ' + data.referralCode);
+                    setTimeout(() => switchTab('login'), 2000);
+                } else {
+                    showError(data.message || 'Signup failed');
+                }
+            } catch (error) {
+                showError('Connection error. Please try again.');
+            } finally {
+                document.getElementById('signupLoading').style.display = 'none';
+            }
+        }
+
+        // Set active tab button on load
+        document.querySelector('.tab-btn').classList.add('active');
     </script>
 </body>
 </html>
