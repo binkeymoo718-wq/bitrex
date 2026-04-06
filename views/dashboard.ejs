@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - IncomePro</title>
+    <title>BITREX Dashboard</title>
     <style>
         * {
             margin: 0;
@@ -14,7 +14,7 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #f5f7fa;
-            padding-bottom: 100px;
+            padding-bottom: 110px;
         }
 
         .header {
@@ -24,18 +24,21 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
 
         .header h1 {
-            font-size: 24px;
+            font-size: 26px;
+            letter-spacing: 1px;
         }
 
         .phone-display {
             background: rgba(255,255,255,0.2);
             padding: 8px 12px;
             border-radius: 8px;
-            font-size: 12px;
+            font-size: 11px;
+            font-weight: 600;
         }
 
         .content {
@@ -60,12 +63,18 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.08);
         }
 
+        .card h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
         .stat-card {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border-radius: 15px;
             padding: 20px;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             text-align: center;
         }
 
@@ -90,10 +99,26 @@
             border-left: 4px solid #667eea;
         }
 
+        .city-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
         .city-name {
-            font-weight: 600;
+            font-weight: 700;
             color: #333;
-            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .city-days {
+            background: #667eea;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
         }
 
         .city-info {
@@ -101,20 +126,7 @@
             justify-content: space-between;
             font-size: 12px;
             color: #666;
-            margin-bottom: 8px;
-        }
-
-        .city-progress {
-            background: #e0e0e0;
-            height: 6px;
-            border-radius: 3px;
-            overflow: hidden;
-        }
-
-        .city-progress-bar {
-            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-            height: 100%;
-            transition: width 0.3s ease;
+            gap: 10px;
         }
 
         .investment-grid {
@@ -131,15 +143,17 @@
             transition: all 0.3s ease;
         }
 
-        .investment-card:hover {
+        .investment-card:hover:not(.invested) {
             border-color: #667eea;
             box-shadow: 0 5px 15px rgba(102,126,234,0.2);
+            transform: translateY(-3px);
         }
 
         .investment-card.invested {
-            background: linear-gradient(135deg, #3c3 0%, #2b2b2b 100%);
+            background: linear-gradient(135deg, #3c315 0%, #1a8a15 100%);
             color: white;
-            border-color: #3c3;
+            border-color: #2a7a10;
+            cursor: not-allowed;
         }
 
         .investment-header {
@@ -157,10 +171,11 @@
         .investment-price {
             font-weight: 700;
             color: #667eea;
+            font-size: 18px;
         }
 
         .investment-card.invested .investment-price {
-            color: #3c3;
+            color: white;
         }
 
         .investment-details {
@@ -179,7 +194,8 @@
         }
 
         .investment-card.invested .investment-detail {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.2);
+            color: white;
         }
 
         .detail-value {
@@ -208,23 +224,29 @@
         .btn-primary {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
+            width: 100%;
         }
 
-        .btn-primary:hover {
+        .btn-primary:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 10px 25px rgba(102,126,234,0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
 
         .btn-secondary {
             background: #f0f0f0;
             color: #667eea;
             border: 1px solid #e0e0e0;
+            width: 100%;
         }
 
         .btn-secondary:hover {
             background: #667eea;
             color: white;
-            border-color: #667eea;
         }
 
         .task-item {
@@ -237,10 +259,12 @@
             align-items: center;
             cursor: pointer;
             transition: all 0.3s ease;
+            border: 2px solid transparent;
         }
 
-        .task-item:hover {
+        .task-item:hover:not(.disabled) {
             background: #f0f0f0;
+            border-color: #667eea;
             transform: translateX(5px);
         }
 
@@ -257,9 +281,9 @@
         .task-amount {
             background: #667eea;
             color: white;
-            padding: 6px 12px;
+            padding: 8px 14px;
             border-radius: 8px;
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 700;
         }
 
@@ -270,7 +294,7 @@
         label {
             display: block;
             color: #333;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
             margin-bottom: 8px;
             text-transform: uppercase;
@@ -297,48 +321,36 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 15px;
+            padding: 12px;
             background: #f9f9f9;
             border-radius: 10px;
             margin-bottom: 10px;
             border-left: 4px solid #667eea;
         }
 
-        .transaction-item.deposit {
-            border-left-color: #3c3;
-        }
-
-        .transaction-item.withdrawal {
-            border-left-color: #f93;
-        }
-
-        .transaction-item.bonus {
-            border-left-color: #f0f;
-        }
+        .transaction-item.deposit { border-left-color: #3c3; }
+        .transaction-item.withdrawal { border-left-color: #f93; }
+        .transaction-item.bonus { border-left-color: #f0f; }
+        .transaction-item.task_income { border-left-color: #0af; }
 
         .transaction-info h4 {
-            font-size: 14px;
+            font-size: 13px;
             color: #333;
-            margin-bottom: 4px;
+            margin-bottom: 3px;
         }
 
         .transaction-info p {
-            font-size: 12px;
+            font-size: 11px;
             color: #999;
         }
 
         .transaction-amount {
             font-weight: 700;
-            font-size: 16px;
+            font-size: 15px;
         }
 
-        .transaction-amount.positive {
-            color: #3c3;
-        }
-
-        .transaction-amount.negative {
-            color: #f33;
-        }
+        .transaction-amount.positive { color: #3c3; }
+        .transaction-amount.negative { color: #f33; }
 
         .bottom-nav {
             position: fixed;
@@ -351,17 +363,18 @@
             border-top: 1px solid #e0e0e0;
             box-shadow: 0 -5px 15px rgba(0,0,0,0.08);
             z-index: 1000;
+            padding: 8px 0;
         }
 
         .nav-item {
             flex: 1;
-            padding: 12px;
+            padding: 10px;
             text-align: center;
             cursor: pointer;
             border: none;
             background: none;
-            font-size: 24px;
-            transition: all 0.3s ease;
+            font-size: 22px;
+            transition: all 0.2s ease;
             color: #999;
         }
 
@@ -376,7 +389,7 @@
         .referral-code {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 15px;
+            padding: 20px;
             border-radius: 12px;
             text-align: center;
             margin-bottom: 15px;
@@ -389,9 +402,10 @@
         }
 
         .referral-code h3 {
-            font-size: 20px;
-            margin-bottom: 10px;
+            font-size: 22px;
+            margin-bottom: 12px;
             letter-spacing: 2px;
+            font-family: 'Courier New', monospace;
         }
 
         .referral-code button {
@@ -403,6 +417,11 @@
             font-weight: 600;
             cursor: pointer;
             font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .referral-code button:hover {
+            transform: scale(1.05);
         }
 
         .message {
@@ -413,34 +432,52 @@
             margin-bottom: 15px;
             border-left: 4px solid #3c3;
             display: none;
+            font-size: 13px;
         }
 
         .message.show {
             display: block;
+            animation: slideDown 0.3s ease;
         }
 
-        .error-message {
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.error {
             background: #fee;
             color: #c33;
             border-left-color: #c33;
         }
 
-        .flex-between {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 15px;
         }
 
-        .badge {
-            background: #667eea;
-            color: white;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 11px;
-            font-weight: 600;
+        .progress-bar {
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
         }
 
-        @media (max-width: 600px) {
+        .progress-fill {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        @media (max-width: 500px) {
             .header {
                 padding: 15px;
             }
@@ -457,11 +494,12 @@
 </head>
 <body>
     <div class="header">
-        <h1>💰 IncomePro</h1>
+        <h1>💰 BITREX</h1>
         <div class="phone-display"><%= user.phone %></div>
     </div>
 
     <div class="content">
+        <!-- HOME TAB -->
         <div id="homeTab" class="tab-content active">
             <div class="stat-card">
                 <div class="stat-label">Current Balance</div>
@@ -481,24 +519,24 @@
             <div class="card">
                 <h3>📍 Active Cities</h3>
                 <div id="activeCitiesContainer">
-                    <p style="color: #999; text-align: center; padding: 20px;">No active cities yet. Invest to get started!</p>
+                    <p style="color: #999; text-align: center; padding: 20px; font-size: 13px;">No active cities yet. Invest to get started!</p>
                 </div>
             </div>
 
-            <div class="card flex-between">
+            <div class="card">
                 <h3>💳 Quick Actions</h3>
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                <button class="btn btn-primary" onclick="switchTab('depositTab')">💰 Deposit</button>
-                <button class="btn btn-secondary" onclick="switchTab('withdrawTab')">💸 Withdraw</button>
+                <div class="grid-2">
+                    <button class="btn btn-primary" onclick="switchTab('depositTab')">💰 Deposit</button>
+                    <button class="btn btn-secondary" onclick="switchTab('withdrawTab')">💸 Withdraw</button>
+                </div>
             </div>
         </div>
 
+        <!-- TASK TAB -->
         <div id="taskTab" class="tab-content">
             <div class="card">
                 <h3>📋 Daily Tasks</h3>
-                <p style="color: #999; margin-bottom: 15px;">Complete tasks to earn income</p>
+                <p style="color: #999; margin-bottom: 15px; font-size: 13px;">Complete tasks to earn instant income</p>
 
                 <div class="form-group">
                     <label>Select City</label>
@@ -507,29 +545,31 @@
                     </select>
                 </div>
 
-                <div id="taskCounter" style="background: #f9f9f9; padding: 12px; border-radius: 10px; text-align: center; margin-bottom: 15px; display: none;">
-                    <p style="font-size: 12px; color: #999;">Tasks Today</p>
-                    <p style="font-size: 18px; font-weight: 700; color: #667eea;"><span id="tasksCompleted">0</span> / <span id="maxTasks">0</span></p>
+                <div id="taskCounter" style="background: #f9f9f9; padding: 15px; border-radius: 10px; text-align: center; margin-bottom: 15px; display: none;">
+                    <p style="font-size: 12px; color: #999;">Tasks Completed Today</p>
+                    <p style="font-size: 20px; font-weight: 700; color: #667eea;"><span id="tasksCompleted">0</span> / <span id="maxTasks">0</span></p>
                 </div>
 
                 <div id="tasksContainer">
-                    <p style="color: #999; text-align: center; padding: 20px;">Select a city to view tasks</p>
+                    <p style="color: #999; text-align: center; padding: 20px; font-size: 13px;">Select a city to view available tasks</p>
                 </div>
             </div>
         </div>
 
+        <!-- CITY TAB -->
         <div id="cityTab" class="tab-content">
             <div class="card">
                 <h3>🏙️ Available Cities</h3>
-                <p style="color: #999; margin-bottom: 15px;">Invest to start earning</p>
+                <p style="color: #999; margin-bottom: 15px; font-size: 13px;">Invest once per city to start earning</p>
                 <div id="citiesContainer" class="investment-grid"></div>
             </div>
         </div>
 
+        <!-- DEPOSIT TAB -->
         <div id="depositTab" class="tab-content">
             <div class="card">
                 <h3>💰 Deposit Money</h3>
-                <p style="color: #999; margin-bottom: 15px;">Minimum deposit: KSH 300</p>
+                <p style="color: #999; margin-bottom: 15px; font-size: 13px;">Minimum deposit: KSH 300</p>
 
                 <div id="depositMessage" class="message"></div>
 
@@ -540,23 +580,24 @@
 
                 <div class="form-group">
                     <label>Your Phone Number</label>
-                    <input type="tel" id="depositPhone" placeholder="e.g., +254706123456">
+                    <input type="tel" id="depositPhone" placeholder="0706123456">
                 </div>
 
-                <div class="form-group">
-                    <label>Upload M-Pesa Receipt/Evidence</label>
-                    <input type="file" id="depositEvidence" accept="image/*">
-                    <p style="font-size: 11px; color: #999; margin-top: 8px;">📤 Send money to: <strong>0733319700</strong></p>
+                <div style="background: #f9f9f9; padding: 12px; border-radius: 10px; margin-bottom: 15px; font-size: 12px; color: #666;">
+                    <p><strong>📤 Send Money To:</strong></p>
+                    <p style="font-size: 16px; font-weight: 700; color: #667eea; margin-top: 5px;">0733319700</p>
+                    <p style="margin-top: 8px; color: #999;">Send the amount via M-Pesa, then enter the amount above and click Submit.</p>
                 </div>
 
                 <button class="btn btn-primary" onclick="submitDeposit()">Submit Deposit</button>
             </div>
         </div>
 
+        <!-- WITHDRAW TAB -->
         <div id="withdrawTab" class="tab-content">
             <div class="card">
                 <h3>💸 Withdraw Money</h3>
-                <p style="color: #999; margin-bottom: 15px;">Minimum withdrawal: KSH 500</p>
+                <p style="color: #999; margin-bottom: 15px; font-size: 13px;">Minimum withdrawal: KSH 500</p>
 
                 <div id="withdrawMessage" class="message"></div>
 
@@ -566,139 +607,31 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Phone Number (to receive payment)</label>
-                    <input type="tel" id="withdrawPhone" placeholder="e.g., +254706123456">
+                    <label>Phone Number (M-Pesa)</label>
+                    <input type="tel" id="withdrawPhone" placeholder="0706123456">
                 </div>
 
                 <div class="form-group">
                     <label>Withdrawal Password</label>
-                    <input type="password" id="withdrawPassword" placeholder="Enter your withdrawal password">
+                    <input type="password" id="withdrawPassword" placeholder="Your password">
                 </div>
 
                 <button class="btn btn-primary" onclick="submitWithdraw()">Withdraw Now</button>
             </div>
         </div>
 
+        <!-- REFERRAL TAB -->
         <div id="referralTab" class="tab-content">
             <div class="card">
                 <h3>🎁 Referral Program</h3>
-                <p style="color: #999; margin-bottom: 15px;">Earn KSH 300 for every 5 friends who join!</p>
+                <p style="color: #999; margin-bottom: 15px; font-size: 13px;">Earn KSH 300 for every 5 friends who join!</p>
 
                 <div class="referral-code">
                     <p>Your Unique Referral Code</p>
                     <h3 id="referralCodeDisplay">LOADING...</h3>
-                    <button onclick="copyReferralCode()">Copy Code</button>
+                    <button onclick="copyReferralCode()">📋 Copy Code</button>
                 </div>
 
-                <div class="card" style="background: #f9f9f9;">
-                    <p><strong>Referrals:</strong> <span id="referralCountDisplay">0</span>/5</p>
-                    <div style="background: #e0e0e0; height: 8px; border-radius: 4px; overflow: hidden; margin-top: 8px;">
-                        <div id="referralProgress" style="background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); height: 100%; width: 0%; transition: width 0.3s ease;"></div>
-                    </div>
-                </div>
-
-                <p style="margin-top: 15px; color: #666; font-size: 13px;">✅ Share your code with friends. When they sign up and invest in any city, you'll earn a KSH 300 bonus!</p>
-            </div>
-        </div>
-
-        <div id="historyTab" class="tab-content">
-            <div class="card">
-                <h3>📊 Transaction History</h3>
-                <div id="transactionHistoryContainer">
-                    <p style="color: #999; text-align: center; padding: 20px;">Loading transactions...</p>
-                </div>
-            </div>
-        </div>
-
-        <div id="profileTab" class="tab-content">
-            <div class="card">
-                <h3>👤 Profile</h3>
-
-                <div style="background: #f9f9f9; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
-                    <p><strong>Phone:</strong> <span id="profilePhone"><%= user.phone %></span></p>
-                    <p><strong>Email:</strong> <span id="profileEmail"><%= user.email %></span></p>
-                    <p><strong>Member Since:</strong> <span id="profileMemberSince"></span></p>
-                </div>
-
-                <h4 style="margin-bottom: 10px;">📞 Contact Support</h4>
-                <p style="color: #666; margin-bottom: 15px;">Need help? Chat with our manager on WhatsApp</p>
-                <a href="https://wa.me/254106305272" class="btn btn-primary" style="text-decoration: none; display: block; text-align: center;">💬 WhatsApp Support +254106305272</a>
-
-                <button class="btn btn-secondary" style="margin-top: 15px;" onclick="logout()">Logout</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="bottom-nav">
-        <button class="nav-item active" onclick="switchTab('homeTab')">🏠</button>
-        <button class="nav-item" onclick="switchTab('taskTab')">📋</button>
-        <button class="nav-item" onclick="switchTab('cityTab')">🏙️</button>
-        <button class="nav-item" onclick="switchTab('referralTab')">🎁</button>
-        <button class="nav-item" onclick="switchTab('profileTab')">👤</button>
-    </div>
-
-    <script>
-        const userId = localStorage.getItem('userId');
-        let userData = null;
-
-        // Load user data on page load
-        async function loadDashboard() {
-            try {
-                const response = await fetch(`/api/dashboard/${userId}`);
-                const data = await response.json();
-                userData = data;
-
-                // Update UI with user data
-                document.getElementById('balanceDisplay').textContent = 'KSH ' + userData.balance.toLocaleString();
-                document.getElementById('dailyIncomeDisplay').textContent = 'KSH ' + userData.dailyIncome.toLocaleString();
-                document.getElementById('totalEarningsDisplay').textContent = 'KSH ' + userData.totalEarnings.toLocaleString();
-                document.getElementById('referralCodeDisplay').textContent = userData.referralCode;
-                document.getElementById('referralCountDisplay').textContent = userData.referralCount;
-                document.getElementById('profileMemberSince').textContent = new Date(userData.createdAt).toLocaleDateString();
-
-                // Update referral progress
-                const progress = (userData.referralCount / 5) * 100;
-                document.getElementById('referralProgress').style.width = Math.min(progress, 100) + '%';
-
-                // Load cities
-                loadCities();
-                loadActiveCities();
-                loadTransactionHistory();
-            } catch (error) {
-                console.error('Error loading dashboard:', error);
-            }
-        }
-
-        async function loadCities() {
-            try {
-                const response = await fetch('/api/cities');
-                const cities = await response.json();
-
-                let html = '';
-                for (const [cityName, cityInfo] of Object.entries(cities)) {
-                    const isInvested = userData.citiesJoined.some(c => c.city === cityName);
-                    html += `
-                        <div class="investment-card ${isInvested ? 'invested' : ''}" onclick="${!isInvested ? `investCity('${cityName}')` : ''}">
-                            <div class="investment-header">
-                                <div class="investment-name">${cityName}</div>
-                                <div class="investment-price">KSH ${cityInfo.investment.toLocaleString()}</div>
-                            </div>
-                            <div class="investment-details">
-                                <div class="investment-detail">
-                                    <div class="detail-value">${cityInfo.maxTasks}</div>
-                                    <div class="detail-label">Tasks/Day</div>
-                                </div>
-                                <div class="investment-detail">
-                                    <div class="detail-value">KSH ${cityInfo.dailyIncome}</div>
-                                    <div class="detail-label">Daily Income</div>
-                                </div>
-                            </div>
-                            ${isInvested ? '<button class="btn btn-primary" style="width: 100%;">✓ Invested</button>' : '<button class="btn btn-primary" style="width: 100%;">Invest Now</button>'}
-                        </div>
-                    `;
-                }
-                document.getElementById('citiesContainer').innerHTML = html;
-
-                // Load task city select
-                let selectHtml = '<option value="">Choose a city...</option>';
-                userData.citiesJoined.forEach(city =>
+                <div class="card" style="background: #f9f9f9; padding: 15px;">
+                    <p style="font-weight: 600; margin-bottom: 8px;">Referrals: <span id="referralCountDisplay">0</span>/5</p>
+                    <div class="progress-bar">
