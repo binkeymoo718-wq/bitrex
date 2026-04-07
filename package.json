@@ -1,35 +1,30 @@
 {
   "name": "bitrex-platform",
   "version": "1.0.0",
-  "description": "BITREX - Online business platform with investments, daily tasks, and income tracking",
+  "description": "BITREX - Online Business Platform for Investment and Daily Income",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js"
   },
-  "keywords": [
-    "bitrex",
-    "business",
-    "investment",
-    "income",
-    "platform"
-  ],
-  "author": "",
-  "license": "ISC",
+  "keywords": ["bitrex", "investment", "income"],
+  "author": "binkeymoo718-wq",
+  "license": "MIT",
   "dependencies": {
     "express": "^4.18.2",
-    "mongoose": "^7.0.0",
+    "ejs": "^3.1.10",
+    "mongoose": "^7.5.0",
+    "jsonwebtoken": "^9.1.2",
+    "dotenv": "^16.3.1",
     "bcryptjs": "^2.4.3",
-    "jsonwebtoken": "^9.0.0",
-    "express-validator": "^7.0.0",
-    "dotenv": "^16.0.3",
     "cors": "^2.8.5",
-    "ejs": "^3.1.9",
+    "helmet": "^7.0.0",
+    "express-validator": "^7.0.0",
+    "multer": "^1.4.5-lts.1",
     "express-session": "^1.17.3",
-    "connect-mongo": "^5.0.1",
-    "multer": "^1.4.5-lts.1"
+    "moment": "^2.29.4"
   },
   "devDependencies": {
-    "nodemon": "^2.0.20"
+    "nodemon": "^3.0.1"
   }
 }
