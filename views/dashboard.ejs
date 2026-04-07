@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BITREX Dashboard</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Dashboard - IncomePro</title>
     <style>
         * {
             margin: 0;
@@ -15,173 +14,34 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #f5f7fa;
-            padding-bottom: 80px;
+            padding-bottom: 100px;
         }
 
-        .top-bar {
+        .header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 20px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 20px;
         }
 
-        .top-bar h1 {
-            font-size: 22px;
-            font-weight: 700;
+        .header h1 {
+            font-size: 24px;
         }
 
-        .user-phone {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 8px 15px;
-            border-radius: 20px;
+        .phone-display {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 12px;
+            border-radius: 8px;
             font-size: 12px;
-            font-weight: 600;
         }
 
         .content {
+            padding: 0 15px;
             max-width: 600px;
             margin: 0 auto;
-            padding: 20px;
-        }
-
-        .section {
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-        }
-
-        .section h2 {
-            color: #333;
-            margin-bottom: 15px;
-            font-size: 18px;
-            border-bottom: 3px solid #667eea;
-            padding-bottom: 10px;
-        }
-
-        .balance-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px;
-            border-radius: 15px;
-            text-align: center;
-            margin-bottom: 20px;
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
-        }
-
-        .balance-card h3 {
-            font-size: 14px;
-            margin-bottom: 10px;
-            opacity: 0.9;
-        }
-
-        .balance-card .amount {
-            font-size: 36px;
-            font-weight: bold;
-        }
-
-        .stat-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .stat-item {
-            background: #f9f9f9;
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-            border-left: 4px solid #667eea;
-        }
-
-        .stat-item .label {
-            font-size: 12px;
-            color: #888;
-            margin-bottom: 8px;
-            font-weight: 600;
-        }
-
-        .stat-item .value {
-            font-size: 24px;
-            font-weight: bold;
-            color: #667eea;
-        }
-
-        .city-list {
-            list-style: none;
-        }
-
-        .city-item {
-            background: #f9f9f9;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-left: 4px solid #667eea;
-        }
-
-        .city-info h4 {
-            color: #333;
-            margin-bottom: 5px;
-            font-size: 15px;
-        }
-
-        .city-info p {
-            font-size: 12px;
-            color: #888;
-        }
-
-        .city-income {
-            font-weight: bold;
-            color: #4caf50;
-            font-size: 16px;
-        }
-
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: white;
-            border-top: 1px solid #e0e0e0;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            height: 70px;
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.08);
-            z-index: 1000;
-        }
-
-        .nav-item {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            padding: 10px;
-            color: #999;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            font-size: 11px;
-        }
-
-        .nav-item.active {
-            color: #667eea;
-        }
-
-        .nav-item i {
-            font-size: 24px;
-            margin-bottom: 5px;
         }
 
         .tab-content {
@@ -192,335 +52,653 @@
             display: block;
         }
 
-        .btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            width: 100%;
-            margin-top: 10px;
-            transition: all 0.3s ease;
-            font-weight: 600;
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
         }
 
-        .btn:hover {
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .city-item {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            border-left: 4px solid #667eea;
+        }
+
+        .city-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .city-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .city-progress {
+            background: #e0e0e0;
+            height: 6px;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .city-progress-bar {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        .investment-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .investment-card {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            border: 2px solid #667eea30;
+            border-radius: 12px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .investment-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102,126,234,0.2);
+        }
+
+        .investment-card.invested {
+            background: linear-gradient(135deg, #3c3 0%, #2b2b2b 100%);
+            color: white;
+            border-color: #3c3;
+        }
+
+        .investment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .investment-name {
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .investment-price {
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .investment-card.invested .investment-price {
+            color: #3c3;
+        }
+
+        .investment-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            font-size: 12px;
+            margin-bottom: 12px;
+        }
+
+        .investment-detail {
+            background: white;
+            padding: 8px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .investment-card.invested .investment-detail {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .detail-value {
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .detail-label {
+            font-size: 10px;
+            opacity: 0.8;
+            text-transform: uppercase;
+        }
+
+        .btn {
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 10px 25px rgba(102,126,234,0.3);
         }
 
         .btn-secondary {
             background: #f0f0f0;
-            color: #333;
+            color: #667eea;
+            border: 1px solid #e0e0e0;
         }
 
         .btn-secondary:hover {
-            background: #e0e0e0;
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
         }
 
-        .transaction-item {
+        .task-item {
             background: #f9f9f9;
             padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 10px;
+            border-radius: 12px;
+            margin-bottom: 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
 
-        .transaction-info h4 {
+        .task-item:hover {
+            background: #f0f0f0;
+            transform: translateX(5px);
+        }
+
+        .task-item.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .task-name {
+            font-weight: 600;
             color: #333;
-            margin-bottom: 5px;
-            font-size: 14px;
         }
 
-        .transaction-info p {
+        .task-amount {
+            background: #667eea;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 8px;
             font-size: 12px;
-            color: #888;
-        }
-
-        .transaction-amount {
-            font-weight: bold;
-            font-size: 16px;
+            font-weight: 700;
         }
 
         .form-group {
             margin-bottom: 15px;
         }
 
-        .form-group label {
+        label {
             display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
             color: #333;
             font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        .form-group input, .form-group textarea {
+        input, select {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 13px;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
             font-family: inherit;
+            transition: all 0.3s ease;
         }
 
-        .form-group input:focus, .form-group textarea:focus {
+        input:focus, select:focus {
             outline: none;
             border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
         }
 
-        .contact-info {
-            background: #f0f4ff;
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             padding: 15px;
+            background: #f9f9f9;
             border-radius: 10px;
-            margin-top: 15px;
-            text-align: center;
-            font-size: 13px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
         }
 
-        .contact-info a {
+        .transaction-item.deposit {
+            border-left-color: #3c3;
+        }
+
+        .transaction-item.withdrawal {
+            border-left-color: #f93;
+        }
+
+        .transaction-item.bonus {
+            border-left-color: #f0f;
+        }
+
+        .transaction-info h4 {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .transaction-info p {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .transaction-amount {
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .transaction-amount.positive {
+            color: #3c3;
+        }
+
+        .transaction-amount.negative {
+            color: #f33;
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            border-top: 1px solid #e0e0e0;
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.08);
+            z-index: 1000;
+        }
+
+        .nav-item {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 24px;
+            transition: all 0.3s ease;
+            color: #999;
+        }
+
+        .nav-item.active {
             color: #667eea;
-            text-decoration: none;
+        }
+
+        .nav-item:active {
+            transform: scale(0.9);
+        }
+
+        .referral-code {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .referral-code p {
+            font-size: 12px;
+            margin-bottom: 8px;
+            opacity: 0.9;
+        }
+
+        .referral-code h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        .referral-code button {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .message {
+            background: #efe;
+            color: #3c3;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #3c3;
+            display: none;
+        }
+
+        .message.show {
+            display: block;
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            border-left-color: #c33;
+        }
+
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .badge {
+            background: #667eea;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
             font-weight: 600;
         }
 
-        .empty-state {
-            text-align: center;
-            padding: 30px 20px;
-            color: #888;
-        }
+        @media (max-width: 600px) {
+            .header {
+                padding: 15px;
+            }
 
-        .empty-state i {
-            font-size: 48px;
-            margin-bottom: 15px;
-            opacity: 0.5;
+            .content {
+                padding: 0 12px;
+            }
+
+            .card {
+                padding: 15px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="top-bar">
-        <h1><i class="fas fa-chart-line"></i> BITREX</h1>
-        <div class="user-phone"><%= user.phone %></div>
+    <div class="header">
+        <h1>💰 IncomePro</h1>
+        <div class="phone-display"><%= user.phone %></div>
     </div>
 
     <div class="content">
-        <!-- HOME TAB -->
         <div id="homeTab" class="tab-content active">
-            <div class="balance-card">
-                <h3>Current Balance</h3>
-                <div class="amount">KSH <%= balance.toLocaleString() %></div>
+            <div class="stat-card">
+                <div class="stat-label">Current Balance</div>
+                <div class="stat-value" id="balanceDisplay">KSH 0</div>
             </div>
 
-            <div class="section">
-                <h2><i class="fas fa-wallet"></i> Balance Overview</h2>
-                <div class="stat-grid">
-                    <div class="stat-item">
-                        <div class="label">Today's Income</div>
-                        <div class="value" id="todayIncome">KSH <%= todayIncome %></div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="label">Total Earnings</div>
-                        <div class="value">KSH <%= totalEarnings.toLocaleString() %></div>
-                    </div>
+            <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <div class="stat-label">Today's Income</div>
+                <div class="stat-value" id="dailyIncomeDisplay">KSH 0</div>
+            </div>
+
+            <div class="stat-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                <div class="stat-label">Total Earnings</div>
+                <div class="stat-value" id="totalEarningsDisplay">KSH 0</div>
+            </div>
+
+            <div class="card">
+                <h3>📍 Active Cities</h3>
+                <div id="activeCitiesContainer">
+                    <p style="color: #999; text-align: center; padding: 20px;">No active cities yet. Invest to get started!</p>
                 </div>
             </div>
 
-            <div class="section">
-                <h2><i class="fas fa-city"></i> Invested Cities</h2>
-                <% if (investedCities.length > 0) { %>
-                    <ul class="city-list">
-                        <% investedCities.forEach(city => { %>
-                            <li class="city-item">
-                                <div class="city-info">
-                                    <h4><%= city.city %></h4>
-                                    <p>Joined: <%= new Date(city.joinedDate).toLocaleDateString() %></p>
-                                </div>
-                                <div class="city-income">+KSH<%= city.dailyIncome %>/day</div>
-                            </li>
-                        <% }); %>
-                    </ul>
-                <% } else { %>
-                    <div class="empty-state">
-                        <i class="fas fa-building"></i>
-                        <p>No cities invested yet. Visit the Cities tab to start!</p>
-                    </div>
-                <% } %>
+            <div class="card flex-between">
+                <h3>💳 Quick Actions</h3>
             </div>
 
-            <div class="section">
-                <h2><i class="fas fa-plus-circle"></i> Add Funds</h2>
-                <form id="depositForm" method="POST" action="/wallet/deposit">
-                    <div class="form-group">
-                        <label>Amount (Min: KSH 300)</label>
-                        <input type="number" name="amount" min="300" placeholder="Enter amount" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Your Phone Number</label>
-                        <input type="tel" name="phone" placeholder="+254700000000" required>
-                    </div>
-                    <div class="form-group">
-                        <label>M-Pesa Code (after sending)</label>
-                        <input type="text" name="evidence" placeholder="e.g., ABC123DEF" required>
-                    </div>
-                    <p style="font-size: 12px; color: #f44336; margin: 10px 0; background: #fff3e0; padding: 10px; border-radius: 5px;">
-                        <strong>Send KSH to:</strong> <br> <i class="fas fa-mobile"></i> <strong>0733319700</strong>
-                    </p>
-                    <button type="submit" class="btn">Submit Deposit</button>
-                </form>
-            </div>
-
-            <div class="section">
-                <h2><i class="fas fa-arrow-down-to-bracket"></i> Withdraw Funds</h2>
-                <form id="withdrawForm" method="POST" action="/wallet/withdraw">
-                    <div class="form-group">
-                        <label>Amount (Min: KSH 500, Available: <%= balance %>)</label>
-                        <input type="number" name="amount" min="500" max="<%= balance %>" placeholder="Enter amount" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Phone Number to Receive Payment</label>
-                        <input type="tel" name="phone" placeholder="+254700000000" required>
-                    </div>
-                    <button type="submit" class="btn">Request Withdrawal</button>
-                </form>
-            </div>
-
-            <div class="section">
-                <h2><i class="fas fa-history"></i> Recent Transactions</h2>
-                <% if (transactions && transactions.length > 0) { %>
-                    <% transactions.slice(0, 5).forEach(txn => { %>
-                        <div class="transaction-item">
-                            <div class="transaction-info">
-                                <h4><%= txn.type.charAt(0).toUpperCase() + txn.type.slice(1) %></h4>
-                                <p><%= new Date(txn.createdAt).toLocaleDateString() %> - <span style="text-transform: capitalize;"><%= txn.status %></span></p>
-                            </div>
-                            <div class="transaction-amount" style="color: <%= txn.type === 'deposit' || txn.type === 'bonus' ? '#4caf50' : '#f44336' %>;">
-                                <%= txn.type === 'deposit' || txn.type === 'bonus' ? '+' : '-' %>KSH <%= txn.amount %>
-                            </div>
-                        </div>
-                    <% }); %>
-                <% } else { %>
-                    <div class="empty-state" style="padding: 20px;">
-                        <i class="fas fa-inbox"></i>
-                        <p>No transactions yet</p>
-                    </div>
-                <% } %>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <button class="btn btn-primary" onclick="switchTab('depositTab')">💰 Deposit</button>
+                <button class="btn btn-secondary" onclick="switchTab('withdrawTab')">💸 Withdraw</button>
             </div>
         </div>
 
-        <!-- TASKS TAB -->
-        <div id="tasksTab" class="tab-content">
-            <iframe src="/tasks" style="width: 100%; border: none; min-height: calc(100vh - 150px);"></iframe>
-        </div>
+        <div id="taskTab" class="tab-content">
+            <div class="card">
+                <h3>📋 Daily Tasks</h3>
+                <p style="color: #999; margin-bottom: 15px;">Complete tasks to earn income</p>
 
-        <!-- CITIES TAB -->
-        <div id="citiesTab" class="tab-content">
-            <iframe src="/cities" style="width: 100%; border: none; min-height: calc(100vh - 150px);"></iframe>
-        </div>
+                <div class="form-group">
+                    <label>Select City</label>
+                    <select id="taskCitySelect" onchange="loadTasksForCity()">
+                        <option value="">Choose a city...</option>
+                    </select>
+                </div>
 
-        <!-- MENU TAB -->
-        <div id="menuTab" class="tab-content">
-            <div class="section">
-                <h2><i class="fas fa-user"></i> User Info</h2>
-                <p><strong>Name:</strong> <%= user.name %></p>
-                <p><strong>Phone:</strong> <%= user.phone %></p>
-                <p><strong>Email:</strong> <%= user.email %></p>
-                <p><strong>Member Since:</strong> <%= new Date(user.createdAt).toLocaleDateString() %></p>
+                <div id="taskCounter" style="background: #f9f9f9; padding: 12px; border-radius: 10px; text-align: center; margin-bottom: 15px; display: none;">
+                    <p style="font-size: 12px; color: #999;">Tasks Today</p>
+                    <p style="font-size: 18px; font-weight: 700; color: #667eea;"><span id="tasksCompleted">0</span> / <span id="maxTasks">0</span></p>
+                </div>
+
+                <div id="tasksContainer">
+                    <p style="color: #999; text-align: center; padding: 20px;">Select a city to view tasks</p>
+                </div>
             </div>
+        </div>
 
-            <div class="section">
-                <h2><i class="fas fa-gift"></i> Referral Link</h2>
+        <div id="cityTab" class="tab-content">
+            <div class="card">
+                <h3>🏙️ Available Cities</h3>
+                <p style="color: #999; margin-bottom: 15px;">Invest to start earning</p>
+                <div id="citiesContainer" class="investment-grid"></div>
+            </div>
+        </div>
+
+        <div id="depositTab" class="tab-content">
+            <div class="card">
+                <h3>💰 Deposit Money</h3>
+                <p style="color: #999; margin-bottom: 15px;">Minimum deposit: KSH 300</p>
+
+                <div id="depositMessage" class="message"></div>
+
+                <div class="form-group">
+                    <label>Amount (KSH)</label>
+                    <input type="number" id="depositAmount" placeholder="e.g., 500" min="300">
+                </div>
+
+                <div class="form-group">
+                    <label>Your Phone Number</label>
+                    <input type="tel" id="depositPhone" placeholder="e.g., +254706123456">
+                </div>
+
+                <div class="form-group">
+                    <label>Upload M-Pesa Receipt/Evidence</label>
+                    <input type="file" id="depositEvidence" accept="image/*">
+                    <p style="font-size: 11px; color: #999; margin-top: 8px;">📤 Send money to: <strong>0733319700</strong></p>
+                </div>
+
+                <button class="btn btn-primary" onclick="submitDeposit()">Submit Deposit</button>
+            </div>
+        </div>
+
+        <div id="withdrawTab" class="tab-content">
+            <div class="card">
+                <h3>💸 Withdraw Money</h3>
+                <p style="color: #999; margin-bottom: 15px;">Minimum withdrawal: KSH 500</p>
+
+                <div id="withdrawMessage" class="message"></div>
+
+                <div class="form-group">
+                    <label>Amount (KSH)</label>
+                    <input type="number" id="withdrawAmount" placeholder="e.g., 1000" min="500">
+                </div>
+
+                <div class="form-group">
+                    <label>Phone Number (to receive payment)</label>
+                    <input type="tel" id="withdrawPhone" placeholder="e.g., +254706123456">
+                </div>
+
+                <div class="form-group">
+                    <label>Withdrawal Password</label>
+                    <input type="password" id="withdrawPassword" placeholder="Enter your withdrawal password">
+                </div>
+
+                <button class="btn btn-primary" onclick="submitWithdraw()">Withdraw Now</button>
+            </div>
+        </div>
+
+        <div id="referralTab" class="tab-content">
+            <div class="card">
+                <h3>🎁 Referral Program</h3>
+                <p style="color: #999; margin-bottom: 15px;">Earn KSH 300 for every 5 friends who join!</p>
+
+                <div class="referral-code">
+                    <p>Your Unique Referral Code</p>
+                    <h3 id="referralCodeDisplay">LOADING...</h3>
+                    <button onclick="copyReferralCode()">Copy Code</button>
+                </div>
+
+                <div class="card" style="background: #f9f9f9;">
+                    <p><strong>Referrals:</strong> <span id="referralCountDisplay">0</span>/5</p>
+                    <div style="background: #e0e0e0; height: 8px; border-radius: 4px; overflow: hidden; margin-top: 8px;">
+                        <div id="referralProgress" style="background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); height: 100%; width: 0%; transition: width 0.3s ease;"></div>
+                    </div>
+                </div>
+
+                <p style="margin-top: 15px; color: #666; font-size: 13px;">✅ Share your code with friends. When they sign up and invest in any city, you'll earn a KSH 300 bonus!</p>
+            </div>
+        </div>
+
+        <div id="historyTab" class="tab-content">
+            <div class="card">
+                <h3>📊 Transaction History</h3>
+                <div id="transactionHistoryContainer">
+                    <p style="color: #999; text-align: center; padding: 20px;">Loading transactions...</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="profileTab" class="tab-content">
+            <div class="card">
+                <h3>👤 Profile</h3>
+
                 <div style="background: #f9f9f9; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
-                    <p style="font-size: 12px; color: #888; margin-bottom: 10px;">Your Referral Code:</p>
-                    <input type="text" readonly value="<%= user.referralCode %>" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ddd; margin-bottom: 10px;">
-                    <button class="btn btn-secondary" onclick="copyToClipboard('<%= user.referralCode %>')"><i class="fas fa-copy"></i> Copy Code</button>
+                    <p><strong>Phone:</strong> <span id="profilePhone"><%= user.phone %></span></p>
+                    <p><strong>Email:</strong> <span id="profileEmail"><%= user.email %></span></p>
+                    <p><strong>Member Since:</strong> <span id="profileMemberSince"></span></p>
                 </div>
-                <a href="/referral" class="btn"><i class="fas fa-link"></i> View Referral Details</a>
-            </div>
 
-            <div class="section">
-                <h2><i class="fas fa-headset"></i> Contact Support</h2>
-                <div class="contact-info">
-                    <p style="margin-bottom: 10px;">Need help? Contact our manager</p>
-                    <a href="https://wa.me/254106305272" target="_blank" style="display: inline-block; padding: 10px 20px; background: #25d366; color: white; border-radius: 8px; margin-bottom: 10px;">
-                        <i class="fab fa-whatsapp"></i> WhatsApp Manager
-                    </a>
-                    <p style="margin-top: 15px; margin-bottom: 10px;">Or join our company channel</p>
-                    <a href="https://whatsapp.com/channel/0029VbCayoOA2pLHtre2dP3J" target="_blank" style="display: inline-block; padding: 10px 20px; background: #25d366; color: white; border-radius: 8px;">
-                        <i class="fab fa-whatsapp"></i> Company Channel
-                    </a>
-                </div>
-            </div>
+                <h4 style="margin-bottom: 10px;">📞 Contact Support</h4>
+                <p style="color: #666; margin-bottom: 15px;">Need help? Chat with our manager on WhatsApp</p>
+                <a href="https://wa.me/254106305272" class="btn btn-primary" style="text-decoration: none; display: block; text-align: center;">💬 WhatsApp Support +254106305272</a>
 
-            <div class="section">
-                <a href="/logout" class="btn" style="background: #f44336;">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </a>
+                <button class="btn btn-secondary" style="margin-top: 15px;" onclick="logout()">Logout</button>
             </div>
         </div>
     </div>
 
-    <!-- BOTTOM NAVIGATION -->
     <div class="bottom-nav">
-        <a class="nav-item active" onclick="showTab('homeTab')">
-            <i class="fas fa-home"></i>
-            <span>Home</span>
-        </a>
-        <a class="nav-item" onclick="showTab('tasksTab')">
-            <i class="fas fa-tasks"></i>
-            <span>Tasks</span>
-        </a>
-        <a class="nav-item" onclick="showTab('citiesTab')">
-            <i class="fas fa-building"></i>
-            <span>Cities</span>
-        </a>
-        <a class="nav-item" onclick="showTab('menuTab')">
-            <i class="fas fa-bars"></i>
-            <span>Menu</span>
-        </a>
+        <button class="nav-item active" onclick="switchTab('homeTab')">🏠</button>
+        <button class="nav-item" onclick="switchTab('taskTab')">📋</button>
+        <button class="nav-item" onclick="switchTab('cityTab')">🏙️</button>
+        <button class="nav-item" onclick="switchTab('referralTab')">🎁</button>
+        <button class="nav-item" onclick="switchTab('profileTab')">👤</button>
     </div>
 
     <script>
-        function showTab(tabName) {
-            // Hide all tabs
-            document.querySelectorAll('.tab-content').forEach(el => {
-                el.classList.remove('active');
-            });
-            document.querySelectorAll('.nav-item').forEach(el => {
-                el.classList.remove('active');
-            });
+        const userId = localStorage.getItem('userId');
+        let userData = null;
 
-            // Show selected tab
-            document.getElementById(tabName).classList.add('active');
-            event.target.closest('.nav-item').classList.add('active');
-        }
-
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(() => {
-                alert('Referral code copied!');
-            });
-        }
-
-        // Deposit form
-        document.getElementById('depositForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const data = Object.fromEntries(formData);
-
+        // Load user data on page load
+        async function loadDashboard() {
             try {
-                const response = await fetch('/wallet/deposit', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-                const result = await response.json();
+                const response = await fetch(`/api/dashboard/${userId}`);
+                const data = await response.json();
+                userData = data;
 
-                if (result.success) {
-                    alert(result.message);
-                    e.target.reset();
-                } else {
-                    alert('Error: ' + result.message);
+                // Update UI with user data
+                document.getElementById('balanceDisplay').textContent = 'KSH ' + userData.balance.toLocaleString();
+                document.getElementById('dailyIncomeDisplay').textContent = 'KSH ' + userData.dailyIncome.toLocaleString();
+                document.getElementById('totalEarningsDisplay').textContent = 'KSH ' + userData.totalEarnings.toLocaleString();
+                document.getElementById('referralCodeDisplay').textContent = userData.referralCode;
+                document.getElementById('referralCountDisplay').textContent = userData.referralCount;
+                document.getElementById('profileMemberSince').textContent = new Date(userData.createdAt).toLocaleDateString();
+
+                // Update referral progress
+                const progress = (userData.referralCount / 5) * 100;
+                document.getElementById('referralProgress').style.width = Math.min(progress, 100) + '%';
+
+                // Load cities
+                loadCities();
+                loadActiveCities();
+                loadTransactionHistory();
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+            }
+        }
+
+        async function loadCities() {
+            try {
+                const response = await fetch('/api/cities');
+                const cities = await response.json();
+
+                let html = '';
+                for (const [cityName, cityInfo] of Object.entries(cities)) {
+                    const isInvested = userData.citiesJoined.some(c => c.city === cityName);
+                    html += `
+                        <div class="investment-card ${isInvested ? 'invested' : ''}" onclick="${!isInvested ? `investCity('${cityName}')` : ''}">
+                            <div class="investment-header">
+                                <div class="investment-name">${cityName}</div>
+                                <div class="investment-price">KSH ${cityInfo.investment.toLocaleString()}</div>
+                            </div>
+                            <div class="investment-details">
+                                <div class="investment-detail">
+                                    <div class="detail-value">${cityInfo.maxTasks}</div>
+                                    <div class="detail-label">Tasks/Day</div>
+                                </div>
+                                <div class="investment-detail">
+                                    <div class="detail-value">KSH ${cityInfo.dailyIncome}</div>
+                                    <div class="detail-label">Daily Income</div>
+                                </div>
+                            </div>
+                            ${isInvested ? '<button class="btn btn-primary" style="width: 100%;">✓ Invested</button>' : '<button class="btn btn-primary" style="width: 100%;">Invest Now</button>'}
+                        </div>
+                    `;
                 }
+                document.getElementById('citiesContainer').innerHTML = html;
+
+                // Load task city select
+                let selectHtml = '<option value="">Choose a city...</option>';
+                userData.citiesJoined.forEach(city =>
