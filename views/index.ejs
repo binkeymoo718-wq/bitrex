@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BITREX - Online Business Platform</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Income Platform - Earn Daily</title>
     <style>
         * {
             margin: 0;
@@ -24,213 +23,492 @@
 
         .container {
             width: 100%;
-            max-width: 450px;
+            max-width: 500px;
+        }
+
+        .card {
             background: white;
             border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 50px 20px;
-            text-align: center;
-        }
-
-        .header h1 {
-            font-size: 42px;
-            margin-bottom: 10px;
-            font-weight: 700;
-        }
-
-        .header p {
-            font-size: 14px;
-            opacity: 0.9;
-        }
-
-        .content {
             padding: 40px 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo h1 {
+            color: #667eea;
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .logo p {
+            color: #999;
+            font-size: 14px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            background: none;
+            border: none;
+            color: #999;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tab-btn.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         .form-group {
             margin-bottom: 20px;
         }
 
-        .form-group label {
+        label {
             display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
             color: #333;
-            font-size: 14px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        .form-group input {
+        input, select {
             width: 100%;
             padding: 12px 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
             font-size: 14px;
             transition: all 0.3s ease;
+            font-family: inherit;
         }
 
-        .form-group input:focus {
+        input:focus, select:focus {
             outline: none;
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
+        .password-group {
+            position: relative;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 45px;
+            cursor: pointer;
+            color: #667eea;
+            font-size: 18px;
+        }
+
         .btn {
             width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            padding: 14px;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-top: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        .btn:hover {
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin-top: 10px;
+        }
+
+        .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
         }
 
-        .toggle-btn {
-            background: #f5f5f5;
-            color: #667eea;
-            margin-bottom: 20px;
+        .btn-primary:active {
+            transform: translateY(0);
         }
 
-        .toggle-section {
-            display: none;
-        }
-
-        .toggle-section.active {
-            display: block;
-        }
-
-        .error {
-            background: #fee;
-            color: #c33;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            font-size: 13px;
-            border-left: 4px solid #c33;
-        }
-
-        .success {
-            background: #efe;
-            color: #3c3;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            font-size: 13px;
-            border-left: 4px solid #3c3;
-        }
-
-        .text-center {
+        .switch-auth {
             text-align: center;
             margin-top: 20px;
             font-size: 14px;
             color: #666;
         }
 
-        .text-center a {
+        .switch-auth a {
             color: #667eea;
-            cursor: pointer;
-            font-weight: 600;
             text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
         }
 
-        .text-center a:hover {
+        .switch-auth a:hover {
             text-decoration: underline;
         }
 
-        h2 {
+        .error-message {
+            background-color: #fee;
+            color: #c33;
+            padding: 12px;
+            border-radius: 8px;
             margin-bottom: 20px;
-            color: #333;
+            font-size: 13px;
+            display: none;
+            border-left: 4px solid #c33;
+        }
+
+        .error-message.show {
+            display: block;
+            animation: shake 0.3s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .success-message {
+            background-color: #efe;
+            color: #3c3;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            display: none;
+            border-left: 4px solid #3c3;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        .referral-info {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #667eea30;
+            margin-top: 15px;
+        }
+
+        .referral-info p {
+            color: #666;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-group input {
+            flex: 1;
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #667eea;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .loading {
+            display: none;
             text-align: center;
+            color: #667eea;
+            font-size: 14px;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            margin-bottom: 0;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        @media (max-width: 600px) {
+            .card {
+                padding: 30px 20px;
+            }
+
+            .logo h1 {
+                font-size: 26px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1><i class="fas fa-chart-line"></i> BITREX</h1>
-            <p>Your Online Income Platform</p>
-        </div>
+        <div class="card">
+            <div class="logo">
+                <h1>💰 IncomePro</h1>
+                <p>Start Earning Daily Today</p>
+            </div>
 
-        <div class="content">
-            <% if (message) { %>
-                <div class="<%= message.includes('error') || message.includes('Invalid') ? 'error' : 'success' %>">
-                    <%= message %>
-                </div>
-            <% } %>
+            <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
 
-            <!-- LOGIN SECTION -->
-            <div id="loginSection" class="toggle-section active">
-                <h2>Welcome Back</h2>
-                <form method="POST" action="/auth/login">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('login')">Login</button>
+                <button class="tab-btn" onclick="switchTab('signup')">Sign Up</button>
+            </div>
+
+            <!-- Login Tab -->
+            <div class="tab-content active" id="login">
+                <form onsubmit="handleLogin(event)">
                     <div class="form-group">
-                        <label><i class="fas fa-phone"></i> Phone Number</label>
-                        <input type="tel" name="phone" placeholder="+254700000000" required>
+                        <label>📱 Phone Number</label>
+                        <input type="tel" id="loginPhone" placeholder="e.g., +254706123456" required>
                     </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-lock"></i> Password</label>
-                        <input type="password" name="password" placeholder="Enter your password" required>
+
+                    <div class="form-group password-group">
+                        <label>🔐 Password</label>
+                        <input type="password" id="loginPassword" placeholder="Enter your password" required>
+                        <span class="toggle-password" onclick="togglePassword('loginPassword')">👁️</span>
                     </div>
-                    <button type="submit" class="btn">Login</button>
+
+                    <button type="submit" class="btn btn-primary">Login</button>
+
+                    <div class="loading" id="loginLoading">
+                        <div class="spinner"></div>
+                        <p>Logging in...</p>
+                    </div>
                 </form>
 
-                <div class="text-center">
-                    Don't have an account? <a onclick="toggleForms()">Sign Up</a>
+                <div class="switch-auth">
+                    Don't have an account? <a onclick="switchTab('signup')">Sign Up Now</a>
                 </div>
             </div>
 
-            <!-- SIGNUP SECTION -->
-            <div id="signupSection" class="toggle-section">
-                <h2>Create Account</h2>
-                <form method="POST" action="/auth/signup">
+            <!-- Signup Tab -->
+            <div class="tab-content" id="signup">
+                <form onsubmit="handleSignup(event)">
                     <div class="form-group">
-                        <label><i class="fas fa-user"></i> Full Name</label>
-                        <input type="text" name="name" placeholder="Your full name" required>
+                        <label>📱 Phone Number</label>
+                        <input type="tel" id="signupPhone" placeholder="e.g., +254706123456" required>
                     </div>
+
                     <div class="form-group">
-                        <label><i class="fas fa-phone"></i> Phone Number</label>
-                        <input type="tel" name="phone" placeholder="+254700000000" required>
+                        <label>📧 Email Address</label>
+                        <input type="email" id="signupEmail" placeholder="your@email.com" required>
                     </div>
+
+                    <div class="form-group password-group">
+                        <label>🔐 Password (6-8 characters)</label>
+                        <input type="password" id="signupPassword" placeholder="Create password" minlength="6" maxlength="8" required>
+                        <span class="toggle-password" onclick="togglePassword('signupPassword')">👁️</span>
+                    </div>
+
+                    <div class="form-group password-group">
+                        <label>🔐 Confirm Password</label>
+                        <input type="password" id="signupConfirmPassword" placeholder="Confirm password" minlength="6" maxlength="8" required>
+                        <span class="toggle-password" onclick="togglePassword('signupConfirmPassword')">👁️</span>
+                    </div>
+
                     <div class="form-group">
-                        <label><i class="fas fa-envelope"></i> Email Address</label>
-                        <input type="email" name="email" placeholder="your@email.com" required>
+                        <label>🎁 Referral Code (Optional)</label>
+                        <input type="text" id="referralCode" placeholder="Enter referral code if invited">
                     </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-lock"></i> Password (6-8 characters)</label>
-                        <input type="password" name="password" placeholder="Create password" minlength="6" maxlength="8" required>
+
+                    <button type="submit" class="btn btn-primary">Create Account</button>
+
+                    <div class="loading" id="signupLoading">
+                        <div class="spinner"></div>
+                        <p>Creating account...</p>
                     </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-gift"></i> Referral Code (Optional)</label>
-                        <input type="text" name="referralCode" placeholder="If you have one">
-                    </div>
-                    <button type="submit" class="btn">Create Account</button>
                 </form>
 
-                <div class="text-center">
-                    Already have an account? <a onclick="toggleForms()">Login</a>
+                <div class="referral-info">
+                    <p><strong>💡 Tip:</strong> If a friend invited you, enter their referral code to get started. You'll both benefit from the referral program!</p>
+                </div>
+
+                <div class="switch-auth">
+                    Already have an account? <a onclick="switchTab('login')">Login Here</a>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        function toggleForms() {
-            document.getElementById('loginSection').classList.toggle('active');
-            document.getElementById('signupSection').classList.toggle('active');
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(tab).classList.add('active');
+            event.target.classList.add('active');
+
+            // Reset forms and messages
+            document.getElementById('errorMessage').classList.remove('show');
+            document.getElementById('successMessage').classList.remove('show');
         }
+
+        function togglePassword(id) {
+            const input = document.getElementById(id);
+            input.type = input.type === 'password' ? 'text' : 'password';
+        }
+
+        function showError(message) {
+            const errorEl = document.getElementById('errorMessage');
+            errorEl.textContent = message;
+            errorEl.classList.add('show');
+            setTimeout(() => errorEl.classList.remove('show'), 5000);
+        }
+
+        function showSuccess(message) {
+            const successEl = document.getElementById('successMessage');
+            successEl.textContent = message;
+            successEl.classList.add('show');
+            setTimeout(() => successEl.classList.remove('show'), 5000);
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const phone = document.getElementById('loginPhone').value;
+            const password = document.getElementById('loginPassword').value;
+
+            document.getElementById('loginLoading').style.display = 'block';
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    localStorage.setItem('userId', data.userId);
+                    localStorage.setItem('token', data.token);
+                    showSuccess('Login successful! Redirecting...');
+                    setTimeout(() => window.location.href = '/dashboard', 1500);
+                } else {
+                    showError(data.message || 'Login failed');
+                }
+            } catch (error) {
+                showError('Connection error. Please try again.');
+            } finally {
+                document.getElementById('loginLoading').style.display = 'none';
+            }
+        }
+
+        async function handleSignup(e) {
+            e.preventDefault();
+            const phone = document.getElementById('signupPhone').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            const confirmPassword = document.getElementById('signupConfirmPassword').value;
+            const referralCode = document.getElementById('referralCode').value;
+
+            document.getElementById('signupLoading').style.display = 'block';
+
+            try {
+                const response = await fetch('/api/auth/signup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone, email, password, confirmPassword, referralCode })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showSuccess('Account created! Your referral code: ' + data.referralCode);
+                    setTimeout(() => switchTab('login'), 2000);
+                } else {
+                    showError(data.message || 'Signup failed');
+                }
+            } catch (error) {
+                showError('Connection error. Please try again.');
+            } finally {
+                document.getElementById('signupLoading').style.display = 'none';
+            }
+        }
+
+        // Set active tab button on load
+        document.querySelector('.tab-btn').classList.add('active');
     </script>
 </body>
 </html>
