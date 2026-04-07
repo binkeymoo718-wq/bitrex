@@ -29,6 +29,7 @@
 
         .navbar h1 {
             font-size: 24px;
+            font-weight: 700;
         }
 
         .navbar a {
@@ -43,12 +44,13 @@
 
         .navbar a:hover {
             background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1300px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 30px 20px;
         }
 
         .stats-grid {
@@ -64,6 +66,12 @@
             border-radius: 12px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
             border-left: 5px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.12);
         }
 
         .stat-card.success {
@@ -84,6 +92,7 @@
             margin-bottom: 10px;
             text-transform: uppercase;
             font-weight: 600;
+            letter-spacing: 0.5px;
         }
 
         .stat-card .value {
@@ -108,6 +117,10 @@
             padding-bottom: 15px;
         }
 
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -116,15 +129,18 @@
 
         th {
             background: #f5f7fa;
-            padding: 12px;
+            padding: 15px;
             text-align: left;
-            font-weight: 600;
+            font-weight: 700;
             color: #333;
             border-bottom: 2px solid #e0e0e0;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.5px;
         }
 
         td {
-            padding: 12px;
+            padding: 15px;
             border-bottom: 1px solid #e0e0e0;
         }
 
@@ -134,10 +150,12 @@
 
         .badge {
             display: inline-block;
-            padding: 5px 10px;
+            padding: 6px 12px;
             border-radius: 20px;
             font-size: 11px;
-            font-weight: 600;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .badge.pending {
@@ -161,7 +179,7 @@
             border-radius: 5px;
             cursor: pointer;
             font-size: 12px;
-            font-weight: 600;
+            font-weight: 700;
             margin-right: 5px;
             transition: all 0.3s ease;
         }
@@ -173,6 +191,8 @@
 
         .btn-approve:hover {
             background: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
         }
 
         .btn-reject {
@@ -182,11 +202,13 @@
 
         .btn-reject:hover {
             background: #da190b;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(244, 67, 54, 0.3);
         }
 
         .empty-state {
             text-align: center;
-            padding: 40px 20px;
+            padding: 60px 20px;
             color: #888;
         }
 
@@ -195,11 +217,47 @@
             margin-bottom: 15px;
             opacity: 0.5;
         }
+
+        .empty-state p {
+            font-size: 14px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+        }
+
+        .user-details h4 {
+            margin: 0;
+            font-size: 13px;
+            color: #333;
+        }
+
+        .user-details p {
+            margin: 3px 0 0 0;
+            font-size: 11px;
+            color: #888;
+        }
     </style>
 </head>
 <body>
     <div class="navbar">
-        <h1><i class="fas fa-shield-alt"></i> BITREX Admin Dashboard</h1>
+        <div>
+            <h1><i class="fas fa-shield-alt"></i> BITREX Admin Dashboard</h1>
+        </div>
         <a href="/admin/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
     </div>
 
@@ -207,100 +265,222 @@
         <!-- STATISTICS -->
         <div class="stats-grid">
             <div class="stat-card">
-                <h3>Total Users</h3>
+                <h3><i class="fas fa-users"></i> Total Users</h3>
                 <div class="value"><%= totalUsers %></div>
             </div>
             <div class="stat-card success">
-                <h3>Total Balance</h3>
+                <h3><i class="fas fa-piggy-bank"></i> Total Balance</h3>
                 <div class="value">KSH <%= totalBalance.toLocaleString() %></div>
             </div>
             <div class="stat-card warning">
-                <h3>Pending Deposits</h3>
+                <h3><i class="fas fa-clock"></i> Pending Deposits</h3>
                 <div class="value"><%= deposits.filter(d => d.status === 'pending').length %></div>
             </div>
             <div class="stat-card danger">
-                <h3>Pending Withdrawals</h3>
+                <h3><i class="fas fa-hourglass"></i> Pending Withdrawals</h3>
                 <div class="value"><%= withdrawals.filter(w => w.status === 'pending').length %></div>
             </div>
         </div>
 
-        <!-- DEPOSITS -->
+        <!-- DEPOSITS SECTION -->
         <div class="section">
-            <h2><i class="fas fa-plus-circle"></i> Deposit Requests</h2>
+            <h2><i class="fas fa-arrow-up-to-bracket"></i> Deposit Requests</h2>
             
-            <% if (deposits && deposits.length > 0) { %>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>User</th>
-                            <th>Phone</th>
-                            <th>Amount</th>
-                            <th>Status</th>
-                            <th>Date</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <% deposits.forEach(deposit => { %>
+            <div class="table-wrapper">
+                <% if (deposits && deposits.length > 0) { %>
+                    <table>
+                        <thead>
                             <tr>
-                                <td><strong><%= deposit.userId ? deposit.userId.name : 'Unknown' %></strong></td>
-                                <td><%= deposit.userId ? deposit.userId.phone : 'N/A' %></td>
-                                <td><strong>KSH <%= deposit.amount %></strong></td>
-                                <td><span class="badge <%= deposit.status %>"><%= deposit.status %></span></td>
-                                <td><%= new Date(deposit.createdAt).toLocaleDateString() %></td>
-                                <td>
-                                    <% if (deposit.status === 'pending') { %>
-                                        <button class="btn-action btn-approve" onclick="approveTransaction('<%= deposit._id %>')">Approve</button>
-                                        <button class="btn-action btn-reject" onclick="rejectTransaction('<%= deposit._id %>')">Reject</button>
-                                    <% } %>
-                                </td>
+                                <th>User</th>
+                                <th>Phone</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Actions</th>
                             </tr>
-                        <% }); %>
-                    </tbody>
-                </table>
-            <% } else { %>
-                <div class="empty-state">
-                    <i class="fas fa-inbox"></i>
-                    <p>No deposits</p>
-                </div>
-            <% } %>
+                        </thead>
+                        <tbody>
+                            <% deposits.forEach(deposit => { %>
+                                <tr>
+                                    <td>
+                                        <div class="user-info">
+                                            <div class="user-avatar">
+                                                <%= (deposit.userId && deposit.userId.name) ? deposit.userId.name.charAt(0).toUpperCase() : '?' %>
+                                            </div>
+                                            <div class="user-details">
+                                                <h4><%= deposit.userId && deposit.userId.name ? deposit.userId.name : 'Unknown' %></h4>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><%= deposit.userId && deposit.userId.phone ? deposit.userId.phone : 'N/A' %></td>
+                                    <td><strong>KSH <%= deposit.amount.toLocaleString() %></strong></td>
+                                    <td><span class="badge <%= deposit.status %>"><%= deposit.status %></span></td>
+                                    <td><%= new Date(deposit.createdAt).toLocaleDateString() %> <br><small><%= new Date(deposit.createdAt).toLocaleTimeString() %></small></td>
+                                    <td>
+                                        <% if (deposit.status === 'pending') { %>
+                                            <button class="btn-action btn-approve" onclick="approveTransaction('<%= deposit._id %>')"><i class="fas fa-check"></i> Approve</button>
+                                            <button class="btn-action btn-reject" onclick="rejectTransaction('<%= deposit._id %>')"><i class="fas fa-times"></i> Reject</button>
+                                        <% } else { %>
+                                            <small style="color: #888;">Completed</small>
+                                        <% } %>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                <% } else { %>
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>No deposit requests</p>
+                    </div>
+                <% } %>
+            </div>
         </div>
 
-        <!-- WITHDRAWALS -->
+        <!-- WITHDRAWALS SECTION -->
         <div class="section">
             <h2><i class="fas fa-arrow-down-to-bracket"></i> Withdrawal Requests</h2>
             
-            <% if (withdrawals && withdrawals.length > 0) { %>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>User</th>
-                            <th>Phone</th>
-                            <th>Amount</th>
-                            <th>Status</th>
-                            <th>Date</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <% withdrawals.forEach(withdrawal => { %>
+            <div class="table-wrapper">
+                <% if (withdrawals && withdrawals.length > 0) { %>
+                    <table>
+                        <thead>
                             <tr>
-                                <td><strong><%= withdrawal.userId ? withdrawal.userId.name : 'Unknown' %></strong></td>
-                                <td><%= withdrawal.phone %></td>
-                                <td><strong>KSH <%= withdrawal.amount %></strong></td>
-                                <td><span class="badge <%= withdrawal.status %>"><%= withdrawal.status %></span></td>
-                                <td><%= new Date(withdrawal.createdAt).toLocaleDateString() %></td>
-                                <td>
-                                    <% if (withdrawal.status === 'pending') { %>
-                                        <button class="btn-action btn-approve" onclick="approveTransaction('<%= withdrawal._id %>')">Approve</button>
-                                        <button class="btn-action btn-reject" onclick="rejectTransaction('<%= withdrawal._id %>')">Reject</button>
-                                    <% } %>
-                                </td>
+                                <th>User</th>
+                                <th>Phone</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Actions</th>
                             </tr>
-                        <% }); %>
-                    </tbody>
-                </table>
-            <% } else { %>
-                <div class="empty-state">
-                    <i class="fas fa-inbox"></i>
-                    <p>
+                        </thead>
+                        <tbody>
+                            <% withdrawals.forEach(withdrawal => { %>
+                                <tr>
+                                    <td>
+                                        <div class="user-info">
+                                            <div class="user-avatar">
+                                                <%= (withdrawal.userId && withdrawal.userId.name) ? withdrawal.userId.name.charAt(0).toUpperCase() : '?' %>
+                                            </div>
+                                            <div class="user-details">
+                                                <h4><%= withdrawal.userId && withdrawal.userId.name ? withdrawal.userId.name : 'Unknown' %></h4>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><%= withdrawal.phone %></td>
+                                    <td><strong>KSH <%= withdrawal.amount.toLocaleString() %></strong></td>
+                                    <td><span class="badge <%= withdrawal.status %>"><%= withdrawal.status %></span></td>
+                                    <td><%= new Date(withdrawal.createdAt).toLocaleDateString() %> <br><small><%= new Date(withdrawal.createdAt).toLocaleTimeString() %></small></td>
+                                    <td>
+                                        <% if (withdrawal.status === 'pending') { %>
+                                            <button class="btn-action btn-approve" onclick="approveTransaction('<%= withdrawal._id %>')"><i class="fas fa-check"></i> Approve</button>
+                                            <button class="btn-action btn-reject" onclick="rejectTransaction('<%= withdrawal._id %>')"><i class="fas fa-times"></i> Reject</button>
+                                        <% } else { %>
+                                            <small style="color: #888;">Completed</small>
+                                        <% } %>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                <% } else { %>
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>No withdrawal requests</p>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+
+        <!-- BONUSES SECTION -->
+        <div class="section">
+            <h2><i class="fas fa-gift"></i> Referral Bonuses Awarded</h2>
+            
+            <div class="table-wrapper">
+                <% if (bonuses && bonuses.length > 0) { %>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Amount</th>
+                                <th>Reason</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% bonuses.forEach(bonus => { %>
+                                <tr>
+                                    <td>
+                                        <div class="user-info">
+                                            <div class="user-avatar">
+                                                <%= (bonus.userId && bonus.userId.name) ? bonus.userId.name.charAt(0).toUpperCase() : '?' %>
+                                            </div>
+                                            <div class="user-details">
+                                                <h4><%= bonus.userId && bonus.userId.name ? bonus.userId.name : 'Unknown' %></h4>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><strong>KSH <%= bonus.amount.toLocaleString() %></strong></td>
+                                    <td><%= bonus.description %></td>
+                                    <td><%= new Date(bonus.createdAt).toLocaleDateString() %></td>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                <% } else { %>
+                    <div class="empty-state">
+                        <i class="fas fa-gift"></i>
+                        <p>No bonuses awarded yet</p>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function approveTransaction(transactionId) {
+            if (confirm('Are you sure you want to approve this transaction?')) {
+                try {
+                    const response = await fetch(`/admin/approve/${transactionId}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        alert('✓ Transaction approved!');
+                        location.reload();
+                    } else {
+                        alert('✗ Error approving transaction');
+                    }
+                } catch (error) {
+                    alert('✗ Error: ' + error.message);
+                }
+            }
+        }
+
+        async function rejectTransaction(transactionId) {
+            if (confirm('Are you sure you want to reject this transaction?')) {
+                try {
+                    const response = await fetch(`/admin/reject/${transactionId}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        alert('✓ Transaction rejected!');
+                        location.reload();
+                    } else {
+                        alert('✗ Error rejecting transaction');
+                    }
+                } catch (error) {
+                    alert('✗ Error: ' + error.message);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
