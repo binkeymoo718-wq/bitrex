@@ -6,83 +6,67 @@
     <title>BITREX Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .gradient-main { background: linear-gradient(180deg, #3b82f6 0%, #ffffff 100%); min-height: 100vh; }
+        .grad { background: linear-gradient(180deg, #2563eb 0%, #ffffff 100%); min-height: 100vh; }
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; display: flex; justify-content: space-around; background: white; padding: 15px; border-top: 1px solid #eee; }
-        .tab-btn { font-size: 11px; font-weight: bold; color: #888; text-align: center; }
-        .tab-btn.active { color: #2563eb; }
         .hidden-tab { display: none; }
     </style>
 </head>
-<body class="gradient-main pb-24">
+<body class="grad pb-20">
 
     <div id="homer-tab" class="p-5">
         <div class="flex justify-between items-center text-white mb-6">
             <h1 class="text-2xl font-black italic">BITREX</h1>
-            <span class="text-sm">ID: <%= user.phone %></span>
+            <span class="text-xs bg-blue-800 px-3 py-1 rounded-full">ID: <%= user.phone %></span>
         </div>
-        <div class="bg-blue-700 rounded-3xl p-6 text-white shadow-2xl mb-6">
-            <p class="text-xs opacity-80 uppercase">Total Balance</p>
+
+        <div class="bg-blue-600 rounded-3xl p-6 text-white shadow-xl mb-6">
+            <p class="text-[10px] opacity-70 uppercase tracking-widest">Available Balance</p>
             <p class="text-4xl font-bold mb-6">KSh <%= user.balance %></p>
-            <div class="flex justify-between pt-4 border-t border-blue-500">
-                <div><p class="text-[10px] opacity-70">TODAY'S INCOME</p><p class="font-bold">KSh <%= user.today_income %></p></div>
-                <div><p class="text-[10px] opacity-70">CITY</p><p class="font-bold text-xs"><%= activeCities.length ? activeCities.join(', ') : 'None' %></p></div>
+            <div class="grid grid-cols-2 gap-4 border-t border-blue-400 pt-4">
+                <div><p class="text-[9px] opacity-70">TODAY INCOME</p><p class="font-bold text-sm">KSh <%= user.today_income %></p></div>
+                <div><p class="text-[9px] opacity-70">LEVEL</p><p class="font-bold text-sm uppercase"><%= activeCities.length > 0 ? activeCities[0] : 'None' %></p></div>
             </div>
         </div>
-        <div class="bg-white rounded-2xl shadow-lg p-2 mb-6 grid grid-cols-2 gap-2">
-            <button onclick="showTab('wallet')" class="py-3 font-bold text-blue-600">Deposit</button>
-            <button onclick="showTab('wallet')" class="py-3 font-bold text-red-500">Withdraw</button>
+
+        <div class="grid grid-cols-2 gap-3 mb-6">
+            <button onclick="showTab('wallet')" class="bg-white py-4 rounded-2xl shadow font-bold text-blue-600">Deposit</button>
+            <button onclick="showTab('wallet')" class="bg-white py-4 rounded-2xl shadow font-bold text-red-500">Withdraw</button>
         </div>
-        <div class="bg-white rounded-2xl shadow overflow-hidden">
-            <div class="p-4 border-b flex justify-between" onclick="alert('Invite Code: <%= user.referral_code %>')"><span>Team</span><span>></span></div>
-            <div class="p-4 border-b flex justify-between"><span>My Information</span><span>></span></div>
-            <div class="p-4 border-b flex justify-between" onclick="window.location.href='https://wa.me/254106305272'"><span>Manager WhatsApp</span><span>></span></div>
-            <div class="p-4 border-b flex justify-between" onclick="window.location.href='https://whatsapp.com/channel/0029VbCayoOA2pLHtre2dP3Jnel'"><span>WhatsApp Channel</span><span>></span></div>
-            <a href="/logout" class="p-4 flex justify-center text-red-500 font-bold">Log Out</a>
+
+        <div class="bg-white rounded-2xl shadow-lg overflow-hidden border">
+            <div class="p-4 border-b flex justify-between" onclick="alert('My Link: bitrex-com/reg?code=<%= user.referral_code %>')"><span>Team Management</span><span>></span></div>
+            <div class="p-4 border-b flex justify-between" onclick="window.location.href='https://wa.me/254106305272'"><span>Official Service</span><span>></span></div>
+            <a href="/logout" class="p-4 flex justify-center text-red-500 font-bold">Sign Out</a>
         </div>
     </div>
 
     <div id="work-tab" class="p-5 hidden-tab">
-        <h2 class="text-2xl font-black mb-6">Market Tasks</h2>
-        <div class="space-y-4">
-            <div class="bg-white p-4 rounded-2xl shadow flex justify-between items-center">
-                <div><p class="font-bold">Smart Phone</p><p class="text-xs text-green-600">Income: KSh 50</p></div>
-                <button onclick="runTask()" class="bg-blue-600 text-white px-5 py-2 rounded-xl text-xs font-bold">Start Working</button>
-            </div>
-            </div>
+        <h2 class="text-2xl font-black text-blue-900 mb-6">Task Center</h2>
+        <div class="bg-white p-5 rounded-2xl shadow-md border flex justify-between items-center">
+            <div><p class="font-bold">E-Commerce Task</p><p class="text-xs text-green-600">Reward: KSh 50.00</p></div>
+            <button onclick="alert('Calculating commission...')" class="bg-blue-600 text-white px-6 py-2 rounded-xl text-xs font-bold">Start</button>
+        </div>
     </div>
 
     <div id="wallet-tab" class="p-5 hidden-tab">
-        <h2 class="text-2xl font-black mb-6">Wallet Center</h2>
-        <div class="bg-white p-6 rounded-3xl shadow-lg mb-4">
-            <p class="text-center font-bold mb-4">Deposit Evidence</p>
-            <p class="text-xs text-center mb-4">Send to: 0733319700</p>
-            <input type="text" placeholder="Enter M-Pesa Code" class="w-full p-3 border rounded-xl mb-4">
-            <button class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold">Submit Recharge</button>
-        </div>
-        <div class="bg-white p-6 rounded-3xl shadow-lg">
-            <p class="text-center font-bold mb-4">Withdrawal</p>
-            <input type="number" placeholder="Amount (Min 500)" class="w-full p-3 border rounded-xl mb-4">
-            <button class="w-full bg-red-500 text-white py-3 rounded-xl font-bold">Request Cashout</button>
+        <h2 class="text-2xl font-black text-blue-900 mb-6">My Wallet</h2>
+        <div class="bg-white p-6 rounded-3xl shadow-lg text-center">
+            <p class="text-sm text-gray-500 mb-4">M-Pesa Deposit (Till: 0733319700)</p>
+            <input type="text" placeholder="Transaction Code" class="w-full p-4 bg-gray-50 border rounded-2xl mb-4 text-center">
+            <button class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold shadow-lg">Submit Payment</button>
         </div>
     </div>
 
     <nav class="bottom-nav">
-        <button onclick="showTab('work')" class="tab-btn" id="btn-work">WORK</button>
-        <button onclick="showTab('wallet')" class="tab-btn" id="btn-wallet">WALLET</button>
-        <button onclick="showTab('homer')" class="tab-btn active" id="btn-homer">HOMER</button>
+        <button onclick="showTab('work')" class="flex flex-col items-center"><span class="text-sm font-bold text-gray-500">WORK</span></button>
+        <button onclick="showTab('wallet')" class="flex flex-col items-center"><span class="text-sm font-bold text-gray-500">WALLET</span></button>
+        <button onclick="showTab('homer')" class="flex flex-col items-center"><span class="text-sm font-bold text-blue-600">HOMER</span></button>
     </nav>
 
     <script>
         function showTab(t) {
             document.querySelectorAll('[id$="-tab"]').forEach(el => el.classList.add('hidden-tab'));
-            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
             document.getElementById(t + '-tab').classList.remove('hidden-tab');
-            document.getElementById('btn-' + t).classList.add('active');
-        }
-        async function runTask() {
-            const res = await fetch('/do-task', { method: 'POST' });
-            const data = await res.json();
-            if(!data.success) alert(data.msg); else location.reload();
         }
     </script>
 </body>
