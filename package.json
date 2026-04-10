@@ -1,7 +1,7 @@
 {
-  "name": "bitrex-platform",
+  "name": "bitrex-final",
   "version": "1.0.0",
-  "description": "BITREX Online City Investment and Task Platform",
+  "description": "BITREX Investment Platform",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
@@ -12,8 +12,5 @@
     "express-session": "^1.17.3",
     "pg": "^8.11.3",
     "dotenv": "^16.3.1"
-  },
-  "engines": {
-    "node": ">=14.0.0"
   }
 }
