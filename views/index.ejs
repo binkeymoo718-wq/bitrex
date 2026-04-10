@@ -3,512 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BITREX - Earn Daily</title>
+    <title>BITREX</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 500px;
-        }
-
-        .card {
-            background: white;
-            border-radius: 20px;
-            padding: 40px 30px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            animation: slideUp 0.5s ease;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .logo {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .logo h1 {
-            color: #667eea;
-            font-size: 32px;
-            margin-bottom: 10px;
-        }
-
-        .logo p {
-            color: #999;
-            font-size: 14px;
-        }
-
-        .tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
-            border-bottom: 2px solid #f0f0f0;
-        }
-
-        .tab-btn {
-            flex: 1;
-            padding: 12px;
-            background: none;
-            border: none;
-            color: #999;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .tab-btn.active {
-            color: #667eea;
-            border-bottom-color: #667eea;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            color: #333;
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            font-family: inherit;
-        }
-
-        input:focus, select:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .password-group {
-            position: relative;
-        }
-
-        .toggle-password {
-            position: absolute;
-            right: 15px;
-            top: 45px;
-            cursor: pointer;
-            color: #667eea;
-            font-size: 18px;
-        }
-
-        .btn {
-            width: 100%;
-            padding: 14px;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            margin-top: 10px;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-primary:active {
-            transform: translateY(0);
-        }
-
-        .switch-auth {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 14px;
-            color: #666;
-        }
-
-        .switch-auth a {
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .switch-auth a:hover {
-            text-decoration: underline;
-        }
-
-        .error-message {
-            background-color: #fee;
-            color: #c33;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 13px;
-            display: none;
-            border-left: 4px solid #c33;
-        }
-
-        .error-message.show {
-            display: block;
-            animation: shake 0.3s ease;
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
-
-        .success-message {
-            background-color: #efe;
-            color: #3c3;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 13px;
-            display: none;
-            border-left: 4px solid #3c3;
-        }
-
-        .success-message.show {
-            display: block;
-        }
-
-        .referral-info {
-            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
-            padding: 15px;
-            border-radius: 10px;
-            border: 1px solid #667eea30;
-            margin-top: 15px;
-        }
-
-        .referral-info p {
-            color: #666;
-            font-size: 13px;
-            line-height: 1.6;
-        }
-
-        .input-group {
-            display: flex;
-            gap: 10px;
-        }
-
-        .input-group input {
-            flex: 1;
-        }
-
-        .btn-secondary {
-            background: #f0f0f0;
-            color: #667eea;
-            padding: 12px;
-            border: 1px solid #e0e0e0;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .btn-secondary:hover {
-            background: #667eea;
-            color: white;
-            border-color: #667eea;
-        }
-
-        .loading {
-            display: none;
-            text-align: center;
-            color: #667eea;
-            font-size: 14px;
-        }
-
-        .spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 10px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .checkbox-group input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-        }
-
-        .checkbox-group label {
-            margin-bottom: 0;
-            cursor: pointer;
-            font-size: 13px;
-        }
-
-        @media (max-width: 600px) {
-            .card {
-                padding: 30px 20px;
-            }
-
-            .logo h1 {
-                font-size: 26px;
-            }
-        }
+        .gradient-bg { background: linear-gradient(180deg, #3b82f6 0%, #ffffff 100%); min-height: 100vh; }
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; display: flex; justify-content: space-around; background: white; padding: 10px; border-top: 1px solid #ddd; }
+        .hidden-section { display: none; }
     </style>
 </head>
-<body>
-    <div class="container">
-        <div class="card">
-            <div class="logo">
-                <h1>💰 IncomePro</h1>
-                <p>Start Earning Daily Today</p>
+<body class="gradient-bg pb-20">
+
+    <div id="home-section" class="p-5">
+        <div class="flex justify-between items-center text-white mb-6">
+            <h1 class="text-2xl font-bold italic">BITREX</h1>
+            <span>User: <%= user.phone %></span>
+        </div>
+
+        <div class="bg-blue-600 rounded-xl p-5 text-white shadow-lg mb-6">
+            <div class="grid grid-cols-2 gap-4">
+                <div><p class="text-sm opacity-80">Account balance</p><p class="text-xl font-bold">KSh <%= user.balance %></p></div>
+                <div><p class="text-sm opacity-80">Today's income</p><p class="text-xl font-bold">KSh <%= user.today_income %></p></div>
             </div>
+        </div>
 
-            <div class="error-message" id="errorMessage"></div>
-            <div class="success-message" id="successMessage"></div>
+        <div class="grid grid-cols-2 gap-4">
+            <button onclick="showModal('deposit')" class="bg-white p-4 rounded shadow text-center">Deposit</button>
+            <button onclick="showModal('withdraw')" class="bg-white p-4 rounded shadow text-center">Withdraw</button>
+        </div>
 
-            <div class="tabs">
-                <button class="tab-btn active" onclick="switchTab('login')">Login</button>
-                <button class="tab-btn" onclick="switchTab('signup')">Sign Up</button>
-            </div>
-
-            <!-- Login Tab -->
-            <div class="tab-content active" id="login">
-                <form onsubmit="handleLogin(event)">
-                    <div class="form-group">
-                        <label>📱 Phone Number</label>
-                        <input type="tel" id="loginPhone" placeholder="e.g., +254706123456" required>
-                    </div>
-
-                    <div class="form-group password-group">
-                        <label>🔐 Password</label>
-                        <input type="password" id="loginPassword" placeholder="Enter your password" required>
-                        <span class="toggle-password" onclick="togglePassword('loginPassword')">👁️</span>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary">Login</button>
-
-                    <div class="loading" id="loginLoading">
-                        <div class="spinner"></div>
-                        <p>Logging in...</p>
-                    </div>
-                </form>
-
-                <div class="switch-auth">
-                    Don't have an account? <a onclick="switchTab('signup')">Sign Up Now</a>
-                </div>
-            </div>
-
-            <!-- Signup Tab -->
-            <div class="tab-content" id="signup">
-                <form onsubmit="handleSignup(event)">
-                    <div class="form-group">
-                        <label>📱 Phone Number</label>
-                        <input type="tel" id="signupPhone" placeholder="e.g., +254706123456" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>📧 Email Address</label>
-                        <input type="email" id="signupEmail" placeholder="your@email.com" required>
-                    </div>
-
-                    <div class="form-group password-group">
-                        <label>🔐 Password (6-8 characters)</label>
-                        <input type="password" id="signupPassword" placeholder="Create password" minlength="6" maxlength="8" required>
-                        <span class="toggle-password" onclick="togglePassword('signupPassword')">👁️</span>
-                    </div>
-
-                    <div class="form-group password-group">
-                        <label>🔐 Confirm Password</label>
-                        <input type="password" id="signupConfirmPassword" placeholder="Confirm password" minlength="6" maxlength="8" required>
-                        <span class="toggle-password" onclick="togglePassword('signupConfirmPassword')">👁️</span>
-                    </div>
-
-                    <div class="form-group">
-                        <label>🎁 Referral Code (Optional)</label>
-                        <input type="text" id="referralCode" placeholder="Enter referral code if invited">
-                    </div>
-
-                    <button type="submit" class="btn btn-primary">Create Account</button>
-
-                    <div class="loading" id="signupLoading">
-                        <div class="spinner"></div>
-                        <p>Creating account...</p>
-                    </div>
-                </form>
-
-                <div class="referral-info">
-                    <p><strong>💡 Tip:</strong> If a friend invited you, enter their referral code to get started. You'll both benefit from the referral program!</p>
-                </div>
-
-                <div class="switch-auth">
-                    Already have an account? <a onclick="switchTab('login')">Login Here</a>
-                </div>
-            </div>
+        <h3 class="mt-6 font-bold">My City</h3>
+        <div class="bg-white rounded p-4 mt-2 shadow">
+            <% if(activeCities.length > 0) { %>
+                <% activeCities.forEach(city => { %>
+                    <div class="flex justify-between border-b py-2"><span><%= city %></span><span class="text-green-500">Active</span></div>
+                <% }) %>
+            <% } else { %>
+                <p class="text-gray-400">No active investments</p>
+            <% } %>
         </div>
     </div>
 
+    <div id="work-section" class="p-5 hidden-section">
+        <h2 class="text-xl font-bold mb-4">Daily Tasks</h2>
+        <div class="space-y-4">
+            <div class="bg-white p-4 rounded shadow flex justify-between items-center">
+                <div>
+                    <p class="font-bold">2.5L Vacuum Flask</p>
+                    <p class="text-xs text-gray-500">Income: KSh 50</p>
+                </div>
+                <button onclick="doTask()" class="bg-black text-white px-4 py-2 rounded text-sm">Start working</button>
+            </div>
+            </div>
+    </div>
+
+    <div id="homer-section" class="p-5 hidden-section">
+        <div class="bg-white rounded-lg shadow mt-10">
+            <ul class="divide-y">
+                <li class="p-4 flex justify-between"><span>Team</span> <span>></span></li>
+                <li class="p-4 flex justify-between"><span>My Information</span> <span>></span></li>
+                <li class="p-4 flex justify-between" onclick="window.location.href='https://wa.me/254106305272'"><span>Manager WhatsApp</span> <span>></span></li>
+                <li class="p-4 flex justify-between" onclick="window.location.href='https://whatsapp.com/channel/0029VbCayoOA2pLHtre2dP3Jnel'"><span>WhatsApp Channel</span> <span>></span></li>
+                <li class="p-4 text-center text-red-500 font-bold" onclick="location.href='/login'">Log out</li>
+            </ul>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <button onclick="switchTab('work')">WORK</button>
+        <button onclick="switchTab('home')">WALLET</button>
+        <button onclick="switchTab('homer')">HOMER</button>
+    </nav>
+
     <script>
         function switchTab(tab) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-            
-            document.getElementById(tab).classList.add('active');
-            event.target.classList.add('active');
-
-            // Reset forms and messages
-            document.getElementById('errorMessage').classList.remove('show');
-            document.getElementById('successMessage').classList.remove('show');
+            document.getElementById('home-section').classList.add('hidden-section');
+            document.getElementById('work-section').classList.add('hidden-section');
+            document.getElementById('homer-section').classList.add('hidden-section');
+            document.getElementById(tab + '-section').classList.remove('hidden-section');
         }
 
-        function togglePassword(id) {
-            const input = document.getElementById(id);
-            input.type = input.type === 'password' ? 'text' : 'password';
+        async function doTask() {
+            const res = await fetch('/do-task', { method: 'POST' });
+            const data = await res.json();
+            if(!data.success) alert(data.msg);
+            else location.reload();
         }
-
-        function showError(message) {
-            const errorEl = document.getElementById('errorMessage');
-            errorEl.textContent = message;
-            errorEl.classList.add('show');
-            setTimeout(() => errorEl.classList.remove('show'), 5000);
-        }
-
-        function showSuccess(message) {
-            const successEl = document.getElementById('successMessage');
-            successEl.textContent = message;
-            successEl.classList.add('show');
-            setTimeout(() => successEl.classList.remove('show'), 5000);
-        }
-
-        async function handleLogin(e) {
-            e.preventDefault();
-            const phone = document.getElementById('loginPhone').value;
-            const password = document.getElementById('loginPassword').value;
-
-            document.getElementById('loginLoading').style.display = 'block';
-
-            try {
-                const response = await fetch('/api/auth/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ phone, password })
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    localStorage.setItem('userId', data.userId);
-                    localStorage.setItem('token', data.token);
-                    showSuccess('Login successful! Redirecting...');
-                    setTimeout(() => window.location.href = '/dashboard', 1500);
-                } else {
-                    showError(data.message || 'Login failed');
-                }
-            } catch (error) {
-                showError('Connection error. Please try again.');
-            } finally {
-                document.getElementById('loginLoading').style.display = 'none';
-            }
-        }
-
-        async function handleSignup(e) {
-            e.preventDefault();
-            const phone = document.getElementById('signupPhone').value;
-            const email = document.getElementById('signupEmail').value;
-            const password = document.getElementById('signupPassword').value;
-            const confirmPassword = document.getElementById('signupConfirmPassword').value;
-            const referralCode = document.getElementById('referralCode').value;
-
-            document.getElementById('signupLoading').style.display = 'block';
-
-            try {
-                const response = await fetch('/api/auth/signup', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ phone, email, password, confirmPassword, referralCode })
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    showSuccess('Account created! Your referral code: ' + data.referralCode);
-                    setTimeout(() => switchTab('login'), 2000);
-                } else {
-                    showError(data.message || 'Signup failed');
-                }
-            } catch (error) {
-                showError('Connection error. Please try again.');
-            } finally {
-                document.getElementById('signupLoading').style.display = 'none';
-            }
-        }
-
-        // Set active tab button on load
-        document.querySelector('.tab-btn').classList.add('active');
     </script>
 </body>
 </html>
