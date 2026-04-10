@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BITREX - Sign Up</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-blue-50 flex items-center justify-center min-h-screen p-6">
+    <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
+        <h1 class="text-3xl font-black text-center text-blue-600 mb-2 italic">BITREX</h1>
+        <p class="text-center text-gray-500 mb-8 text-sm">Create your investor account</p>
+        
+        <form action="/signup" method="POST" class="space-y-4">
+            <input type="text" name="phone" placeholder="Phone Number (e.g. 07...)" class="w-full p-4 border rounded-xl focus:ring-2 focus:ring-blue-400 outline-none" required>
+            <input type="email" name="email" placeholder="Email Address" class="w-full p-4 border rounded-xl focus:ring-2 focus:ring-blue-400 outline-none" required>
+            <input type="password" name="password" placeholder="Password (6-8 chars)" class="w-full p-4 border rounded-xl focus:ring-2 focus:ring-blue-400 outline-none" required minlength="6" maxlength="8">
+            <input type="text" name="referral" placeholder="Referral Code (Optional)" class="w-full p-4 border rounded-xl bg-gray-50">
+            
+            <button type="submit" class="w-full bg-blue-600 text-white p-4 rounded-xl font-bold shadow-lg hover:bg-blue-700 transition">Register Now</button>
+        </form>
+        <p class="text-center mt-6 text-sm text-gray-600">Already have an account? <a href="/login" class="text-red-500 font-bold">Login here</a></p>
+    </div>
+</body>
+</html>
