@@ -2,67 +2,91 @@ const express = require('express');
 const session = require('express-session');
 const bodyParser = require('body-parser');
 const path = require('path');
-const fs = require('fs'); // Added for file saving
+const fs = require('fs');
 
 const app = express();
-const DATA_FILE = './users.json';
+const DATA_FILE = path.join(__dirname, 'database.json');
 
-// --- HELPER FUNCTIONS TO PERSIST DATA ---
-// This ensures your users don't disappear when the server restarts
+// --- DATABASE HELPERS ---
+// This ensures users are saved even if the server restarts
 function loadUsers() {
-    if (!fs.existsSync(DATA_FILE)) return [];
-    const data = fs.readFileSync(DATA_FILE);
-    return JSON.parse(data);
+    try {
+        if (!fs.existsSync(DATA_FILE)) return [];
+        const data = fs.readFileSync(DATA_FILE, 'utf8');
+        return JSON.parse(data);
+    } catch (error) {
+        console.error("Error loading database:", error);
+        return [];
+    }
 }
 
 function saveUsers(users) {
-    fs.writeFileSync(DATA_FILE, JSON.stringify(users, null, 2));
+    try {
+        fs.writeFileSync(DATA_FILE, JSON.stringify(users, null, 4));
+    } catch (error) {
+        console.error("Error saving database:", error);
+    }
 }
 
 // --- CONFIGURATION ---
 app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 app.use(session({
-    secret: 'city_platform_secret_123',
+    secret: 'business_platform_2024_secure',
     resave: false,
     saveUninitialized: true,
-    cookie: { maxAge: 24 * 60 * 60 * 1000 }
+    cookie: { maxAge: 24 * 60 * 60 * 1000 } // 24 Hours
 }));
 
+// --- BUSINESS CONSTANTS ---
 const CITIES = {
-    'CITY A': { price: 1500, dailyTasks: 1, dailyIncome: 50 },
-    'CITY B': { price: 3200, dailyTasks: 2, dailyIncome: 100 },
-    'CITY C': { price: 7200, dailyTasks: 4, dailyIncome: 200 },
-    'CITY D': { price: 12000, dailyTasks: 8, dailyIncome: 400 },
-    'CITY E': { price: 15000, dailyTasks: 10, dailyIncome: 500 }
+    'CITY A': { price: 1500, dailyTasks: 1, incomePerTask: 50 },
+    'CITY B': { price: 3200, dailyTasks: 2, incomePerTask: 50 },
+    'CITY C': { price: 7200, dailyTasks: 4, incomePerTask: 50 },
+    'CITY D': { price: 12000, dailyTasks: 8, incomePerTask: 50 },
+    'CITY E': { price: 15000, dailyTasks: 10, incomePerTask: 50 }
+};
+
+// --- AUTH MIDDLEWARE ---
+const isAuth = (req, res, next) => {
+    if (req.session.userPhone) {
+        let users = loadUsers();
+        let user = users.find(u => u.phone === req.session.userPhone);
+        if (user) {
+            req.user = user;
+            return next();
+        }
+    }
+    res.redirect('/login');
 };
 
 // --- ROUTES ---
 
-app.get('/', (req, res) => res.redirect('/login'));
-
+// 1. Signup
 app.get('/signup', (req, res) => res.render('signup', { error: null }));
-
 app.post('/signup', (req, res) => {
+    let { phone, email, password, referralCode } = req.body;
     let users = loadUsers();
-    const { phone, email, password, referralCode } = req.body;
 
-    // Check if phone exists (converting both to string to be safe)
-    if (users.find(u => String(u.phone) === String(phone))) {
+    // Force phone to string to prevent login errors
+    phone = String(phone).trim();
+
+    if (users.find(u => u.phone === phone)) {
         return res.render('signup', { error: 'Phone number already registered' });
     }
 
     const newUser = {
-        phone: String(phone),
-        email,
+        phone: phone,
+        email: email,
         password: String(password),
         balance: 0,
         totalEarnings: 0,
         dailyIncome: 0,
-        investments: [],
+        investments: [], // Stores { cityName, dateJoined }
         tasksDoneToday: 0,
         lastTaskDate: new Date().toLocaleDateString(),
         myReferralCode: "REF" + Math.floor(1000 + Math.random() * 9000),
@@ -71,9 +95,9 @@ app.post('/signup', (req, res) => {
         transactions: []
     };
 
-    // Referral Logic
+    // Referral Bonus Check
     if (referralCode) {
-        const referrer = users.find(u => u.myReferralCode === referralCode);
+        let referrer = users.find(u => u.myReferralCode === referralCode.trim());
         if (referrer) {
             referrer.referralCount += 1;
             if (referrer.referralCount === 5 && !referrer.bonusClaimed) {
@@ -85,39 +109,36 @@ app.post('/signup', (req, res) => {
     }
 
     users.push(newUser);
-    saveUsers(users); // Save to users.json
+    saveUsers(users);
     res.redirect('/login');
 });
 
+// 2. Login
 app.get('/login', (req, res) => res.render('login', { error: null }));
-
 app.post('/login', (req, res) => {
-    const { phone, password } = req.body;
-    const users = loadUsers();
-    
-    // Debugging logs (Check your Render logs to see these)
-    console.log("Login attempt for:", phone);
-    
-    const user = users.find(u => String(u.phone) === String(phone) && String(u.password) === String(password));
-    
-    if (!user) {
-        console.log("Login failed: User not found or password wrong");
-        return res.render('login', { error: 'Invalid phone or password' });
-    }
+    let { phone, password } = req.body;
+    let users = loadUsers();
 
-    req.session.userPhone = user.phone;
-    res.redirect('/dashboard');
+    // Data Normalization
+    phone = String(phone).trim();
+    password = String(password);
+
+    const user = users.find(u => u.phone === phone && u.password === password);
+
+    if (user) {
+        req.session.userPhone = user.phone;
+        res.redirect('/dashboard');
+    } else {
+        res.render('login', { error: 'Invalid phone or password' });
+    }
 });
 
-app.get('/dashboard', (req, res) => {
-    if (!req.session.userPhone) return res.redirect('/login');
-    
-    const users = loadUsers();
-    const user = users.find(u => u.phone === req.session.userPhone);
-    
-    if (!user) return res.redirect('/login');
+// 3. Dashboard (Home)
+app.get('/dashboard', isAuth, (req, res) => {
+    let users = loadUsers();
+    let user = users.find(u => u.phone === req.user.phone);
 
-    // Midnight Reset
+    // Midnight Reset Logic
     const today = new Date().toLocaleDateString();
     if (user.lastTaskDate !== today) {
         user.tasksDoneToday = 0;
@@ -126,27 +147,43 @@ app.get('/dashboard', (req, res) => {
         saveUsers(users);
     }
 
-    let maxTasks = 0;
+    // Summing task limits from all joined cities
+    let totalMaxTasks = 0;
     user.investments.forEach(inv => {
-        maxTasks += CITIES[inv.cityName].dailyTasks;
+        totalMaxTasks += CITIES[inv.cityName].dailyTasks;
     });
 
-    res.render('index', { user, cities: CITIES, maxTasks });
+    res.render('index', { user, cities: CITIES, maxTasks: totalMaxTasks });
 });
 
-// Task route
-app.post('/do-task', (req, res) => {
-    if (!req.session.userPhone) return res.json({success: false});
-    
+// 4. Investment Logic
+app.post('/invest', isAuth, (req, res) => {
+    const { cityName } = req.body;
     let users = loadUsers();
-    let user = users.find(u => u.phone === req.session.userPhone);
+    let user = users.find(u => u.phone === req.user.phone);
+    const city = CITIES[cityName];
 
-    let maxTasks = 0;
-    user.investments.forEach(inv => maxTasks += CITIES[inv.cityName].dailyTasks);
-
-    if (user.tasksDoneToday >= maxTasks) {
-        return res.json({ success: false, message: 'Number of task limit reached' });
+    if (user.balance >= city.price) {
+        user.balance -= city.price;
+        user.investments.push({ cityName, dateJoined: new Date().toLocaleDateString() });
+        user.transactions.push({ type: 'Investment', amount: city.price, date: new Date().toLocaleString(), details: cityName });
+        saveUsers(users);
+        res.json({ success: true });
+    } else {
+        res.json({ success: false, message: 'Insufficient balance' });
     }
+});
+
+// 5. Task Logic
+app.post('/do-task', isAuth, (req, res) => {
+    let users = loadUsers();
+    let user = users.find(u => u.phone === req.user.phone);
+
+    let totalMaxTasks = 0;
+    user.investments.forEach(inv => totalMaxTasks += CITIES[inv.cityName].dailyTasks);
+
+    if (totalMaxTasks === 0) return res.json({ success: false, message: 'Invest in a city first' });
+    if (user.tasksDoneToday >= totalMaxTasks) return res.json({ success: false, message: 'Number of task limit reached' });
 
     user.tasksDoneToday += 1;
     user.balance += 50;
@@ -154,8 +191,42 @@ app.post('/do-task', (req, res) => {
     user.totalEarnings += 50;
 
     saveUsers(users);
-    res.json({ success: true, newBalance: user.balance });
+    res.json({ success: true, balance: user.balance });
 });
 
+// 6. Wallet
+app.post('/deposit', isAuth, (req, res) => {
+    const { amount, evidence } = req.body;
+    let users = loadUsers();
+    let user = users.find(u => u.phone === req.user.phone);
+
+    if (amount < 300) return res.send("Min deposit is 300");
+
+    user.balance += parseInt(amount);
+    user.transactions.push({ type: 'Deposit', amount, date: new Date().toLocaleString(), status: 'Confirmed' });
+    saveUsers(users);
+    res.redirect('/dashboard');
+});
+
+app.post('/withdraw', isAuth, (req, res) => {
+    const { amount } = req.body;
+    let users = loadUsers();
+    let user = users.find(u => u.phone === req.user.phone);
+
+    if (amount < 500) return res.json({ success: false, message: 'Min withdrawal 500' });
+    if (user.balance < amount) return res.json({ success: false, message: 'Insufficient balance' });
+
+    user.balance -= parseInt(amount);
+    user.transactions.push({ type: 'Withdrawal', amount, date: new Date().toLocaleString(), status: 'Pending' });
+    saveUsers(users);
+    res.json({ success: true });
+});
+
+app.get('/logout', (req, res) => {
+    req.session.destroy();
+    res.redirect('/login');
+});
+
+// --- START SERVER ---
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server live on port ${PORT}`));
