@@ -3,41 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BITREX - Login</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Login | Business Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        .gradient-bg { background: linear-gradient(180deg, #3b82f6 0%, #ffffff 100%); min-height: 100vh; }
+        body { background: #f0f2f5; display: flex; align-items: center; height: 100vh; }
+        .auth-card { width: 100%; max-width: 400px; padding: 20px; margin: auto; }
+        .btn-primary { background: #007bff; border: none; border-radius: 10px; padding: 12px; }
     </style>
 </head>
-<body class="gradient-bg flex flex-col items-center pt-16 px-6">
-    <div class="w-full max-w-sm">
-        <div class="flex flex-col items-center mb-10">
-            <div class="bg-white rounded-full p-4 mb-3 shadow-md">
-                <span class="text-blue-600 font-bold text-2xl">BX</span>
+<body>
+    <div class="card auth-card shadow-sm">
+        <h3 class="text-center mb-4">Welcome Back</h3>
+        <% if(error) { %> <div class="alert alert-danger"><%= error %> %></div> <% } %>
+        <form action="/login" method="POST">
+            <div class="mb-3">
+                <label>Phone Number</label>
+                <input type="tel" name="phone" class="form-control" required>
             </div>
-            <h1 class="text-4xl font-black text-white italic drop-shadow-md">BITREX</h1>
-            <p class="text-white mt-4 font-medium opacity-90 text-sm text-center">Enter your details to access your dashboard</p>
-        </div>
-
-        <form action="/login" method="POST" class="space-y-4">
-            <div class="bg-white rounded-full flex items-center px-4 py-1 shadow-sm border">
-                <span class="text-gray-400">👤</span>
-                <input type="text" name="phone" placeholder="Phone Number" class="w-full p-3 bg-transparent outline-none text-sm" required>
+            <div class="mb-3">
+                <label>Password</label>
+                <input type="password" name="password" class="form-control" required>
             </div>
-            
-            <div class="bg-white rounded-full flex items-center px-4 py-1 shadow-sm border">
-                <span class="text-gray-400">🔒</span>
-                <input type="password" name="password" placeholder="Password" class="w-full p-3 bg-transparent outline-none text-sm" required>
-            </div>
-
-            <button type="submit" class="w-full bg-blue-700 text-white py-4 rounded-full font-bold shadow-xl hover:bg-blue-800 transition mt-6">
-                Login
-            </button>
+            <button type="submit" class="btn btn-primary w-100">Log In</button>
+            <p class="text-center mt-3">New user? <a href="/signup">Sign Up</a></p>
         </form>
-
-        <div class="mt-10 text-center">
-            <p class="text-sm text-gray-700">Don't have an account? <a href="/signup" class="text-red-600 font-bold">Register here</a></p>
-        </div>
     </div>
 </body>
 </html>
