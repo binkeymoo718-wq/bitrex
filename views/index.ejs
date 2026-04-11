@@ -68,23 +68,33 @@
             <% } %>
         </div>
 
-        <!-- TASK SECTION -->
-        <div id="task-section" class="tab-content hidden">
-            <h5 class="mb-3">Daily Tasks (<%= user.tasksDoneToday %> / <%= maxTasks %>)</h5>
-            <div id="taskList">
-                <!-- Task items -->
-                <% let items = ['2.5L Vacuum Flask', 'Mini massage gun', 'Electric blender', 'Smart phones', 'Laptops', 'Air Fryer']; %>
-                <% items.forEach(item => { %>
-                    <div class="task-item">
-                        <div>
-                            <strong><%= item %></strong><br>
-                            <small class="text-muted">Shipment to City</small>
-                        </div>
-                        <button class="btn btn-primary btn-sm" onclick="completeTask()">Complete (Ksh 50)</button>
-                    </div>
-                <% }) %>
+<!-- Inside <div id="task-section"> -->
+<div id="taskList">
+    <% 
+    const allTasks = [
+        "2.5L Vacuum Flask", "Mini massage gun", "Blood glucose machine", "Electric blender", 
+        "Modern soldering gun", "Television set", "Electric meter", "Smart phones", 
+        "HD Camera High pixel", "Iron sheets", "Plumbing tools", "Furniture", 
+        "Wi-Fi systems", "Laptops", "Textiles", "Paints", "Cosmetics", "Electrical tools", 
+        "Shoes", "Gas cookers", "Electric heater", "Air Fryer (4L or 5L)", 
+        "Electric Pressure Cooker", "Microwave Oven", "Non-stick Cookware Set", 
+        "Water Dispenser (Hot & Cold)", "Rechargeable Juicer Cup", 
+        "Electric Kettle (Stainless Steel)", "Subwoofer System (Bluetooth)", 
+        "Android TV Box", "Rechargeable Bluetooth Speaker", "Gaming Console (Handheld)", 
+        "Smart Watch (Series 8/9)", "Wireless Earbuds (Airpods Pro)", "Solar Lighting System"
+    ]; 
+    %>
+
+    <% allTasks.forEach(taskName => { %>
+        <div class="task-item shadow-sm">
+            <div>
+                <strong><%= taskName %></strong><br>
+                <small class="text-muted">Order to City Investment</small>
             </div>
+            <button class="btn btn-primary btn-sm" onclick="completeTask()">Ksh 50</button>
         </div>
+    <% }) %>
+</div>
 
         <!-- CITY SECTION -->
         <div id="city-section" class="tab-content hidden">
