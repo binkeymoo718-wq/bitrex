@@ -3,70 +3,181 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BITREX Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Business Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
-        .grad { background: linear-gradient(180deg, #2563eb 0%, #ffffff 100%); min-height: 100vh; }
-        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; display: flex; justify-content: space-around; background: white; padding: 15px; border-top: 1px solid #eee; }
-        .hidden-tab { display: none; }
+        body { background: #f4f7f6; padding-bottom: 70px; }
+        .card { border-radius: 15px; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .nav-bottom { position: fixed; bottom: 0; width: 100%; background: #fff; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #ddd; }
+        .nav-item { text-align: center; color: #666; text-decoration: none; font-size: 12px; }
+        .nav-item.active { color: #007bff; }
+        .header { background: linear-gradient(135deg, #007bff, #00c6ff); color: white; padding: 20px; border-radius: 0 0 25px 25px; }
+        .city-card { margin-bottom: 15px; border-left: 5px solid #007bff; }
+        .task-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: white; margin-bottom: 10px; border-radius: 10px; }
+        .hidden { display: none; }
     </style>
 </head>
-<body class="grad pb-20">
+<body>
 
-    <div id="homer-tab" class="p-5">
-        <div class="flex justify-between items-center text-white mb-6">
-            <h1 class="text-2xl font-black italic">BITREX</h1>
-            <span class="text-xs bg-blue-800 px-3 py-1 rounded-full">ID: <%= user.phone %></span>
+    <!-- Top Header -->
+    <div class="header d-flex justify-content-between align-items-center">
+        <div>
+            <h5 class="mb-0">Welcome</h5>
+            <small>Manage your investments</small>
+        </div>
+        <div class="text-end">
+            <span class="badge bg-light text-dark"><%= user.phone %></span>
+        </div>
+    </div>
+
+    <div class="container mt-3">
+        
+        <!-- HOME SECTION -->
+        <div id="home-section" class="tab-content">
+            <div class="card p-3 mb-3 bg-white text-center">
+                <small class="text-muted">Current Balance</small>
+                <h2 class="text-primary">Ksh <%= user.balance.toFixed(2) %></h2>
+                <div class="row mt-2">
+                    <div class="col-6 border-end">
+                        <small>Today's Income</small><br><strong>Ksh <%= user.dailyIncome %></strong>
+                    </div>
+                    <div class="col-6">
+                        <small>Total Earnings</small><br><strong>Ksh <%= user.totalEarnings %></strong>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <button class="btn btn-success btn-sm" onclick="showDeposit()">Deposit</button>
+                    <button class="btn btn-outline-primary btn-sm" onclick="showWithdraw()">Withdraw</button>
+                </div>
+            </div>
+
+            <h6>Active Investments</h6>
+            <% if(user.investments.length == 0) { %>
+                <p class="text-muted">No active cities. Visit City tab to invest.</p>
+            <% } else { %>
+                <% user.investments.forEach(inv => { %>
+                    <div class="card p-2 mb-2">
+                        <div class="d-flex justify-content-between">
+                            <strong><%= inv.cityName %></strong>
+                            <span class="text-success">Active</span>
+                        </div>
+                        <small>Joined: <%= inv.dateJoined %></small>
+                    </div>
+                <% }) %>
+            <% } %>
         </div>
 
-        <div class="bg-blue-600 rounded-3xl p-6 text-white shadow-xl mb-6">
-            <p class="text-[10px] opacity-70 uppercase tracking-widest">Available Balance</p>
-            <p class="text-4xl font-bold mb-6">KSh <%= user.balance %></p>
-            <div class="grid grid-cols-2 gap-4 border-t border-blue-400 pt-4">
-                <div><p class="text-[9px] opacity-70">TODAY INCOME</p><p class="font-bold text-sm">KSh <%= user.today_income %></p></div>
-                <div><p class="text-[9px] opacity-70">LEVEL</p><p class="font-bold text-sm uppercase"><%= activeCities.length > 0 ? activeCities[0] : 'None' %></p></div>
+        <!-- TASK SECTION -->
+        <div id="task-section" class="tab-content hidden">
+            <h5 class="mb-3">Daily Tasks (<%= user.tasksDoneToday %> / <%= maxTasks %>)</h5>
+            <div id="taskList">
+                <!-- Task items -->
+                <% let items = ['2.5L Vacuum Flask', 'Mini massage gun', 'Electric blender', 'Smart phones', 'Laptops', 'Air Fryer']; %>
+                <% items.forEach(item => { %>
+                    <div class="task-item">
+                        <div>
+                            <strong><%= item %></strong><br>
+                            <small class="text-muted">Shipment to City</small>
+                        </div>
+                        <button class="btn btn-primary btn-sm" onclick="completeTask()">Complete (Ksh 50)</button>
+                    </div>
+                <% }) %>
             </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-3 mb-6">
-            <button onclick="showTab('wallet')" class="bg-white py-4 rounded-2xl shadow font-bold text-blue-600">Deposit</button>
-            <button onclick="showTab('wallet')" class="bg-white py-4 rounded-2xl shadow font-bold text-red-500">Withdraw</button>
+        <!-- CITY SECTION -->
+        <div id="city-section" class="tab-content hidden">
+            <h5 class="mb-3">City Investments</h5>
+            <% Object.keys(cities).forEach(key => { %>
+                <div class="card p-3 mb-2 city-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5><%= key %></h5>
+                            <small>Price: Ksh <%= cities[key].price %></small><br>
+                            <small>Daily: <%= cities[key].dailyTasks %> Task(s) | Ksh <%= cities[key].dailyIncome %></small>
+                        </div>
+                        <button class="btn btn-dark" onclick="invest('<%= key %>')">Invest</button>
+                    </div>
+                </div>
+            <% }) %>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-lg overflow-hidden border">
-            <div class="p-4 border-b flex justify-between" onclick="alert('My Link: bitrex-com/reg?code=<%= user.referral_code %>')"><span>Team Management</span><span>></span></div>
-            <div class="p-4 border-b flex justify-between" onclick="window.location.href='https://wa.me/254106305272'"><span>Official Service</span><span>></span></div>
-            <a href="/logout" class="p-4 flex justify-center text-red-500 font-bold">Sign Out</a>
+        <!-- MENU SECTION -->
+        <div id="menu-section" class="tab-content hidden">
+            <ul class="list-group">
+                <li class="list-group-item"><i class="bi bi-person"></i> Referral Code: <strong><%= user.myReferralCode %></strong></li>
+                <li class="list-group-item"><i class="bi bi-whatsapp"></i> <a href="https://wa.me/254106305272">Contact Manager</a></li>
+                <li class="list-group-item" onclick="alert('Transaction history shown here')">Transaction History</li>
+                <li class="list-group-item text-danger" onclick="window.location.href='/login'">Logout</li>
+            </ul>
         </div>
+
     </div>
 
-    <div id="work-tab" class="p-5 hidden-tab">
-        <h2 class="text-2xl font-black text-blue-900 mb-6">Task Center</h2>
-        <div class="bg-white p-5 rounded-2xl shadow-md border flex justify-between items-center">
-            <div><p class="font-bold">E-Commerce Task</p><p class="text-xs text-green-600">Reward: KSh 50.00</p></div>
-            <button onclick="alert('Calculating commission...')" class="bg-blue-600 text-white px-6 py-2 rounded-xl text-xs font-bold">Start</button>
-        </div>
-    </div>
-
-    <div id="wallet-tab" class="p-5 hidden-tab">
-        <h2 class="text-2xl font-black text-blue-900 mb-6">My Wallet</h2>
-        <div class="bg-white p-6 rounded-3xl shadow-lg text-center">
-            <p class="text-sm text-gray-500 mb-4">M-Pesa Deposit (Till: 0733319700)</p>
-            <input type="text" placeholder="Transaction Code" class="w-full p-4 bg-gray-50 border rounded-2xl mb-4 text-center">
-            <button class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold shadow-lg">Submit Payment</button>
-        </div>
-    </div>
-
-    <nav class="bottom-nav">
-        <button onclick="showTab('work')" class="flex flex-col items-center"><span class="text-sm font-bold text-gray-500">WORK</span></button>
-        <button onclick="showTab('wallet')" class="flex flex-col items-center"><span class="text-sm font-bold text-gray-500">WALLET</span></button>
-        <button onclick="showTab('homer')" class="flex flex-col items-center"><span class="text-sm font-bold text-blue-600">HOMER</span></button>
+    <!-- Bottom Nav -->
+    <nav class="nav-bottom">
+        <a href="javascript:void(0)" onclick="switchTab('home')" class="nav-item active" id="nav-home">
+            <i class="bi bi-house-door d-block fs-4"></i>Home
+        </a>
+        <a href="javascript:void(0)" onclick="switchTab('task')" class="nav-item" id="nav-task">
+            <i class="bi bi-list-check d-block fs-4"></i>Tasks
+        </a>
+        <a href="javascript:void(0)" onclick="switchTab('city')" class="nav-item" id="nav-city">
+            <i class="bi bi-building d-block fs-4"></i>Cities
+        </a>
+        <a href="javascript:void(0)" onclick="switchTab('menu')" class="nav-item" id="nav-menu">
+            <i class="bi bi-grid d-block fs-4"></i>Menu
+        </a>
     </nav>
 
     <script>
-        function showTab(t) {
-            document.querySelectorAll('[id$="-tab"]').forEach(el => el.classList.add('hidden-tab'));
-            document.getElementById(t + '-tab').classList.remove('hidden-tab');
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.getElementById(tab + '-section').classList.remove('hidden');
+            document.getElementById('nav-' + tab).classList.add('active');
+        }
+
+        async function completeTask() {
+            const res = await fetch('/do-task', { method: 'POST' });
+            const data = await res.json();
+            if(data.success) {
+                alert('Task completed successfully!');
+                location.reload();
+            } else {
+                alert(data.message);
+            }
+        }
+
+        async function invest(cityName) {
+            if(!confirm('Confirm investment in ' + cityName)) return;
+            const res = await fetch('/invest', { 
+                method: 'POST', 
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: 'cityName=' + cityName
+            });
+            const data = await res.json();
+            if(data.success) {
+                alert('Welcome to ' + cityName);
+                location.reload();
+            } else {
+                alert(data.message);
+            }
+        }
+
+        function showDeposit() {
+            let amt = prompt("Enter amount to deposit (Min 300):\nPay to 0733319700");
+            if(amt) {
+                // In a real app, send to server to wait for verification
+                location.reload();
+            }
+        }
+
+        function showWithdraw() {
+            let amt = prompt("Enter amount to withdraw (Min 500):");
+            if(amt < 500) alert("Minimum withdrawal is 500");
+            else alert("Withdrawal request sent!");
         }
     </script>
 </body>
