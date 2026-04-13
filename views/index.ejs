@@ -146,10 +146,25 @@
       <section id="menu" class="section">
         <div class="card">
           <h3>Menu</h3>
-          <p>Company Manager WhatsApp: <strong>+254106305272</strong></p>
+          <p>Manager WhatsApp: <a class="badge" href="https://wa.me/254106305272" target="_blank">Chat on WhatsApp (+254106305272)</a></p>
           <p>Your Referral Code: <strong><%= user.referralCode %></strong></p>
           <p>Referrals: <%= user.referredCount %> / 5 friends (bonus KSH 300 one-time).</p>
         </div>
+
+        <div class="card">
+          <h3>User Profile</h3>
+          <div class="small">Phone Number</div>
+          <input value="<%= user.phone %>" readonly />
+          <div class="small">Email Address</div>
+          <input value="<%= user.email %>" readonly />
+          <form action="/profile/password" method="post">
+            <h3 style="margin-top:12px;">Change Password</h3>
+            <input type="password" name="currentPassword" placeholder="Current password" required />
+            <input type="password" name="newPassword" minlength="6" maxlength="8" placeholder="New password (6-8 characters)" required />
+            <button type="submit">Update Password</button>
+          </form>
+        </div>
+
         <div class="card">
           <h3>Transaction History</h3>
           <% if (!user.transactions.length) { %><p class="small">No transactions yet.</p><% } %>
