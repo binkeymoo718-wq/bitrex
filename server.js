@@ -6,6 +6,8 @@ const fs = require('fs');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const ADMIN_USERNAME = 'admin';
+const ADMIN_PASSWORD = 'admin12345';
 
 const uploadDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)) {
@@ -52,6 +54,8 @@ const TASKS = [
 ];
 
 const users = new Map();
+const txRequests = new Map();
+let txCounter = 1;
 
 function generateReferralCode(phone) {
   return `REF${phone.slice(-4)}${Math.floor(Math.random() * 900 + 100)}`;
@@ -83,11 +87,50 @@ function totalDailyCityIncome(user) {
   return user.activeCities.reduce((sum, code) => sum + CITY_CONFIG[code].dailyIncome, 0);
 }
 
+function pendingWithdrawTotal(user) {
+  return [...txRequests.values()]
+    .filter((tx) => tx.userId === user.id && tx.type === 'WITHDRAWAL' && tx.status === 'PENDING')
+    .reduce((sum, tx) => sum + tx.amount, 0);
+}
+
 function auth(req, res, next) {
   if (!req.session.userId || !users.has(req.session.userId)) {
     return res.redirect('/');
   }
   next();
+}
+
+function adminAuth(req, res, next) {
+  if (!req.session.isAdmin) {
+    return res.redirect('/admin?error=Please login as admin first.');
+  }
+  next();
+}
+
+function pushTxRequest({ userId, type, amount, detail, evidence }) {
+  const id = txCounter++;
+  const reqTx = {
+    id,
+    userId,
+    type,
+    amount,
+    detail,
+    evidence: evidence || null,
+    status: 'PENDING',
+    createdAt: new Date().toISOString(),
+    resolvedAt: null
+  };
+  txRequests.set(id, reqTx);
+
+  const user = users.get(userId);
+  user.transactions.unshift({
+    id,
+    type: `${type} REQUEST`,
+    amount,
+    date: reqTx.createdAt,
+    detail,
+    status: 'PENDING'
+  });
 }
 
 app.get('/', (req, res) => {
@@ -145,7 +188,8 @@ app.post('/signup', (req, res) => {
             type: 'REFERRAL BONUS',
             amount: 300,
             date: new Date().toISOString(),
-            detail: 'One-time bonus for 5 successful referrals'
+            detail: 'One-time bonus for 5 successful referrals',
+            status: 'APPROVED'
           });
         }
         break;
@@ -193,7 +237,8 @@ app.post('/invest/:cityCode', auth, (req, res) => {
     type: 'INVESTMENT',
     amount: city.amount,
     date: new Date().toISOString(),
-    detail: `Joined ${city.city}`
+    detail: `Joined ${city.city}`,
+    status: 'APPROVED'
   });
 
   res.redirect('/?message=City investment activated successfully.');
@@ -202,11 +247,6 @@ app.post('/invest/:cityCode', auth, (req, res) => {
 app.post('/task', auth, (req, res) => {
   const user = users.get(req.session.userId);
   ensureDailyReset(user);
-
-  const hourUtc = new Date().getUTCHours();
-  if (hourUtc < 0) {
-    return res.redirect('/?error=Tasks accessible after midnight.');
-  }
 
   if (!user.activeCities.length) {
     return res.redirect('/?error=No task allowed without city investments.');
@@ -232,7 +272,8 @@ app.post('/task', auth, (req, res) => {
     type: 'TASK INCOME',
     amount: reward,
     date: new Date().toISOString(),
-    detail: selectedTask
+    detail: selectedTask,
+    status: 'APPROVED'
   });
 
   res.redirect('/?message=Task completed. KSH 50 added to your balance.');
@@ -247,15 +288,15 @@ app.post('/deposit', auth, upload.single('evidence'), (req, res) => {
     return res.redirect('/?error=Minimum deposit is KSH 300 and phone number is required.');
   }
 
-  user.balance += amount;
-  user.transactions.unshift({
+  pushTxRequest({
+    userId: user.id,
     type: 'DEPOSIT',
     amount,
-    date: new Date().toISOString(),
-    detail: `Send money to 0733319700. Evidence: ${req.file ? req.file.filename : 'none'}`
+    detail: `Send money to 0733319700 from ${phone}`,
+    evidence: req.file ? req.file.filename : null
   });
 
-  res.redirect('/?message=Deposit recorded and reflected to your account.');
+  res.redirect('/?message=Deposit request submitted. Awaiting admin approval.');
 });
 
 app.post('/withdraw', auth, (req, res) => {
@@ -270,19 +311,114 @@ app.post('/withdraw', auth, (req, res) => {
   if (withdrawalPassword !== user.withdrawalPassword) {
     return res.redirect('/?error=Invalid withdrawal password.');
   }
-  if (user.balance < amount) {
-    return res.redirect('/?error=Insufficient balance.');
+
+  const availableAfterPending = user.balance - pendingWithdrawTotal(user);
+  if (availableAfterPending < amount) {
+    return res.redirect('/?error=Insufficient available balance after pending withdrawals.');
   }
 
-  user.balance -= amount;
-  user.transactions.unshift({
+  pushTxRequest({
+    userId: user.id,
     type: 'WITHDRAWAL',
     amount,
-    date: new Date().toISOString(),
     detail: `Withdrawal request to ${phone}`
   });
 
-  res.redirect('/?message=Withdrawal request submitted successfully.');
+  res.redirect('/?message=Withdrawal request submitted. Awaiting admin approval.');
+});
+
+app.get('/admin', (req, res) => {
+  if (req.session.isAdmin) {
+    return res.redirect('/admin/dashboard');
+  }
+  res.render('admin-login', {
+    message: req.query.message || '',
+    error: req.query.error || ''
+  });
+});
+
+app.post('/admin/login', (req, res) => {
+  const { username, password } = req.body;
+  if (username !== ADMIN_USERNAME || password !== ADMIN_PASSWORD) {
+    return res.redirect('/admin?error=Invalid admin credentials.');
+  }
+  req.session.isAdmin = true;
+  res.redirect('/admin/dashboard');
+});
+
+app.post('/admin/logout', adminAuth, (req, res) => {
+  req.session.isAdmin = false;
+  res.redirect('/admin?message=Logged out from admin dashboard.');
+});
+
+app.get('/admin/dashboard', adminAuth, (req, res) => {
+  const pending = [...txRequests.values()].filter((tx) => tx.status === 'PENDING');
+  const resolved = [...txRequests.values()].filter((tx) => tx.status !== 'PENDING').slice(-30).reverse();
+
+  res.render('admin-dashboard', {
+    pending,
+    resolved,
+    users,
+    message: req.query.message || '',
+    error: req.query.error || ''
+  });
+});
+
+app.post('/admin/transactions/:id/approve', adminAuth, (req, res) => {
+  const id = Number(req.params.id);
+  const tx = txRequests.get(id);
+  if (!tx || tx.status !== 'PENDING') {
+    return res.redirect('/admin/dashboard?error=Transaction not found or already handled.');
+  }
+
+  const user = users.get(tx.userId);
+  if (!user) {
+    return res.redirect('/admin/dashboard?error=User not found for this transaction.');
+  }
+
+  if (tx.type === 'DEPOSIT') {
+    user.balance += tx.amount;
+  }
+
+  if (tx.type === 'WITHDRAWAL') {
+    if (user.balance < tx.amount) {
+      return res.redirect('/admin/dashboard?error=Cannot approve withdrawal due to insufficient user balance.');
+    }
+    user.balance -= tx.amount;
+  }
+
+  tx.status = 'APPROVED';
+  tx.resolvedAt = new Date().toISOString();
+
+  const userTx = user.transactions.find((item) => item.id === tx.id && item.status === 'PENDING');
+  if (userTx) {
+    userTx.status = 'APPROVED';
+    userTx.detail = `${userTx.detail} (Approved by admin)`;
+  }
+
+  res.redirect('/admin/dashboard?message=Transaction approved successfully.');
+});
+
+app.post('/admin/transactions/:id/reject', adminAuth, (req, res) => {
+  const id = Number(req.params.id);
+  const tx = txRequests.get(id);
+  if (!tx || tx.status !== 'PENDING') {
+    return res.redirect('/admin/dashboard?error=Transaction not found or already handled.');
+  }
+
+  const user = users.get(tx.userId);
+  tx.status = 'REJECTED';
+  tx.resolvedAt = new Date().toISOString();
+
+  if (user) {
+    const userTx = user.transactions.find((item) => item.id === tx.id && item.status === 'PENDING');
+    if (userTx) {
+      userTx.status = 'REJECTED';
+      userTx.detail = `${userTx.detail} (Rejected by admin)`;
+    }
+  }
+
+  res.redirect('/admin/dashboard?message=Transaction rejected.');
 });
 
 app.get('/api/dashboard', auth, (req, res) => {
