@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard</title>
+  <style>
+    body{margin:0;background:#020617;color:#e2e8f0;font-family:Inter,Arial,sans-serif}
+    .container{max-width:1200px;margin:0 auto;padding:20px}
+    .card{background:#0f172acc;border:1px solid #1e293b;border-radius:16px;padding:16px;margin-bottom:14px}
+    .top{display:flex;justify-content:space-between;align-items:center;gap:10px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    .pill{background:#111827;border:1px solid #334155;border-radius:12px;padding:14px}
+    table{width:100%;border-collapse:collapse}td,th{border-bottom:1px solid #1e293b;padding:9px;text-align:left;font-size:.92rem}
+    button{padding:8px 10px;border:none;border-radius:8px;cursor:pointer;color:white;font-weight:600}.ok{background:#16a34a}.no{background:#dc2626}.out{background:#475569}
+    .msg{margin:8px 0}.good{color:#86efac}.bad{color:#fda4af}.status{padding:3px 8px;border-radius:999px}.APPROVED{background:#22c55e33;color:#86efac}.REJECTED{background:#ef444433;color:#fda4af}
+    a{color:#93c5fd;text-decoration:none}@media(max-width:800px){.stats{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card top">
+      <div>
+        <h2 style="margin:0">Admin Transaction Dashboard</h2>
+        <p style="margin:4px 0 0;color:#94a3b8">Review all pending user transactions.</p>
+      </div>
+      <form action="/admin/logout" method="post"><button class="out" type="submit">Logout</button></form>
+    </div>
+
+    <% if (error) { %><div class="msg bad"><%= error %></div><% } %>
+    <% if (message) { %><div class="msg good"><%= message %></div><% } %>
+
+    <div class="card stats">
+      <div class="pill"><div>Pending Requests</div><h3><%= pending.length %></h3></div>
+      <div class="pill"><div>Registered Users</div><h3><%= users.size %></h3></div>
+      <div class="pill"><div>Total Requests</div><h3><%= pending.length + resolved.length %></h3></div>
+    </div>
+
+    <div class="card">
+      <h3>Pending Approvals</h3>
+      <% if (!pending.length) { %><p style="color:#94a3b8">No pending requests.</p><% } else { %>
+      <table>
+        <thead><tr><th>ID</th><th>User</th><th>Type</th><th>Amount</th><th>Detail</th><th>Evidence</th><th>Action</th></tr></thead>
+        <tbody>
+          <% pending.forEach(tx => { %>
+            <tr>
+              <td>#<%= tx.id %></td>
+              <td><%= tx.userId %></td>
+              <td><%= tx.type %></td>
+              <td>KSH <%= tx.amount %></td>
+              <td><%= tx.detail %></td>
+              <td><% if (tx.evidence) { %><a href="/uploads/<%= tx.evidence %>" target="_blank">view file</a><% } else { %>-<% } %></td>
+              <td style="display:flex;gap:8px">
+                <form action="/admin/transactions/<%= tx.id %>/approve" method="post"><button class="ok" type="submit">Approve</button></form>
+                <form action="/admin/transactions/<%= tx.id %>/reject" method="post"><button class="no" type="submit">Reject</button></form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+      <% } %>
+    </div>
+
+    <div class="card">
+      <h3>Recently Resolved</h3>
+      <% if (!resolved.length) { %><p style="color:#94a3b8">No resolved requests yet.</p><% } else { %>
+      <table>
+        <thead><tr><th>ID</th><th>User</th><th>Type</th><th>Amount</th><th>Status</th><th>Resolved At</th></tr></thead>
+        <tbody>
+          <% resolved.forEach(tx => { %>
+            <tr>
+              <td>#<%= tx.id %></td><td><%= tx.userId %></td><td><%= tx.type %></td><td>KSH <%= tx.amount %></td>
+              <td><span class="status <%= tx.status %>"><%= tx.status %></span></td><td><%= new Date(tx.resolvedAt).toLocaleString() %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+      <% } %>
+    </div>
+  </div>
+</body>
+</html>
