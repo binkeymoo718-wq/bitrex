@@ -5,28 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BITREX Platform</title>
   <style>
-    :root { --bg:#0f172a; --card:#111827; --accent:#22c55e; --muted:#94a3b8; --danger:#ef4444; --primary:#3b82f6; }
-    * { box-sizing: border-box; }
-    body { margin:0; font-family: Inter, Arial, sans-serif; background: linear-gradient(180deg,#020617,#0b1224); color:#e2e8f0; }
-    .container { max-width:980px; margin:0 auto; padding:16px 16px 90px; }
-    .card { background:rgba(17,24,39,.9); border:1px solid #1e293b; border-radius:16px; padding:16px; margin-bottom:14px; box-shadow:0 8px 28px rgba(0,0,0,.25); }
-    h2,h3 { margin-top:0; }
-    input, button, select { width:100%; padding:11px 12px; border-radius:10px; border:1px solid #334155; background:#0b1220; color:#f8fafc; margin:6px 0; }
-    button { cursor:pointer; font-weight:600; background:linear-gradient(90deg,#2563eb,#22c55e); border:none; }
-    .btn-red { background:linear-gradient(90deg,#b91c1c,#ef4444); }
-    .row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-    .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
-    .pill { padding:10px; background:#0b1220; border-radius:12px; border:1px solid #1f2937; }
-    .small { color:var(--muted); font-size:.9rem; }
-    .good { color:#4ade80; }
-    .bad { color:#f87171; }
-    .bottom-nav { position:fixed; bottom:0; left:0; right:0; background:#020617; border-top:1px solid #1e293b; display:grid; grid-template-columns:repeat(4,1fr); }
-    .bottom-nav button { border-radius:0; margin:0; border-right:1px solid #1e293b; background:#0b1220; }
-    .section { display:none; }
-    .section.active { display:block; }
-    table { width:100%; border-collapse:collapse; }
-    td,th { border-bottom:1px solid #1f2937; padding:8px; text-align:left; font-size:.9rem; }
-    .topbar { display:flex; justify-content:space-between; align-items:center; }
+    :root { --card:#111827; --muted:#94a3b8; --ok:#4ade80; --bad:#fb7185; --bg:#020617; }
+    *{box-sizing:border-box} body{margin:0;font-family:Inter,Arial,sans-serif;background:radial-gradient(circle at top,#10203e,#020617 60%);color:#e2e8f0}
+    .container{max-width:1050px;margin:0 auto;padding:16px 16px 92px}.card{background:rgba(17,24,39,.92);border:1px solid #1e293b;border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 10px 30px rgba(0,0,0,.28)}
+    .hero{display:flex;justify-content:space-between;gap:10px;align-items:center;background:linear-gradient(90deg,#1d4ed8,#0f766e)}
+    h2,h3{margin:0 0 8px} input,button,select{width:100%;padding:11px 12px;border-radius:10px;border:1px solid #334155;background:#0b1220;color:#f8fafc;margin:6px 0}
+    button{cursor:pointer;font-weight:600;background:linear-gradient(90deg,#2563eb,#22c55e);border:none}.btn-red{background:linear-gradient(90deg,#991b1b,#ef4444)}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.pill{padding:10px;background:#0b1220;border-radius:12px;border:1px solid #1f2937}
+    .small{color:var(--muted);font-size:.9rem}.good{color:var(--ok)}.bad{color:var(--bad)}
+    .status{padding:3px 8px;border-radius:999px;font-size:.78rem;font-weight:700}.status.PENDING{background:#f59e0b33;color:#fcd34d}.status.APPROVED{background:#22c55e33;color:#86efac}.status.REJECTED{background:#ef444433;color:#fda4af}
+    .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#020617;border-top:1px solid #1e293b;display:grid;grid-template-columns:repeat(4,1fr)}
+    .bottom-nav button{border-radius:0;margin:0;border-right:1px solid #1e293b;background:#0b1220}.section{display:none}.section.active{display:block}
+    table{width:100%;border-collapse:collapse}td,th{border-bottom:1px solid #1f2937;padding:8px;text-align:left;font-size:.9rem}.topbar{display:flex;justify-content:space-between;align-items:center}
+    .badge{padding:6px 10px;border:1px solid #93c5fd;border-radius:999px;background:#1d4ed822;color:#bfdbfe;font-size:.8rem;text-decoration:none}
+    @media(max-width:800px){.row,.stats{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
@@ -35,9 +27,12 @@
     <% if (message) { %><div class="card good"><%= message %></div><% } %>
 
     <% if (!user) { %>
-      <div class="card">
-        <h2>Welcome to BITREX Business Platform</h2>
-        <p class="small">Create account, join city packages, complete daily tasks and track income.</p>
+      <div class="card hero">
+        <div>
+          <h2>BITREX Business Platform</h2>
+          <p class="small">Create account, join city packages, complete daily tasks and track income smoothly.</p>
+        </div>
+        <a class="badge" href="/admin">Admin Portal</a>
       </div>
       <div class="row">
         <div class="card">
@@ -62,10 +57,13 @@
     <% } else { %>
       <div class="topbar card">
         <div>
-          <h3 style="margin:0">BITREX Home</h3>
+          <h3>BITREX Home</h3>
           <div class="small">Registered Number: <strong><%= user.phone %></strong></div>
         </div>
-        <form action="/logout" method="post"><button class="btn-red" style="width:auto;padding:10px 14px;">Logout</button></form>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <a class="badge" href="/admin">Admin Portal</a>
+          <form action="/logout" method="post"><button class="btn-red" style="width:auto;padding:10px 14px;">Logout</button></form>
+        </div>
       </div>
 
       <section id="home" class="section active">
@@ -77,18 +75,12 @@
 
         <div class="card">
           <h3>Active Investments</h3>
-          <% if (!user.activeCities.length) { %>
-            <p class="small">No city joined yet.</p>
-          <% } else { %>
+          <% if (!user.activeCities.length) { %><p class="small">No city joined yet.</p><% } else { %>
             <table>
               <thead><tr><th>City</th><th>Days</th><th>Daily Income</th></tr></thead>
               <tbody>
               <% user.activeCities.forEach(code => { %>
-                <tr>
-                  <td><%= cityConfig[code].city %></td>
-                  <td><%= Math.floor((Date.now() - new Date(user.cityJoinDates[code]).getTime())/(1000*60*60*24))+1 %></td>
-                  <td>KSH <%= cityConfig[code].dailyIncome %></td>
-                </tr>
+                <tr><td><%= cityConfig[code].city %></td><td><%= Math.floor((Date.now()-new Date(user.cityJoinDates[code]).getTime())/(1000*60*60*24))+1 %></td><td>KSH <%= cityConfig[code].dailyIncome %></td></tr>
               <% }) %>
               </tbody>
             </table>
@@ -98,7 +90,7 @@
         <div class="row">
           <div class="card">
             <h3>Deposit (Min KSH 300)</h3>
-            <p class="small">Send money to <strong>0733319700</strong></p>
+            <p class="small">Send money to <strong>0733319700</strong>. Deposit reflects after admin approval.</p>
             <form action="/deposit" method="post" enctype="multipart/form-data">
               <input name="phone" placeholder="Your Phone Number" required />
               <input name="amount" type="number" min="300" placeholder="Amount" required />
@@ -108,6 +100,7 @@
           </div>
           <div class="card">
             <h3>Withdraw (Min KSH 500)</h3>
+            <p class="small">Withdrawal is processed after admin approval.</p>
             <form action="/withdraw" method="post">
               <input name="phone" placeholder="Phone to Receive Payment" required />
               <input name="amount" type="number" min="500" placeholder="Amount" required />
@@ -121,7 +114,7 @@
       <section id="task" class="section">
         <div class="card">
           <h3>Daily Tasks (KSH 50 each)</h3>
-          <p class="small">Maximum daily tasks depend on total joined city limits. Tasks reset after midnight.</p>
+          <p class="small">Maximum tasks are based on city package limits and reset after midnight.</p>
           <form method="post" action="/task">
             <select name="taskName" required>
               <option value="">Select task</option>
@@ -142,9 +135,7 @@
               <% Object.keys(cityConfig).forEach(code => { const c=cityConfig[code]; %>
                 <tr>
                   <td><%= c.city %></td><td>KSH <%= c.amount %></td><td><%= c.tasksPerDay %></td><td>KSH <%= c.dailyIncome %></td>
-                  <td>
-                    <form method="post" action="/invest/<%= code %>"><button type="submit">Join</button></form>
-                  </td>
+                  <td><form method="post" action="/invest/<%= code %>"><button type="submit">Join</button></form></td>
                 </tr>
               <% }) %>
             </tbody>
@@ -163,11 +154,15 @@
           <h3>Transaction History</h3>
           <% if (!user.transactions.length) { %><p class="small">No transactions yet.</p><% } %>
           <table>
-            <thead><tr><th>Type</th><th>Amount</th><th>Detail</th><th>Date</th></tr></thead>
+            <thead><tr><th>Type</th><th>Amount</th><th>Status</th><th>Detail</th><th>Date</th></tr></thead>
             <tbody>
               <% user.transactions.slice(0,20).forEach(tx => { %>
                 <tr>
-                  <td><%= tx.type %></td><td>KSH <%= tx.amount %></td><td><%= tx.detail %></td><td><%= new Date(tx.date).toLocaleString() %></td>
+                  <td><%= tx.type %></td>
+                  <td>KSH <%= tx.amount %></td>
+                  <td><span class="status <%= tx.status || 'APPROVED' %>"><%= tx.status || 'APPROVED' %></span></td>
+                  <td><%= tx.detail %></td>
+                  <td><%= new Date(tx.date).toLocaleString() %></td>
                 </tr>
               <% }) %>
             </tbody>
@@ -181,12 +176,8 @@
         <button onclick="switchTab('city')">🏙️ City</button>
         <button onclick="switchTab('menu')">☰ Menu</button>
       </nav>
-
       <script>
-        function switchTab(id) {
-          document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-          document.getElementById(id).classList.add('active');
-        }
+        function switchTab(id){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
       </script>
     <% } %>
   </div>
