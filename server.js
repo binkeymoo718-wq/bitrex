@@ -6,10 +6,11 @@ const fs = require('fs');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const ADMIN_USERNAME = 'admin';
+const ADMIN_USERNAME = 'timothy';
 const ADMIN_PASSWORD = 'admin12345';
 
 const uploadDir = path.join(__dirname, 'uploads');
+const dataFile = path.join(__dirname, 'data.json');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
@@ -57,6 +58,36 @@ const users = new Map();
 const txRequests = new Map();
 let txCounter = 1;
 
+function persistData() {
+  const data = {
+    users: [...users.entries()],
+    txRequests: [...txRequests.entries()],
+    txCounter
+  };
+  fs.writeFileSync(dataFile, JSON.stringify(data, null, 2));
+}
+
+function loadData() {
+  if (!fs.existsSync(dataFile)) {
+    return;
+  }
+
+  try {
+    const raw = JSON.parse(fs.readFileSync(dataFile, 'utf8'));
+    if (Array.isArray(raw.users)) {
+      raw.users.forEach(([key, value]) => users.set(key, value));
+    }
+    if (Array.isArray(raw.txRequests)) {
+      raw.txRequests.forEach(([key, value]) => txRequests.set(Number(key), value));
+    }
+    if (Number.isInteger(raw.txCounter)) {
+      txCounter = raw.txCounter;
+    }
+  } catch (error) {
+    console.error('Failed to load persisted data:', error.message);
+  }
+}
+
 function generateReferralCode(phone) {
   return `REF${phone.slice(-4)}${Math.floor(Math.random() * 900 + 100)}`;
 }
@@ -71,6 +102,7 @@ function ensureDailyReset(user) {
     user.lastTaskDate = today;
     user.tasksCompletedToday = 0;
     user.todayIncome = 0;
+    persistData();
   }
 }
 
@@ -131,6 +163,7 @@ function pushTxRequest({ userId, type, amount, detail, evidence }) {
     detail,
     status: 'PENDING'
   });
+  persistData();
 }
 
 app.get('/', (req, res) => {
@@ -198,6 +231,7 @@ app.post('/signup', (req, res) => {
   }
 
   users.set(phone, newUser);
+  persistData();
   req.session.userId = phone;
   res.redirect('/?message=Signup successful. Welcome!');
 });
@@ -214,6 +248,31 @@ app.post('/login', (req, res) => {
 
 app.post('/logout', auth, (req, res) => {
   req.session.destroy(() => res.redirect('/?message=Logged out successfully.'));
+});
+
+app.post('/profile/password', auth, (req, res) => {
+  const user = users.get(req.session.userId);
+  const { currentPassword, newPassword } = req.body;
+
+  if (user.password !== currentPassword) {
+    return res.redirect('/?error=Current password is incorrect.');
+  }
+  if (!newPassword || newPassword.length < 6 || newPassword.length > 8) {
+    return res.redirect('/?error=New password must be 6 to 8 characters.');
+  }
+
+  user.password = newPassword;
+  user.withdrawalPassword = newPassword;
+  user.transactions.unshift({
+    type: 'PROFILE UPDATE',
+    amount: 0,
+    date: new Date().toISOString(),
+    detail: 'Password changed successfully',
+    status: 'APPROVED'
+  });
+
+  persistData();
+  res.redirect('/?message=Password changed successfully.');
 });
 
 app.post('/invest/:cityCode', auth, (req, res) => {
@@ -241,6 +300,7 @@ app.post('/invest/:cityCode', auth, (req, res) => {
     status: 'APPROVED'
   });
 
+  persistData();
   res.redirect('/?message=City investment activated successfully.');
 });
 
@@ -276,6 +336,7 @@ app.post('/task', auth, (req, res) => {
     status: 'APPROVED'
   });
 
+  persistData();
   res.redirect('/?message=Task completed. KSH 50 added to your balance.');
 });
 
@@ -396,6 +457,7 @@ app.post('/admin/transactions/:id/approve', adminAuth, (req, res) => {
     userTx.detail = `${userTx.detail} (Approved by admin)`;
   }
 
+  persistData();
   res.redirect('/admin/dashboard?message=Transaction approved successfully.');
 });
 
@@ -418,6 +480,7 @@ app.post('/admin/transactions/:id/reject', adminAuth, (req, res) => {
     }
   }
 
+  persistData();
   res.redirect('/admin/dashboard?message=Transaction rejected.');
 });
 
@@ -436,6 +499,7 @@ app.get('/api/dashboard', auth, (req, res) => {
 
   res.json({
     phone: user.phone,
+    email: user.email,
     balance: user.balance,
     todayIncome: user.todayIncome,
     totalEarnings: user.totalEarnings,
@@ -449,6 +513,8 @@ app.get('/api/dashboard', auth, (req, res) => {
     transactions: user.transactions
   });
 });
+
+loadData();
 
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
