@@ -6,7 +6,7 @@ const fs = require('fs');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const ADMIN_USERNAME = 'admin';
+const ADMIN_USERNAME = 'timothy';
 const ADMIN_PASSWORD = 'admin12345';
 
 const uploadDir = path.join(__dirname, 'uploads');
