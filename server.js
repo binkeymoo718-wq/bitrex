@@ -6,7 +6,7 @@ const fs = require('fs');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const ADMIN_USERNAME = 'timothy';
+const ADMIN_USERNAME = 'admin';
 const ADMIN_PASSWORD = 'admin12345';
 
 const uploadDir = path.join(__dirname, 'uploads');
@@ -57,12 +57,23 @@ const TASKS = [
 const users = new Map();
 const txRequests = new Map();
 let txCounter = 1;
+const stats = {
+  totalUsersJoined: 0,
+  totalRequestsCreated: 0,
+  totalApproved: 0,
+  totalRejected: 0
+};
+
+function normalizePhone(phone) {
+  return String(phone || '').trim().replace(/\s+/g, '').replace(/^\+/, '');
+}
 
 function persistData() {
   const data = {
     users: [...users.entries()],
     txRequests: [...txRequests.entries()],
-    txCounter
+    txCounter,
+    stats
   };
   fs.writeFileSync(dataFile, JSON.stringify(data, null, 2));
 }
@@ -82,6 +93,12 @@ function loadData() {
     }
     if (Number.isInteger(raw.txCounter)) {
       txCounter = raw.txCounter;
+    }
+    if (raw.stats && typeof raw.stats === 'object') {
+      stats.totalUsersJoined = Number(raw.stats.totalUsersJoined || 0);
+      stats.totalRequestsCreated = Number(raw.stats.totalRequestsCreated || 0);
+      stats.totalApproved = Number(raw.stats.totalApproved || 0);
+      stats.totalRejected = Number(raw.stats.totalRejected || 0);
     }
   } catch (error) {
     console.error('Failed to load persisted data:', error.message);
@@ -163,6 +180,7 @@ function pushTxRequest({ userId, type, amount, detail, evidence }) {
     detail,
     status: 'PENDING'
   });
+  stats.totalRequestsCreated += 1;
   persistData();
 }
 
@@ -181,7 +199,8 @@ app.get('/', (req, res) => {
 });
 
 app.post('/signup', (req, res) => {
-  const { phone, email, password, referralCode } = req.body;
+  const { email, password, referralCode } = req.body;
+  const phone = normalizePhone(req.body.phone);
   if (!phone || !email || !password || password.length < 6 || password.length > 8) {
     return res.redirect('/?error=Provide valid signup details. Password must be 6-8 characters.');
   }
@@ -231,13 +250,15 @@ app.post('/signup', (req, res) => {
   }
 
   users.set(phone, newUser);
+  stats.totalUsersJoined += 1;
   persistData();
   req.session.userId = phone;
   res.redirect('/?message=Signup successful. Welcome!');
 });
 
 app.post('/login', (req, res) => {
-  const { phone, password } = req.body;
+  const { password } = req.body;
+  const phone = normalizePhone(req.body.phone);
   const user = users.get(phone);
   if (!user || user.password !== password) {
     return res.redirect('/?error=Invalid phone or password.');
@@ -343,7 +364,7 @@ app.post('/task', auth, (req, res) => {
 app.post('/deposit', auth, upload.single('evidence'), (req, res) => {
   const user = users.get(req.session.userId);
   const amount = Number(req.body.amount);
-  const phone = req.body.phone;
+  const phone = normalizePhone(req.body.phone);
 
   if (!phone || Number.isNaN(amount) || amount < 300) {
     return res.redirect('/?error=Minimum deposit is KSH 300 and phone number is required.');
@@ -363,7 +384,7 @@ app.post('/deposit', auth, upload.single('evidence'), (req, res) => {
 app.post('/withdraw', auth, (req, res) => {
   const user = users.get(req.session.userId);
   const amount = Number(req.body.amount);
-  const phone = req.body.phone;
+  const phone = normalizePhone(req.body.phone);
   const withdrawalPassword = req.body.withdrawalPassword;
 
   if (!phone || Number.isNaN(amount) || amount < 500) {
@@ -420,6 +441,7 @@ app.get('/admin/dashboard', adminAuth, (req, res) => {
     pending,
     resolved,
     users,
+    stats,
     message: req.query.message || '',
     error: req.query.error || ''
   });
@@ -450,6 +472,7 @@ app.post('/admin/transactions/:id/approve', adminAuth, (req, res) => {
 
   tx.status = 'APPROVED';
   tx.resolvedAt = new Date().toISOString();
+  stats.totalApproved += 1;
 
   const userTx = user.transactions.find((item) => item.id === tx.id && item.status === 'PENDING');
   if (userTx) {
@@ -471,6 +494,7 @@ app.post('/admin/transactions/:id/reject', adminAuth, (req, res) => {
   const user = users.get(tx.userId);
   tx.status = 'REJECTED';
   tx.resolvedAt = new Date().toISOString();
+  stats.totalRejected += 1;
 
   if (user) {
     const userTx = user.transactions.find((item) => item.id === tx.id && item.status === 'PENDING');
