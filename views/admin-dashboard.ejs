@@ -31,8 +31,13 @@
 
     <div class="card stats">
       <div class="pill"><div>Pending Requests</div><h3><%= pending.length %></h3></div>
-      <div class="pill"><div>Registered Users</div><h3><%= users.size %></h3></div>
-      <div class="pill"><div>Total Requests</div><h3><%= pending.length + resolved.length %></h3></div>
+      <div class="pill"><div>Registered Users (All Time)</div><h3><%= stats.totalUsersJoined %></h3></div>
+      <div class="pill"><div>Total Requests (All Time)</div><h3><%= stats.totalRequestsCreated %></h3></div>
+    </div>
+    <div class="card stats">
+      <div class="pill"><div>Approved Requests</div><h3><%= stats.totalApproved %></h3></div>
+      <div class="pill"><div>Rejected Requests</div><h3><%= stats.totalRejected %></h3></div>
+      <div class="pill"><div>Current Users in Storage</div><h3><%= users.size %></h3></div>
     </div>
 
     <div class="card">
