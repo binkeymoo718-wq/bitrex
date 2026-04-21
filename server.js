@@ -10,9 +10,13 @@ const ADMIN_USERNAME = 'admin';
 const ADMIN_PASSWORD = 'admin12345';
 
 const uploadDir = path.join(__dirname, 'uploads');
-const dataFile = path.join(__dirname, 'data.json');
+const storageDir = path.join(__dirname, 'storage');
+const dataFile = path.join(storageDir, 'data.json');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
+}
+if (!fs.existsSync(storageDir)) {
+  fs.mkdirSync(storageDir, { recursive: true });
 }
 
 const storage = multer.diskStorage({
@@ -75,7 +79,9 @@ function persistData() {
     txCounter,
     stats
   };
-  fs.writeFileSync(dataFile, JSON.stringify(data, null, 2));
+  const tempFile = `${dataFile}.tmp`;
+  fs.writeFileSync(tempFile, JSON.stringify(data, null, 2));
+  fs.renameSync(tempFile, dataFile);
 }
 
 function loadData() {
@@ -186,6 +192,7 @@ function pushTxRequest({ userId, type, amount, detail, evidence }) {
 
 app.get('/', (req, res) => {
   const user = req.session.userId ? users.get(req.session.userId) : null;
+  const referralFromQuery = req.query.ref ? String(req.query.ref) : '';
   if (user) {
     ensureDailyReset(user);
   }
@@ -194,7 +201,9 @@ app.get('/', (req, res) => {
     cityConfig: CITY_CONFIG,
     tasks: TASKS,
     message: req.query.message || '',
-    error: req.query.error || ''
+    error: req.query.error || '',
+    referralFromQuery,
+    referralLink: user ? `${req.protocol}://${req.get('host')}/?ref=${user.referralCode}` : ''
   });
 });
 
@@ -225,7 +234,9 @@ app.post('/signup', (req, res) => {
     activeCities: [],
     cityJoinDates: {},
     transactions: [],
-    withdrawalPassword: password
+    withdrawalPassword: password,
+    createdAt: new Date().toISOString(),
+    active: true
   };
 
   if (referralCode) {
@@ -262,6 +273,9 @@ app.post('/login', (req, res) => {
   const user = users.get(phone);
   if (!user || user.password !== password) {
     return res.redirect('/?error=Invalid phone or password.');
+  }
+  if (user.active === false) {
+    return res.redirect('/?error=Your account is inactive. Contact support.');
   }
   req.session.userId = user.id;
   res.redirect('/?message=Login successful.');
@@ -436,15 +450,35 @@ app.post('/admin/logout', adminAuth, (req, res) => {
 app.get('/admin/dashboard', adminAuth, (req, res) => {
   const pending = [...txRequests.values()].filter((tx) => tx.status === 'PENDING');
   const resolved = [...txRequests.values()].filter((tx) => tx.status !== 'PENDING').slice(-30).reverse();
+  const usersList = [...users.values()]
+    .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
 
   res.render('admin-dashboard', {
     pending,
     resolved,
     users,
+    usersList,
     stats,
     message: req.query.message || '',
     error: req.query.error || ''
   });
+});
+
+app.post('/admin/users/:id/toggle', adminAuth, (req, res) => {
+  const user = users.get(req.params.id);
+  if (!user) {
+    return res.redirect('/admin/dashboard?error=User not found.');
+  }
+  user.active = user.active === false ? true : false;
+  user.transactions.unshift({
+    type: 'ADMIN ACTION',
+    amount: 0,
+    date: new Date().toISOString(),
+    detail: user.active ? 'Account re-activated by admin' : 'Account suspended by admin',
+    status: 'APPROVED'
+  });
+  persistData();
+  res.redirect('/admin/dashboard?message=User status updated.');
 });
 
 app.post('/admin/transactions/:id/approve', adminAuth, (req, res) => {
