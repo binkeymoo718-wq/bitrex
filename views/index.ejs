@@ -50,7 +50,7 @@
             <input name="phone" placeholder="Phone Number" required />
             <input name="email" type="email" placeholder="Email Address" required />
             <input name="password" type="password" minlength="6" maxlength="8" placeholder="Password (6-8 chars)" required />
-            <input name="referralCode" placeholder="Referral Code (Optional)" />
+            <input name="referralCode" placeholder="Referral Code (Optional)" value="<%= referralFromQuery || '' %>" />
             <button type="submit">Create Account</button>
           </form>
         </div>
@@ -159,8 +159,14 @@
       <section id="menu" class="section">
         <div class="card">
           <h3>Menu</h3>
-          <p>Manager WhatsApp: <a href="https://wa.me/254106305272" target="_blank" class="badge-link">+254106305272</a></p>
+          <p>Manager WhatsApp: <a href="https://wa.me/254780535898" target="_blank" class="badge-link">0780535898</a></p>
           <p>Your Referral Code: <strong><%= user.referralCode %></strong></p>
+          <p>
+            Referral Link:
+            <a href="<%= referralLink %>" target="_blank" class="badge-link">Open Link</a>
+            <button type="button" onclick="copyReferral('<%= referralLink %>')" style="width:auto;padding:6px 10px;border-radius:999px;">Copy</button>
+            <button type="button" onclick="shareReferral('<%= referralLink %>')" style="width:auto;padding:6px 10px;border-radius:999px;">Share</button>
+          </p>
           <p>Referrals: <%= user.referredCount %> / 5 friends (bonus KSH 300 one-time).</p>
         </div>
 
@@ -205,6 +211,16 @@
         function switchTab(id){
           document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
           document.getElementById(id).classList.add('active');
+        }
+        function copyReferral(link){
+          navigator.clipboard.writeText(link).then(()=>alert('Referral link copied'));
+        }
+        async function shareReferral(link){
+          if (navigator.share){
+            await navigator.share({title:'Join BITREX', text:'Use my referral link', url:link});
+          } else {
+            copyReferral(link);
+          }
         }
       </script>
     <% } %>
