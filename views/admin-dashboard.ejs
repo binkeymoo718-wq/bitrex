@@ -81,6 +81,32 @@
       </table>
       <% } %>
     </div>
+
+    <div class="card">
+      <h3>User Management (Permanent Storage View)</h3>
+      <% if (!usersList.length) { %><p style="color:#94a3b8">No users registered yet.</p><% } else { %>
+      <table>
+        <thead><tr><th>Phone</th><th>Email</th><th>Balance</th><th>Total Earnings</th><th>Status</th><th>Joined</th><th>Action</th></tr></thead>
+        <tbody>
+          <% usersList.forEach(u => { %>
+            <tr>
+              <td><%= u.phone %></td>
+              <td><%= u.email %></td>
+              <td>KSH <%= u.balance %></td>
+              <td>KSH <%= u.totalEarnings %></td>
+              <td><span class="status <%= u.active === false ? 'REJECTED' : 'APPROVED' %>"><%= u.active === false ? 'INACTIVE' : 'ACTIVE' %></span></td>
+              <td><%= u.createdAt ? new Date(u.createdAt).toLocaleString() : '-' %></td>
+              <td>
+                <form action="/admin/users/<%= u.id %>/toggle" method="post">
+                  <button class="<%= u.active === false ? 'ok' : 'no' %>" type="submit"><%= u.active === false ? 'Activate' : 'Suspend' %></button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+      <% } %>
+    </div>
   </div>
 </body>
 </html>
