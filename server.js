@@ -3,11 +3,15 @@ const session = require('express-session');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const { createClient } = require('@supabase/supabase-js');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const ADMIN_USERNAME = 'admin';
-const ADMIN_PASSWORD = 'admin12345';
+const ADMIN_PASSWORD = 'timothy@254';
+const SUPABASE_URL = process.env.SUPABASE_URL || '';
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+const SUPABASE_STATE_ROW_ID = 'main';
 
 const uploadDir = path.join(__dirname, 'uploads');
 const storageDir = path.join(__dirname, 'storage');
@@ -18,6 +22,9 @@ if (!fs.existsSync(uploadDir)) {
 if (!fs.existsSync(storageDir)) {
   fs.mkdirSync(storageDir, { recursive: true });
 }
+const supabase = SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY
+  ? createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } })
+  : null;
 
 const storage = multer.diskStorage({
   destination: (_, __, cb) => cb(null, uploadDir),
@@ -67,45 +74,114 @@ const stats = {
   totalApproved: 0,
   totalRejected: 0
 };
+let isSyncingSupabase = false;
+let needsResyncSupabase = false;
 
 function normalizePhone(phone) {
   return String(phone || '').trim().replace(/\s+/g, '').replace(/^\+/, '');
 }
 
 function persistData() {
-  const data = {
+  const data = getSerializableData();
+  const tempFile = `${dataFile}.tmp`;
+  fs.writeFileSync(tempFile, JSON.stringify(data, null, 2));
+  fs.renameSync(tempFile, dataFile);
+  void flushStateToSupabase();
+}
+
+function getSerializableData() {
+  return {
     users: [...users.entries()],
     txRequests: [...txRequests.entries()],
     txCounter,
     stats
   };
-  const tempFile = `${dataFile}.tmp`;
-  fs.writeFileSync(tempFile, JSON.stringify(data, null, 2));
-  fs.renameSync(tempFile, dataFile);
 }
 
-function loadData() {
+function applyStateData(raw) {
+  if (!raw || typeof raw !== 'object') {
+    return;
+  }
+  users.clear();
+  txRequests.clear();
+
+  if (Array.isArray(raw.users)) {
+    raw.users.forEach(([key, value]) => users.set(key, value));
+  }
+  if (Array.isArray(raw.txRequests)) {
+    raw.txRequests.forEach(([key, value]) => txRequests.set(Number(key), value));
+  }
+  if (Number.isInteger(raw.txCounter)) {
+    txCounter = raw.txCounter;
+  }
+  if (raw.stats && typeof raw.stats === 'object') {
+    stats.totalUsersJoined = Number(raw.stats.totalUsersJoined || 0);
+    stats.totalRequestsCreated = Number(raw.stats.totalRequestsCreated || 0);
+    stats.totalApproved = Number(raw.stats.totalApproved || 0);
+    stats.totalRejected = Number(raw.stats.totalRejected || 0);
+  }
+}
+
+async function flushStateToSupabase() {
+  if (!supabase) {
+    return;
+  }
+
+  if (isSyncingSupabase) {
+    needsResyncSupabase = true;
+    return;
+  }
+
+  isSyncingSupabase = true;
+  try {
+    do {
+      needsResyncSupabase = false;
+      const payload = getSerializableData();
+      const { error } = await supabase
+        .from('app_state')
+        .upsert(
+          { id: SUPABASE_STATE_ROW_ID, payload, updated_at: new Date().toISOString() },
+          { onConflict: 'id' }
+        );
+      if (error) {
+        console.error('Supabase sync error:', error.message);
+        break;
+      }
+    } while (needsResyncSupabase);
+  } finally {
+    isSyncingSupabase = false;
+  }
+}
+
+async function loadData() {
+  if (supabase) {
+    const { data, error } = await supabase
+      .from('app_state')
+      .select('payload')
+      .eq('id', SUPABASE_STATE_ROW_ID)
+      .maybeSingle();
+
+    if (!error && data?.payload) {
+      applyStateData(data.payload);
+      // refresh local backup snapshot
+      const snapshot = getSerializableData();
+      const tempFile = `${dataFile}.tmp`;
+      fs.writeFileSync(tempFile, JSON.stringify(snapshot, null, 2));
+      fs.renameSync(tempFile, dataFile);
+      return;
+    }
+    if (error) {
+      console.error('Supabase load error, falling back to local file:', error.message);
+    }
+  }
+
   if (!fs.existsSync(dataFile)) {
     return;
   }
 
   try {
     const raw = JSON.parse(fs.readFileSync(dataFile, 'utf8'));
-    if (Array.isArray(raw.users)) {
-      raw.users.forEach(([key, value]) => users.set(key, value));
-    }
-    if (Array.isArray(raw.txRequests)) {
-      raw.txRequests.forEach(([key, value]) => txRequests.set(Number(key), value));
-    }
-    if (Number.isInteger(raw.txCounter)) {
-      txCounter = raw.txCounter;
-    }
-    if (raw.stats && typeof raw.stats === 'object') {
-      stats.totalUsersJoined = Number(raw.stats.totalUsersJoined || 0);
-      stats.totalRequestsCreated = Number(raw.stats.totalRequestsCreated || 0);
-      stats.totalApproved = Number(raw.stats.totalApproved || 0);
-      stats.totalRejected = Number(raw.stats.totalRejected || 0);
-    }
+    applyStateData(raw);
   } catch (error) {
     console.error('Failed to load persisted data:', error.message);
   }
@@ -572,8 +648,19 @@ app.get('/api/dashboard', auth, (req, res) => {
   });
 });
 
-loadData();
+async function startServer() {
+  await loadData();
+  app.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}`);
+    if (supabase) {
+      console.log('Supabase persistence enabled (table: app_state).');
+    } else {
+      console.log('Supabase persistence disabled; using local storage/data.json.');
+    }
+  });
+}
 
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
+startServer().catch((error) => {
+  console.error('Startup failed:', error.message);
+  process.exit(1);
 });
