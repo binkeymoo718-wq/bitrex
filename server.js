@@ -8,7 +8,7 @@ const { createClient } = require('@supabase/supabase-js');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const ADMIN_USERNAME = 'admin';
-const ADMIN_PASSWORD = 'timothy@254';
+const ADMIN_PASSWORD = 'admin12345';
 const SUPABASE_URL = process.env.SUPABASE_URL || '';
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 const SUPABASE_STATE_ROW_ID = 'main';
@@ -147,9 +147,66 @@ async function flushStateToSupabase() {
         console.error('Supabase sync error:', error.message);
         break;
       }
+      await syncUserTablesToSupabase();
     } while (needsResyncSupabase);
   } finally {
     isSyncingSupabase = false;
+  }
+}
+
+async function syncUserTablesToSupabase() {
+  if (!supabase) {
+    return;
+  }
+
+  const profiles = [...users.values()].map((user) => ({
+    user_id: user.id,
+    phone: user.phone,
+    email: user.email || null,
+    balance: Number(user.balance || 0),
+    total_earnings: Number(user.totalEarnings || 0),
+    today_income: Number(user.todayIncome || 0),
+    tasks_completed_today: Number(user.tasksCompletedToday || 0),
+    referral_code: user.referralCode || null,
+    referred_count: Number(user.referredCount || 0),
+    referral_bonus_earned: Boolean(user.referralBonusEarned),
+    active: user.active !== false,
+    created_at: user.createdAt || null,
+    last_task_date: user.lastTaskDate || null,
+    updated_at: new Date().toISOString()
+  }));
+
+  if (profiles.length) {
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .upsert(profiles, { onConflict: 'user_id' });
+    if (profileError) {
+      console.error('Supabase profiles sync error:', profileError.message);
+    }
+  }
+
+  for (const user of users.values()) {
+    const { error: deleteError } = await supabase
+      .from('user_cities')
+      .delete()
+      .eq('user_id', user.id);
+    if (deleteError) {
+      console.error('Supabase user_cities delete error:', deleteError.message);
+      continue;
+    }
+    const cityRows = (user.activeCities || []).map((code) => ({
+      user_id: user.id,
+      city_code: code,
+      joined_at: user.cityJoinDates?.[code] || new Date().toISOString()
+    }));
+    if (cityRows.length) {
+      const { error: cityError } = await supabase
+        .from('user_cities')
+        .insert(cityRows);
+      if (cityError) {
+        console.error('Supabase user_cities insert error:', cityError.message);
+      }
+    }
   }
 }
 
