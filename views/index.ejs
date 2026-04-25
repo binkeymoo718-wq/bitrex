@@ -92,8 +92,14 @@
               <% user.activeCities.forEach(code => { %>
                 <tr>
                   <td><%= cityConfig[code].city %></td>
-                  <td><%= Math.floor((Date.now()-new Date(user.cityJoinDates[code]).getTime())/(1000*60*60*24))+1 %></td>
-                  <td>KSH <%= cityConfig[code].dailyIncome %></td>
+                  <td>
+                    <%= Math.floor((Date.now()-new Date(user.cityJoinDates[code]).getTime())/(1000*60*60*24))+1 %>
+                    <% if (code === 'INTERN') { %>
+                      / 4
+                      <% if (internExpired) { %><span class="status REJECTED">EXPIRED</span><% } %>
+                    <% } %>
+                  </td>
+                  <td>KSH <%= code === 'INTERN' && internExpired ? 0 : cityConfig[code].dailyIncome %></td>
                 </tr>
               <% }) %>
             </tbody>
@@ -135,7 +141,7 @@
             </select>
             <button type="submit">Complete Task</button>
           </form>
-          <p class="small">Tasks completed today: <%= user.tasksCompletedToday %> / <%= user.activeCities.reduce((s,c)=>s+cityConfig[c].tasksPerDay,0) %></p>
+          <p class="small">Tasks completed today: <%= user.tasksCompletedToday %> / <%= taskLimitToday %></p>
         </div>
       </section>
 
