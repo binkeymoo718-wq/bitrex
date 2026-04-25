@@ -5,17 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Login</title>
   <style>
-    body{margin:0;min-height:100vh;display:grid;place-items:center;font-family:Inter,Arial,sans-serif;background:radial-gradient(circle at top,#1e3a8a,#020617);color:#e2e8f0}
-    .card{width:min(460px,92vw);background:#0f172acc;border:1px solid #334155;padding:24px;border-radius:16px;box-shadow:0 12px 30px rgba(0,0,0,.35)}
-    input,button{width:100%;padding:12px;border-radius:10px;border:1px solid #334155;background:#020617;color:#fff;margin-top:10px}
-    button{border:none;background:linear-gradient(90deg,#2563eb,#10b981);font-weight:700;cursor:pointer}
-    .msg{margin:8px 0;font-size:.92rem}.good{color:#86efac}.bad{color:#fda4af}a{color:#93c5fd;text-decoration:none}
+    body{margin:0;min-height:100vh;display:grid;place-items:center;background:radial-gradient(circle at 20% 10%,#3b82f655,transparent),linear-gradient(180deg,#090f1f,#0b1730);font-family:Inter,Arial,sans-serif;color:#e2e8f0}
+    .card{width:min(460px,92vw);padding:24px;border-radius:18px;background:#111b31cc;border:1px solid #2d3f63;box-shadow:0 12px 36px #00000055}
+    h2{margin:0 0 8px}.small{color:#9fb1d7}
+    input,button{width:100%;padding:12px;border-radius:12px;border:1px solid #314158;background:#0a1428;color:#fff;margin-top:10px}
+    button{border:none;background:linear-gradient(120deg,#4f8dff,#35d3ff);font-weight:700;cursor:pointer}
+    .msg{margin:8px 0}.good{color:#86efac}.bad{color:#fca5a5}a{color:#93c5fd;text-decoration:none}
   </style>
 </head>
 <body>
   <div class="card">
     <h2>Admin Dashboard Login</h2>
-    <p>Approve or reject user deposits and withdrawal requests.</p>
+    <p class="small">Approve or reject user deposit and withdrawal requests.</p>
     <% if (error) { %><div class="msg bad"><%= error %></div><% } %>
     <% if (message) { %><div class="msg good"><%= message %></div><% } %>
     <form method="post" action="/admin/login">
@@ -23,7 +24,7 @@
       <input name="password" type="password" placeholder="Admin Password" required />
       <button type="submit">Login</button>
     </form>
-    <p style="margin-top:12px"><a href="/">← Back to user platform</a></p>
+    <p style="margin-top:12px"><a href="/">← Back to platform</a></p>
   </div>
 </body>
 </html>
