@@ -8,7 +8,7 @@ const { createClient } = require('@supabase/supabase-js');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const ADMIN_USERNAME = 'admin';
-const ADMIN_PASSWORD = 'admin12345';
+const ADMIN_PASSWORD = 'Timothy@254';
 const SUPABASE_URL = process.env.SUPABASE_URL || '';
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 const SUPABASE_STATE_ROW_ID = 'main';
@@ -46,11 +46,12 @@ app.use(
 );
 
 const CITY_CONFIG = {
-  A: { city: 'CITY A', amount: 1500, tasksPerDay: 1, dailyIncome: 50 },
-  B: { city: 'CITY B', amount: 3200, tasksPerDay: 2, dailyIncome: 100 },
-  C: { city: 'CITY C', amount: 7200, tasksPerDay: 4, dailyIncome: 200 },
-  D: { city: 'CITY D', amount: 12000, tasksPerDay: 8, dailyIncome: 400 },
-  E: { city: 'CITY E', amount: 15000, tasksPerDay: 10, dailyIncome: 500 }
+  INTERN: { city: 'INTERN', amount: 0, tasksPerDay: 1, dailyIncome: 50, durationDays: 4, free: true },
+  A: { city: 'TOKYO', amount: 1500, tasksPerDay: 1, dailyIncome: 50 },
+  B: { city: 'OSAKA', amount: 3200, tasksPerDay: 2, dailyIncome: 100 },
+  C: { city: 'KYOTO', amount: 7200, tasksPerDay: 4, dailyIncome: 200 },
+  D: { city: 'YOKOHAMA', amount: 12000, tasksPerDay: 8, dailyIncome: 400 },
+  E: { city: 'NAGOYA', amount: 15000, tasksPerDay: 10, dailyIncome: 500 }
 };
 
 const TASKS = [
@@ -145,7 +146,6 @@ async function flushStateToSupabase() {
         );
       if (error) {
         console.error('Supabase sync error:', error.message);
-        break;
       }
       await syncUserTablesToSupabase();
     } while (needsResyncSupabase);
@@ -172,6 +172,7 @@ async function syncUserTablesToSupabase() {
     referral_bonus_earned: Boolean(user.referralBonusEarned),
     active: user.active !== false,
     created_at: user.createdAt || null,
+    last_login_at: user.lastLoginAt || null,
     last_task_date: user.lastTaskDate || null,
     updated_at: new Date().toISOString()
   }));
@@ -267,12 +268,37 @@ function cityDays(joinedAt) {
   return Math.floor(diff / (1000 * 60 * 60 * 24)) + 1;
 }
 
+function isInternExpired(user) {
+  const joinedAt = user.cityJoinDates?.INTERN;
+  if (!joinedAt) {
+    return true;
+  }
+  return cityDays(joinedAt) > (CITY_CONFIG.INTERN.durationDays || 4);
+}
+
+function isCityTaskActive(user, code) {
+  if (code !== 'INTERN') {
+    return true;
+  }
+  return !isInternExpired(user);
+}
+
 function totalTaskLimit(user) {
-  return user.activeCities.reduce((sum, code) => sum + CITY_CONFIG[code].tasksPerDay, 0);
+  return user.activeCities.reduce((sum, code) => {
+    if (!CITY_CONFIG[code] || !isCityTaskActive(user, code)) {
+      return sum;
+    }
+    return sum + CITY_CONFIG[code].tasksPerDay;
+  }, 0);
 }
 
 function totalDailyCityIncome(user) {
-  return user.activeCities.reduce((sum, code) => sum + CITY_CONFIG[code].dailyIncome, 0);
+  return user.activeCities.reduce((sum, code) => {
+    if (!CITY_CONFIG[code] || !isCityTaskActive(user, code)) {
+      return sum;
+    }
+    return sum + CITY_CONFIG[code].dailyIncome;
+  }, 0);
 }
 
 function pendingWithdrawTotal(user) {
@@ -333,6 +359,8 @@ app.get('/', (req, res) => {
     user,
     cityConfig: CITY_CONFIG,
     tasks: TASKS,
+    taskLimitToday: user ? totalTaskLimit(user) : 0,
+    internExpired: user ? isInternExpired(user) : false,
     message: req.query.message || '',
     error: req.query.error || '',
     referralFromQuery,
@@ -411,6 +439,8 @@ app.post('/login', (req, res) => {
     return res.redirect('/?error=Your account is inactive. Contact support.');
   }
   req.session.userId = user.id;
+  user.lastLoginAt = new Date().toISOString();
+  persistData();
   res.redirect('/?message=Login successful.');
 });
 
@@ -451,13 +481,18 @@ app.post('/invest/:cityCode', auth, (req, res) => {
     return res.redirect('/?error=Invalid city package selected.');
   }
   if (user.activeCities.includes(cityCode)) {
+    if (cityCode === 'INTERN' && isInternExpired(user)) {
+      return res.redirect('/?error=INTERN city already completed (4 days reached).');
+    }
     return res.redirect('/?error=You already joined this city.');
   }
-  if (user.balance < city.amount) {
+  if (city.amount > 0 && user.balance < city.amount) {
     return res.redirect('/?error=Insufficient balance. Please deposit first.');
   }
 
-  user.balance -= city.amount;
+  if (city.amount > 0) {
+    user.balance -= city.amount;
+  }
   user.activeCities.push(cityCode);
   user.cityJoinDates[cityCode] = new Date().toISOString();
   user.transactions.unshift({
@@ -481,6 +516,9 @@ app.post('/task', auth, (req, res) => {
   }
 
   const limit = totalTaskLimit(user);
+  if (limit <= 0) {
+    return res.redirect('/?error=No available tasks right now. INTERN may be expired.');
+  }
   if (user.tasksCompletedToday >= limit) {
     return res.redirect('/?error=number of task limit reached');
   }
