@@ -5,15 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Dashboard</title>
   <style>
-    body{margin:0;background:#020617;color:#e2e8f0;font-family:Inter,Arial,sans-serif}
+    body{margin:0;background:linear-gradient(180deg,#060b19,#0d1a33);color:#e2e8f0;font-family:Inter,Arial,sans-serif}
     .container{max-width:1200px;margin:0 auto;padding:20px}
-    .card{background:#0f172acc;border:1px solid #1e293b;border-radius:16px;padding:16px;margin-bottom:14px}
-    .top{display:flex;justify-content:space-between;align-items:center;gap:10px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-    .pill{background:#111827;border:1px solid #334155;border-radius:12px;padding:14px}
-    table{width:100%;border-collapse:collapse}td,th{border-bottom:1px solid #1e293b;padding:9px;text-align:left;font-size:.92rem}
-    button{padding:8px 10px;border:none;border-radius:8px;cursor:pointer;color:white;font-weight:600}.ok{background:#16a34a}.no{background:#dc2626}.out{background:#475569}
-    .msg{margin:8px 0}.good{color:#86efac}.bad{color:#fda4af}.status{padding:3px 8px;border-radius:999px}.APPROVED{background:#22c55e33;color:#86efac}.REJECTED{background:#ef444433;color:#fda4af}
-    a{color:#93c5fd;text-decoration:none}@media(max-width:800px){.stats{grid-template-columns:1fr}}
+    .card{background:#111b31cc;border:1px solid #2a3d63;border-radius:16px;padding:16px;margin-bottom:14px}
+    .top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.pill{background:#0a1428;border:1px solid #32476f;border-radius:12px;padding:12px}
+    table{width:100%;border-collapse:collapse}th,td{border-bottom:1px solid #253654;padding:9px;text-align:left;font-size:.9rem}
+    th{color:#bfd3ff}
+    button{padding:8px 11px;border:none;border-radius:8px;cursor:pointer;color:#fff;font-weight:700}.ok{background:#16a34a}.no{background:#dc2626}.out{background:#475569}
+    .msg{margin:8px 0}.good{color:#86efac}.bad{color:#fda4af}
+    .status{padding:3px 8px;border-radius:999px;font-size:.74rem;font-weight:700}.APPROVED{background:#14532d;color:#bbf7d0}.REJECTED{background:#7f1d1d;color:#fecaca}
+    a{color:#93c5fd;text-decoration:none}
+    @media(max-width:860px){.stats{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
@@ -21,7 +24,7 @@
     <div class="card top">
       <div>
         <h2 style="margin:0">Admin Transaction Dashboard</h2>
-        <p style="margin:4px 0 0;color:#94a3b8">Review all pending user transactions.</p>
+        <p style="margin:4px 0 0;color:#94a3b8">Review and manage all user requests and accounts.</p>
       </div>
       <form action="/admin/logout" method="post"><button class="out" type="submit">Logout</button></form>
     </div>
