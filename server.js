@@ -8,7 +8,7 @@ const { createClient } = require('@supabase/supabase-js');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const ADMIN_USERNAME = 'admin';
-const ADMIN_PASSWORD = 'Timothy@254';
+const ADMIN_PASSWORD = 'admin12345';
 const SUPABASE_URL = process.env.SUPABASE_URL || '';
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 const SUPABASE_STATE_ROW_ID = 'main';
@@ -259,6 +259,7 @@ function ensureDailyReset(user) {
     user.lastTaskDate = today;
     user.tasksCompletedToday = 0;
     user.todayIncome = 0;
+    user.claimedTasksToday = [];
     persistData();
   }
 }
@@ -361,6 +362,7 @@ app.get('/', (req, res) => {
     tasks: TASKS,
     taskLimitToday: user ? totalTaskLimit(user) : 0,
     internExpired: user ? isInternExpired(user) : false,
+    activeTab: req.query.tab || 'home',
     message: req.query.message || '',
     error: req.query.error || '',
     referralFromQuery,
@@ -391,6 +393,7 @@ app.post('/signup', (req, res) => {
     totalEarnings: 0,
     todayIncome: 0,
     tasksCompletedToday: 0,
+    claimedTasksToday: [],
     lastTaskDate: todayKey(),
     activeCities: [],
     cityJoinDates: {},
@@ -520,16 +523,21 @@ app.post('/task', auth, (req, res) => {
     return res.redirect('/?error=No available tasks right now. INTERN may be expired.');
   }
   if (user.tasksCompletedToday >= limit) {
-    return res.redirect('/?error=number of task limit reached');
+    return res.redirect('/?tab=task&error=number of task limit reached');
   }
 
   const selectedTask = req.body.taskName;
   if (!TASKS.includes(selectedTask)) {
-    return res.redirect('/?error=Invalid task selected.');
+    return res.redirect('/?tab=task&error=Invalid task selected.');
+  }
+  if (user.claimedTasksToday?.includes(selectedTask)) {
+    return res.redirect('/?tab=task&error=Task already claimed today.');
   }
 
   const reward = 50;
   user.tasksCompletedToday += 1;
+  user.claimedTasksToday = user.claimedTasksToday || [];
+  user.claimedTasksToday.push(selectedTask);
   user.todayIncome += reward;
   user.balance += reward;
   user.totalEarnings += reward;
@@ -543,7 +551,55 @@ app.post('/task', auth, (req, res) => {
   });
 
   persistData();
-  res.redirect('/?message=Task completed. KSH 50 added to your balance.');
+  res.redirect('/?tab=task&message=Task completed. KSH 50 added to your balance.');
+});
+
+app.post('/api/task/claim', auth, (req, res) => {
+  const user = users.get(req.session.userId);
+  ensureDailyReset(user);
+
+  if (!user.activeCities.length) {
+    return res.status(400).json({ ok: false, error: 'No task allowed without city investments.' });
+  }
+
+  const limit = totalTaskLimit(user);
+  if (limit <= 0) {
+    return res.status(400).json({ ok: false, error: 'No available tasks right now. INTERN may be expired.' });
+  }
+  if (user.tasksCompletedToday >= limit) {
+    return res.status(400).json({ ok: false, error: 'number of task limit reached' });
+  }
+
+  const selectedTask = req.body.taskName;
+  if (!TASKS.includes(selectedTask)) {
+    return res.status(400).json({ ok: false, error: 'Invalid task selected.' });
+  }
+  if (user.claimedTasksToday?.includes(selectedTask)) {
+    return res.status(400).json({ ok: false, error: 'Task already claimed today.' });
+  }
+
+  const reward = 50;
+  user.tasksCompletedToday += 1;
+  user.claimedTasksToday = user.claimedTasksToday || [];
+  user.claimedTasksToday.push(selectedTask);
+  user.todayIncome += reward;
+  user.balance += reward;
+  user.totalEarnings += reward;
+  user.transactions.unshift({
+    type: 'TASK INCOME',
+    amount: reward,
+    date: new Date().toISOString(),
+    detail: selectedTask,
+    status: 'APPROVED'
+  });
+  persistData();
+
+  return res.json({
+    ok: true,
+    message: 'Task completed. KSH 50 added to your balance.',
+    tasksCompletedToday: user.tasksCompletedToday,
+    taskLimitToday: limit
+  });
 });
 
 app.post('/deposit', auth, upload.single('evidence'), (req, res) => {
