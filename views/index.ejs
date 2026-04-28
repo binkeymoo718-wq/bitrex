@@ -13,7 +13,7 @@
     .hero{display:flex;justify-content:space-between;align-items:center;gap:12px;background:linear-gradient(120deg,#2c65f8,#00b8f0)}
     .hero h2{margin:0;font-size:1.45rem}
     h3{margin:0 0 10px} .small{color:var(--muted);font-size:.93rem}
-    .msg{padding:11px 12px;border-radius:10px;margin-bottom:12px}.ok{background:#062d19;color:#a7f3d0}.err{background:#3a0f14;color:#fecaca}
+    .msg{padding:11px 12px;border-radius:10px;margin-bottom:12px;transition:opacity .4s ease,transform .4s ease}.ok{background:#062d19;color:#a7f3d0}.err{background:#3a0f14;color:#fecaca}
     .topbar{display:flex;justify-content:space-between;align-items:center;gap:10px}
     .pill-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
     .pill{background:linear-gradient(180deg,#0f1a31,#0c162b);border:1px solid #304268;border-radius:14px;padding:10px}
@@ -35,6 +35,14 @@
     .bottom-nav button:last-child{border-right:none}
     .copy-actions{display:flex;gap:8px;flex-wrap:wrap}
     .copy-actions button{width:auto;padding:6px 10px;border-radius:999px}
+    .task-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+    .task-item{background:linear-gradient(180deg,#10203d,#0b1730);border:1px solid #2a4068;border-radius:14px;padding:12px}
+    .task-head{display:flex;justify-content:space-between;align-items:center;gap:8px}
+    .task-icon{font-size:22px}
+    .task-title{font-weight:700;font-size:.95rem}
+    .task-sub{font-size:.8rem;color:#9db3da;margin:8px 0 10px}
+    .claim-btn{background:linear-gradient(120deg,#22c55e,#06b6d4)}
+    .claim-btn[disabled]{opacity:.55;cursor:not-allowed}
     @media(max-width:820px){.pill-grid,.row{grid-template-columns:1fr}.hero{flex-direction:column;align-items:flex-start}}
   </style>
 </head>
@@ -83,7 +91,7 @@
         </div>
       </div>
 
-      <section id="home" class="section active">
+      <section id="home" class="section <%= activeTab === 'home' ? 'active' : '' %>">
         <div class="card pill-grid">
           <div class="pill"><div class="small">Balance</div><div class="kpi">KSH <%= user.balance %></div></div>
           <div class="pill"><div class="small">Today's Income</div><div class="kpi">KSH <%= user.todayIncome %></div></div>
@@ -137,30 +145,37 @@
         </div>
       </section>
 
-      <section id="task" class="section">
+      <section id="task" class="section <%= activeTab === 'task' ? 'active' : '' %>">
         <div class="card">
           <h3>Daily Tasks (KSH 50 each)</h3>
-          <p class="small">Tasks reset after midnight and are limited by active city packages.</p>
-          <form method="post" action="/task">
-            <select name="taskName" required>
-              <option value="">Select task</option>
-              <% tasks.forEach(t => { %><option value="<%= t %>"><%= t %> - KSH 50</option><% }) %>
-            </select>
-            <button type="submit">Complete Task</button>
-          </form>
+          <p class="small">Tap claim, wait for 59→00 countdown, then it auto-completes. Claimed task becomes inactive for today.</p>
+          <div class="task-grid">
+            <% const iconMap = ['🧴','💆','🩸','🧃','🔧','📺','⚡','📱','📷','🏠','🪠','🛋️','📶','💻','🧵','🎨','💄','🧰','👟','🍳','🔥','🍟','🍲','📦','🍽️','🚰','🥤','☕','🔊','📺','🔈','🎮','⌚','🎧','🔆']; %>
+            <% tasks.forEach((t, idx) => { %>
+              <div class="task-item" data-task-item="<%= t %>">
+                <div class="task-head">
+                  <div class="task-title\"><%= t %></div>
+                  <div class="task-icon\"><%= iconMap[idx % iconMap.length] %></div>
+                </div>
+                <div class="task-sub">Reward: KSH 50 · Daily limit applies.</div>
+                <button class="claim-btn" type="button" data-task="<%= t %>" onclick="startClaim(this)">Claim</button>
+              </div>
+            <% }) %>
+          </div>
           <p class="small">Tasks completed today: <%= user.tasksCompletedToday %> / <%= taskLimitToday %></p>
         </div>
       </section>
 
-      <section id="city" class="section">
+      <section id="city" class="section <%= activeTab === 'city' ? 'active' : '' %>">
         <div class="card">
           <h3>City Investments</h3>
           <table>
             <thead><tr><th>City</th><th>Amount</th><th>Task/day</th><th>Daily Income</th><th></th></tr></thead>
             <tbody>
+              <% const cityIcons = { INTERN:'🆓', A:'🗼', B:'🏯', C:'🌸', D:'🚢', E:'🏙️' }; %>
               <% Object.keys(cityConfig).forEach(code => { const c=cityConfig[code]; %>
                 <tr>
-                  <td><%= c.city %></td><td>KSH <%= c.amount %></td><td><%= c.tasksPerDay %></td><td>KSH <%= c.dailyIncome %></td>
+                  <td><%= cityIcons[code] || '🏙️' %> <%= c.city %></td><td>KSH <%= c.amount %></td><td><%= c.tasksPerDay %></td><td>KSH <%= c.dailyIncome %></td>
                   <td><form method="post" action="/invest/<%= code %>"><button type="submit">Join</button></form></td>
                 </tr>
               <% }) %>
@@ -169,7 +184,7 @@
         </div>
       </section>
 
-      <section id="menu" class="section">
+      <section id="menu" class="section <%= activeTab === 'menu' ? 'active' : '' %>">
         <div class="card">
           <h3>Menu</h3>
           <p>Manager WhatsApp: <a href="https://wa.me/254780535898" target="_blank" class="badge-link">0780535898</a></p>
@@ -220,9 +235,43 @@
         <button onclick="switchTab('menu')">☰ Menu</button>
       </nav>
       <script>
+        const claimedToday = new Set();
         function switchTab(id){
           document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
           document.getElementById(id).classList.add('active');
+        }
+        function showToast(text, type='ok'){
+          const toast=document.createElement('div');
+          toast.className='msg '+(type==='ok'?'ok':'err');
+          toast.textContent=text;
+          document.querySelector('.container').prepend(toast);
+          setTimeout(()=>{toast.style.opacity='0';toast.style.transform='translateY(-6px)';},2500);
+          setTimeout(()=>toast.remove(),3000);
+        }
+        async function startClaim(btn){
+          const taskName=btn.dataset.task;
+          if(claimedToday.has(taskName)) return;
+          btn.disabled=true;
+          let sec=59;
+          btn.textContent='Wait 00:'+String(sec).padStart(2,'0');
+          const timer=setInterval(()=>{sec--;btn.textContent='Wait 00:'+String(Math.max(sec,0)).padStart(2,'0');if(sec<=0){clearInterval(timer);finishClaim(btn,taskName);}},1000);
+        }
+        async function finishClaim(btn,taskName){
+          try{
+            const res=await fetch('/api/task/claim',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({taskName})});
+            const data=await res.json();
+            if(!data.ok){btn.disabled=false;btn.textContent='Claim';showToast(data.error||'Task failed','err');return;}
+            claimedToday.add(taskName);
+            btn.textContent='Claimed';
+            btn.disabled=true;
+            const item=document.querySelector(`[data-task-item=\"${CSS.escape(taskName)}\"]`);
+            if(item){item.style.opacity='.7';}
+            showToast(data.message,'ok');
+            const info=document.querySelector('#task .small:last-child');
+            if(info){info.textContent=`Tasks completed today: ${data.tasksCompletedToday} / ${data.taskLimitToday}`;}
+          }catch(e){
+            btn.disabled=false;btn.textContent='Claim';showToast('Network error while claiming task','err');
+          }
         }
         function copyReferral(link){
           navigator.clipboard.writeText(link).then(()=>alert('Referral link copied'));
@@ -234,6 +283,9 @@
             copyReferral(link);
           }
         }
+        window.addEventListener('DOMContentLoaded',()=>{
+          document.querySelectorAll('.msg').forEach((m)=>setTimeout(()=>{m.style.opacity='0';m.style.transform='translateY(-6px)';setTimeout(()=>m.remove(),450);},3000));
+        });
       </script>
     <% } %>
   </div>
