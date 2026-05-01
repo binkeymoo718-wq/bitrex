@@ -7,8 +7,8 @@ const { createClient } = require('@supabase/supabase-js');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const ADMIN_USERNAME = 'admin';
-const ADMIN_PASSWORD = 'admin12345';
+const ADMIN_USERNAME = 'timothy';
+const ADMIN_PASSWORD = 'Timothy@254';
 const SUPABASE_URL = process.env.SUPABASE_URL || '';
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 const SUPABASE_STATE_ROW_ID = 'main';
@@ -353,6 +353,7 @@ function pushTxRequest({ userId, type, amount, detail, evidence }) {
 app.get('/', (req, res) => {
   const user = req.session.userId ? users.get(req.session.userId) : null;
   const referralFromQuery = req.query.ref ? String(req.query.ref) : '';
+  const authMode = req.query.auth === 'signup' ? 'signup' : 'login';
   if (user) {
     ensureDailyReset(user);
   }
@@ -363,6 +364,7 @@ app.get('/', (req, res) => {
     taskLimitToday: user ? totalTaskLimit(user) : 0,
     internExpired: user ? isInternExpired(user) : false,
     activeTab: req.query.tab || 'home',
+    authMode,
     message: req.query.message || '',
     error: req.query.error || '',
     referralFromQuery,
@@ -387,6 +389,7 @@ app.post('/signup', (req, res) => {
     email,
     password,
     referralCode: code,
+    referredByCode: referralCode || '',
     referredCount: 0,
     referralBonusEarned: false,
     balance: 0,
@@ -402,27 +405,6 @@ app.post('/signup', (req, res) => {
     createdAt: new Date().toISOString(),
     active: true
   };
-
-  if (referralCode) {
-    for (const refUser of users.values()) {
-      if (refUser.referralCode === referralCode) {
-        refUser.referredCount += 1;
-        if (refUser.referredCount >= 5 && !refUser.referralBonusEarned) {
-          refUser.balance += 300;
-          refUser.totalEarnings += 300;
-          refUser.referralBonusEarned = true;
-          refUser.transactions.unshift({
-            type: 'REFERRAL BONUS',
-            amount: 300,
-            date: new Date().toISOString(),
-            detail: 'One-time bonus for 5 successful referrals',
-            status: 'APPROVED'
-          });
-        }
-        break;
-      }
-    }
-  }
 
   users.set(phone, newUser);
   stats.totalUsersJoined += 1;
@@ -506,6 +488,28 @@ app.post('/invest/:cityCode', auth, (req, res) => {
     status: 'APPROVED'
   });
 
+  if (user.referredByCode && !user.referralJoinCredited) {
+    for (const refUser of users.values()) {
+      if (refUser.referralCode === user.referredByCode) {
+        refUser.referredCount += 1;
+        user.referralJoinCredited = true;
+        if (refUser.referredCount >= 5 && !refUser.referralBonusEarned) {
+          refUser.balance += 300;
+          refUser.totalEarnings += 300;
+          refUser.referralBonusEarned = true;
+          refUser.transactions.unshift({
+            type: 'REFERRAL BONUS',
+            amount: 300,
+            date: new Date().toISOString(),
+            detail: 'One-time bonus for 5 referrals who joined a city',
+            status: 'APPROVED'
+          });
+        }
+        break;
+      }
+    }
+  }
+
   persistData();
   res.redirect('/?message=City investment activated successfully.');
 });
@@ -523,7 +527,7 @@ app.post('/task', auth, (req, res) => {
     return res.redirect('/?error=No available tasks right now. INTERN may be expired.');
   }
   if (user.tasksCompletedToday >= limit) {
-    return res.redirect('/?tab=task&error=number of task limit reached');
+    return res.redirect('/?tab=task&error=task limit reached');
   }
 
   const selectedTask = req.body.taskName;
@@ -567,7 +571,7 @@ app.post('/api/task/claim', auth, (req, res) => {
     return res.status(400).json({ ok: false, error: 'No available tasks right now. INTERN may be expired.' });
   }
   if (user.tasksCompletedToday >= limit) {
-    return res.status(400).json({ ok: false, error: 'number of task limit reached' });
+    return res.status(400).json({ ok: false, error: 'task limit reached' });
   }
 
   const selectedTask = req.body.taskName;
