@@ -7,8 +7,8 @@ const { createClient } = require('@supabase/supabase-js');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const ADMIN_USERNAME = 'admin';
-const ADMIN_PASSWORD = 'admin12345';
+const ADMIN_USERNAME = 'timothy';
+const ADMIN_PASSWORD = 'Timothy@254';
 const SUPABASE_URL = process.env.SUPABASE_URL || '';
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 const SUPABASE_STATE_ROW_ID = 'main';
