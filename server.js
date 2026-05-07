@@ -12,14 +12,6 @@ const ADMIN_PASSWORD = 'admin12345';
 const SUPABASE_URL = process.env.SUPABASE_URL || '';
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 const SUPABASE_STATE_ROW_ID = 'main';
-const MPESA_ENV = process.env.MPESA_ENV || 'sandbox';
-const MPESA_CONSUMER_KEY = process.env.MPESA_CONSUMER_KEY || '';
-const MPESA_CONSUMER_SECRET = process.env.MPESA_CONSUMER_SECRET || '';
-const MPESA_SHORTCODE = process.env.MPESA_SHORTCODE || '';
-const MPESA_PASSKEY = process.env.MPESA_PASSKEY || '';
-const MPESA_CALLBACK_URL = process.env.MPESA_CALLBACK_URL || '';
-const MPESA_ACCOUNT_REFERENCE = process.env.MPESA_ACCOUNT_REFERENCE || 'BITREX';
-const MPESA_TRANSACTION_DESC = process.env.MPESA_TRANSACTION_DESC || 'BITREX Deposit';
 
 const uploadDir = path.join(__dirname, 'uploads');
 const storageDir = path.join(__dirname, 'storage');
@@ -76,9 +68,7 @@ const TASKS = [
 
 const users = new Map();
 const txRequests = new Map();
-const mpesaPayments = new Map();
 let txCounter = 1;
-let mpesaPaymentCounter = 1;
 const stats = {
   totalUsersJoined: 0,
   totalRequestsCreated: 0,
@@ -90,82 +80,6 @@ let needsResyncSupabase = false;
 
 function normalizePhone(phone) {
   return String(phone || '').trim().replace(/\s+/g, '').replace(/^\+/, '');
-}
-
-
-function isMpesaConfigured() {
-  return Boolean(MPESA_CONSUMER_KEY && MPESA_CONSUMER_SECRET && MPESA_SHORTCODE && MPESA_PASSKEY && MPESA_CALLBACK_URL);
-}
-
-function getMpesaBaseUrl() {
-  return MPESA_ENV === 'live' ? 'https://api.safaricom.co.ke' : 'https://sandbox.safaricom.co.ke';
-}
-
-function formatMpesaPhone(phone) {
-  const normalized = normalizePhone(phone);
-  if (normalized.startsWith('254') && normalized.length === 12) {
-    return normalized;
-  }
-  if (normalized.startsWith('0') && normalized.length === 10) {
-    return `254${normalized.slice(1)}`;
-  }
-  if (normalized.length === 9) {
-    return `254${normalized}`;
-  }
-  return normalized;
-}
-
-function mpesaTimestamp() {
-  const now = new Date();
-  const pad = (value) => String(value).padStart(2, '0');
-  return `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
-}
-
-async function getMpesaAccessToken() {
-  const credentials = Buffer.from(`${MPESA_CONSUMER_KEY}:${MPESA_CONSUMER_SECRET}`).toString('base64');
-  const response = await fetch(`${getMpesaBaseUrl()}/oauth/v1/generate?grant_type=client_credentials`, {
-    headers: { Authorization: `Basic ${credentials}` }
-  });
-  const data = await response.json();
-  if (!response.ok || !data.access_token) {
-    throw new Error(data.errorMessage || data.error_description || 'Unable to generate M-Pesa access token.');
-  }
-  return data.access_token;
-}
-
-async function initiateMpesaStkPush({ phone, amount, userId }) {
-  const timestamp = mpesaTimestamp();
-  const password = Buffer.from(`${MPESA_SHORTCODE}${MPESA_PASSKEY}${timestamp}`).toString('base64');
-  const token = await getMpesaAccessToken();
-  const response = await fetch(`${getMpesaBaseUrl()}/mpesa/stkpush/v1/processrequest`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      BusinessShortCode: MPESA_SHORTCODE,
-      Password: password,
-      Timestamp: timestamp,
-      TransactionType: 'CustomerPayBillOnline',
-      Amount: amount,
-      PartyA: phone,
-      PartyB: MPESA_SHORTCODE,
-      PhoneNumber: phone,
-      CallBackURL: MPESA_CALLBACK_URL,
-      AccountReference: MPESA_ACCOUNT_REFERENCE,
-      TransactionDesc: `${MPESA_TRANSACTION_DESC} ${userId}`
-    })
-  });
-  const data = await response.json();
-  if (!response.ok || data.ResponseCode !== '0') {
-    throw new Error(data.errorMessage || data.ResponseDescription || data.CustomerMessage || 'M-Pesa STK push failed.');
-  }
-  return data;
-}
-
-function getMpesaCallbackValue(callback, name) {
-  return callback?.CallbackMetadata?.Item?.find((item) => item.Name === name)?.Value;
 }
 
 function persistData() {
@@ -180,9 +94,7 @@ function getSerializableData() {
   return {
     users: [...users.entries()],
     txRequests: [...txRequests.entries()],
-    mpesaPayments: [...mpesaPayments.entries()],
     txCounter,
-    mpesaPaymentCounter,
     stats
   };
 }
@@ -193,7 +105,6 @@ function applyStateData(raw) {
   }
   users.clear();
   txRequests.clear();
-  mpesaPayments.clear();
 
   if (Array.isArray(raw.users)) {
     raw.users.forEach(([key, value]) => users.set(key, value));
@@ -201,14 +112,8 @@ function applyStateData(raw) {
   if (Array.isArray(raw.txRequests)) {
     raw.txRequests.forEach(([key, value]) => txRequests.set(Number(key), value));
   }
-  if (Array.isArray(raw.mpesaPayments)) {
-    raw.mpesaPayments.forEach(([key, value]) => mpesaPayments.set(key, value));
-  }
   if (Number.isInteger(raw.txCounter)) {
     txCounter = raw.txCounter;
-  }
-  if (Number.isInteger(raw.mpesaPaymentCounter)) {
-    mpesaPaymentCounter = raw.mpesaPaymentCounter;
   }
   if (raw.stats && typeof raw.stats === 'object') {
     stats.totalUsersJoined = Number(raw.stats.totalUsersJoined || 0);
@@ -302,29 +207,6 @@ async function syncUserTablesToSupabase() {
       if (cityError) {
         console.error('Supabase user_cities insert error:', cityError.message);
       }
-    }
-  }
-
-  const paymentRows = [...mpesaPayments.values()].map((payment) => ({
-    payment_id: payment.id,
-    user_id: payment.userId,
-    phone: payment.phone,
-    amount: Number(payment.amount || 0),
-    status: payment.status,
-    merchant_request_id: payment.merchantRequestId || null,
-    checkout_request_id: payment.checkoutRequestId || null,
-    mpesa_receipt_number: payment.mpesaReceiptNumber || null,
-    result_code: payment.resultCode ?? null,
-    result_desc: payment.resultDesc || null,
-    created_at: payment.createdAt || null,
-    updated_at: payment.updatedAt || null
-  }));
-  if (paymentRows.length) {
-    const { error: paymentError } = await supabase
-      .from('mpesa_payments')
-      .upsert(paymentRows, { onConflict: 'payment_id' });
-    if (paymentError) {
-      console.error('Supabase mpesa_payments sync error:', paymentError.message);
     }
   }
 }
@@ -722,95 +604,6 @@ app.post('/api/task/claim', auth, (req, res) => {
     tasksCompletedToday: user.tasksCompletedToday,
     taskLimitToday: limit
   });
-});
-
-
-app.post('/mpesa/stkpush', auth, async (req, res) => {
-  const user = users.get(req.session.userId);
-  const amount = Number(req.body.amount);
-  const phone = formatMpesaPhone(req.body.phone);
-
-  if (!phone || Number.isNaN(amount) || amount < 300) {
-    return res.redirect('/?error=Minimum M-Pesa deposit is KSH 300 and phone number is required.');
-  }
-  if (!isMpesaConfigured()) {
-    return res.redirect('/?error=M-Pesa STK Push is not configured yet. Add Daraja environment variables.');
-  }
-
-  try {
-    const stkResponse = await initiateMpesaStkPush({ phone, amount, userId: user.id });
-    const payment = {
-      id: `MPESA-${mpesaPaymentCounter++}`,
-      userId: user.id,
-      phone,
-      amount,
-      status: 'PENDING',
-      merchantRequestId: stkResponse.MerchantRequestID || '',
-      checkoutRequestId: stkResponse.CheckoutRequestID || '',
-      customerMessage: stkResponse.CustomerMessage || '',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-    mpesaPayments.set(payment.checkoutRequestId || payment.id, payment);
-    user.transactions.unshift({
-      type: 'MPESA STK PUSH',
-      amount,
-      date: payment.createdAt,
-      detail: `Prompt sent to ${phone}. Waiting for PIN confirmation.`,
-      status: 'PENDING'
-    });
-    persistData();
-    return res.redirect('/?message=M-Pesa prompt sent. Enter your PIN to complete the exact deposit.');
-  } catch (error) {
-    return res.redirect(`/?error=${encodeURIComponent(error.message)}`);
-  }
-});
-
-app.post('/mpesa/callback', (req, res) => {
-  const callback = req.body?.Body?.stkCallback;
-  if (!callback) {
-    return res.json({ ResultCode: 0, ResultDesc: 'Ignored invalid callback' });
-  }
-
-  const checkoutRequestId = callback.CheckoutRequestID || '';
-  const payment = mpesaPayments.get(checkoutRequestId);
-  if (!payment) {
-    return res.json({ ResultCode: 0, ResultDesc: 'Payment record not found locally' });
-  }
-
-  payment.resultCode = callback.ResultCode;
-  payment.resultDesc = callback.ResultDesc || '';
-  payment.updatedAt = new Date().toISOString();
-
-  const user = users.get(payment.userId);
-  if (callback.ResultCode === 0 && user && payment.status !== 'APPROVED') {
-    const paidAmount = Number(getMpesaCallbackValue(callback, 'Amount') || payment.amount);
-    payment.status = 'APPROVED';
-    payment.mpesaReceiptNumber = String(getMpesaCallbackValue(callback, 'MpesaReceiptNumber') || '');
-    payment.phone = String(getMpesaCallbackValue(callback, 'PhoneNumber') || payment.phone);
-    user.balance += paidAmount;
-    user.transactions.unshift({
-      type: 'MPESA DEPOSIT',
-      amount: paidAmount,
-      date: payment.updatedAt,
-      detail: `M-Pesa receipt ${payment.mpesaReceiptNumber || checkoutRequestId}`,
-      status: 'APPROVED'
-    });
-  } else if (payment.status !== 'APPROVED') {
-    payment.status = 'FAILED';
-    if (user) {
-      user.transactions.unshift({
-        type: 'MPESA DEPOSIT FAILED',
-        amount: payment.amount,
-        date: payment.updatedAt,
-        detail: payment.resultDesc || 'M-Pesa payment failed or was cancelled.',
-        status: 'REJECTED'
-      });
-    }
-  }
-
-  persistData();
-  return res.json({ ResultCode: 0, ResultDesc: 'Callback processed successfully' });
 });
 
 app.post('/deposit', auth, upload.single('evidence'), (req, res) => {
