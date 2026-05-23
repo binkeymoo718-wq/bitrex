@@ -82,6 +82,7 @@ function normalizePhone(phone) {
   return String(phone || '').trim().replace(/\s+/g, '').replace(/^\+/, '');
 }
 
+
 function persistData() {
   const data = getSerializableData();
   const tempFile = `${dataFile}.tmp`;
@@ -107,7 +108,10 @@ function applyStateData(raw) {
   txRequests.clear();
 
   if (Array.isArray(raw.users)) {
-    raw.users.forEach(([key, value]) => users.set(key, value));
+    raw.users.forEach(([key, value]) => {
+      ensureUserDefaults(value);
+      users.set(key, value);
+    });
   }
   if (Array.isArray(raw.txRequests)) {
     raw.txRequests.forEach(([key, value]) => txRequests.set(Number(key), value));
@@ -121,6 +125,16 @@ function applyStateData(raw) {
     stats.totalApproved = Number(raw.stats.totalApproved || 0);
     stats.totalRejected = Number(raw.stats.totalRejected || 0);
   }
+}
+
+function ensureUserDefaults(user) {
+  if (!user) return;
+  if (!Array.isArray(user.transactions)) user.transactions = [];
+  if (!Array.isArray(user.activeCities)) user.activeCities = [];
+  if (!user.cityJoinDates || typeof user.cityJoinDates !== 'object') user.cityJoinDates = {};
+  if (!Array.isArray(user.claimedTasksToday)) user.claimedTasksToday = [];
+  user.gems = Number(user.gems || 0);
+  user.freeSpins = Number.isInteger(user.freeSpins) ? user.freeSpins : 1;
 }
 
 async function flushStateToSupabase() {
@@ -169,6 +183,8 @@ async function syncUserTablesToSupabase() {
     tasks_completed_today: Number(user.tasksCompletedToday || 0),
     referral_code: user.referralCode || null,
     referred_count: Number(user.referredCount || 0),
+    gems: Number(user.gems || 0),
+    free_spins: Number(user.freeSpins || 0),
     referral_bonus_earned: Boolean(user.referralBonusEarned),
     active: user.active !== false,
     created_at: user.createdAt || null,
@@ -209,6 +225,7 @@ async function syncUserTablesToSupabase() {
       }
     }
   }
+
 }
 
 async function loadData() {
@@ -392,6 +409,8 @@ app.post('/signup', (req, res) => {
     referredByCode: referralCode || '',
     referredCount: 0,
     referralBonusEarned: false,
+    gems: 0,
+    freeSpins: 1,
     balance: 0,
     totalEarnings: 0,
     todayIncome: 0,
@@ -427,6 +446,36 @@ app.post('/login', (req, res) => {
   user.lastLoginAt = new Date().toISOString();
   persistData();
   res.redirect('/?message=Login successful.');
+});
+
+app.post('/forgot-password', (req, res) => {
+  const email = String(req.body.email || '').trim().toLowerCase();
+  const newPassword = String(req.body.newPassword || '');
+  const confirmNewPassword = String(req.body.confirmNewPassword || '');
+  if (!email || !newPassword || !confirmNewPassword) {
+    return res.redirect('/?auth=login&error=Please fill all forgot-password fields.');
+  }
+  if (newPassword !== confirmNewPassword) {
+    return res.redirect('/?auth=login&error=Passwords do not match.');
+  }
+  if (newPassword.length < 6 || newPassword.length > 8) {
+    return res.redirect('/?auth=login&error=New password must be 6-8 characters.');
+  }
+  const user = [...users.values()].find((u) => String(u.email || '').toLowerCase() === email);
+  if (!user) {
+    return res.redirect('/?auth=login&error=No account found with that email.');
+  }
+  user.password = newPassword;
+  user.withdrawalPassword = newPassword;
+  user.transactions.unshift({
+    type: 'PASSWORD RESET',
+    amount: 0,
+    date: new Date().toISOString(),
+    detail: 'Password reset using registered email',
+    status: 'APPROVED'
+  });
+  persistData();
+  return res.redirect('/?auth=login&message=Password reset successful. Please log in.');
 });
 
 app.post('/logout', auth, (req, res) => {
@@ -488,10 +537,11 @@ app.post('/invest/:cityCode', auth, (req, res) => {
     status: 'APPROVED'
   });
 
-  if (user.referredByCode && !user.referralJoinCredited) {
+  if (cityCode !== 'INTERN' && user.referredByCode && !user.referralJoinCredited) {
     for (const refUser of users.values()) {
       if (refUser.referralCode === user.referredByCode) {
         refUser.referredCount += 1;
+        refUser.gems = Number(refUser.gems || 0) + 1;
         user.referralJoinCredited = true;
         if (refUser.referredCount >= 5 && !refUser.referralBonusEarned) {
           refUser.balance += 300;
@@ -606,13 +656,14 @@ app.post('/api/task/claim', auth, (req, res) => {
   });
 });
 
+
 app.post('/deposit', auth, upload.single('evidence'), (req, res) => {
   const user = users.get(req.session.userId);
   const amount = Number(req.body.amount);
   const phone = normalizePhone(req.body.phone);
 
-  if (!phone || Number.isNaN(amount) || amount < 300) {
-    return res.redirect('/?error=Minimum deposit is KSH 300 and phone number is required.');
+  if (!phone || Number.isNaN(amount) || amount < 200) {
+    return res.redirect('/?error=Minimum deposit is KSH 200 and phone number is required.');
   }
 
   pushTxRequest({
@@ -652,6 +703,59 @@ app.post('/withdraw', auth, (req, res) => {
   });
 
   res.redirect('/?message=Withdrawal request submitted. Awaiting admin approval.');
+});
+
+app.post('/spin-roulette', auth, (req, res) => {
+  const user = users.get(req.session.userId);
+  user.gems = Number(user.gems || 0);
+  user.freeSpins = Number.isInteger(user.freeSpins) ? user.freeSpins : 0;
+
+  if (user.freeSpins <= 0 && user.gems < 2) {
+    return res.redirect('/?tab=menu&error=You need at least 2 Gems to spin.');
+  }
+
+  if (user.freeSpins > 0) {
+    user.freeSpins -= 1;
+  } else {
+    user.gems -= 2;
+  }
+
+  const weighted = [
+    { label: 'KSH 0', type: 'cash', value: 0, weight: 76 },
+    { label: '1 Gem', type: 'gem', value: 1, weight: 10 },
+    { label: '2 Gems', type: 'gem', value: 2, weight: 7 },
+    { label: 'KSH 50', type: 'cash', value: 50, weight: 4 },
+    { label: 'KSH 100', type: 'cash', value: 100, weight: 2 },
+    { label: 'KSH 150', type: 'cash', value: 150, weight: 1 }
+  ];
+  const totalWeight = weighted.reduce((sum, p) => sum + p.weight, 0);
+  let roll = Math.floor(Math.random() * totalWeight);
+  let prize = weighted[0];
+  for (const item of weighted) {
+    roll -= item.weight;
+    if (roll < 0) {
+      prize = item;
+      break;
+    }
+  }
+
+  if (prize.type === 'cash') {
+    user.balance += prize.value;
+    user.totalEarnings += prize.value;
+  } else {
+    user.gems += prize.value;
+  }
+
+  user.transactions.unshift({
+    type: 'ROULETTE',
+    amount: prize.type === 'cash' ? prize.value : 0,
+    date: new Date().toISOString(),
+    detail: `Roulette reward: ${prize.label}`,
+    status: 'APPROVED'
+  });
+
+  persistData();
+  return res.redirect(`/?tab=menu&message=Spin complete: ${prize.label}`);
 });
 
 app.get('/admin', (req, res) => {
