@@ -705,13 +705,12 @@ app.post('/withdraw', auth, (req, res) => {
   res.redirect('/?message=Withdrawal request submitted. Awaiting admin approval.');
 });
 
-app.post('/spin-roulette', auth, (req, res) => {
-  const user = users.get(req.session.userId);
+function executeRouletteSpin(user) {
   user.gems = Number(user.gems || 0);
   user.freeSpins = Number.isInteger(user.freeSpins) ? user.freeSpins : 0;
 
   if (user.freeSpins <= 0 && user.gems < 2) {
-    return res.redirect('/?tab=menu&error=You need at least 2 Gems to spin.');
+    return { ok: false, error: 'You need at least 2 Gems to spin.' };
   }
 
   if (user.freeSpins > 0) {
@@ -755,7 +754,32 @@ app.post('/spin-roulette', auth, (req, res) => {
   });
 
   persistData();
-  return res.redirect(`/?tab=menu&message=Spin complete: ${prize.label}`);
+  return {
+    ok: true,
+    prize,
+    message: `Spin complete: ${prize.label}`,
+    gems: user.gems,
+    freeSpins: user.freeSpins,
+    balance: user.balance
+  };
+}
+
+app.post('/api/spin-roulette', auth, (req, res) => {
+  const user = users.get(req.session.userId);
+  const result = executeRouletteSpin(user);
+  if (!result.ok) {
+    return res.status(400).json(result);
+  }
+  return res.json(result);
+});
+
+app.post('/spin-roulette', auth, (req, res) => {
+  const user = users.get(req.session.userId);
+  const result = executeRouletteSpin(user);
+  if (!result.ok) {
+    return res.redirect(`/?tab=menu&error=${encodeURIComponent(result.error)}`);
+  }
+  return res.redirect(`/?tab=menu&message=${encodeURIComponent(result.message)}`);
 });
 
 app.get('/admin', (req, res) => {
