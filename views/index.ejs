@@ -71,6 +71,15 @@
             <input name="password" type="password" placeholder="Password" required />
             <button type="submit">Log In</button>
           </form>
+          <p class="small"><a href="#" style="color:#93c5fd" onclick="document.getElementById('forgotBox').style.display='block';return false;">Forgot password?</a></p>
+          <div id="forgotBox" style="display:none">
+            <form method="post" action="/forgot-password">
+              <input name="email" type="email" placeholder="Registered Email Address" required />
+              <input name="newPassword" type="password" minlength="6" maxlength="8" placeholder="New Password (6-8 chars)" required />
+              <input name="confirmNewPassword" type="password" minlength="6" maxlength="8" placeholder="Confirm New Password" required />
+              <button type="submit">Reset Password</button>
+            </form>
+          </div>
           <p class="small">If you don't have an account, <a href="/?auth=signup" style="color:#93c5fd">Sign Up</a>.</p>
         </div>
       <% } else { %>
@@ -139,9 +148,9 @@
             <p class="small">Send money to <strong>0733319700</strong>. Reflects after admin approval.</p>
             <form action="/deposit" method="post" enctype="multipart/form-data">
               <input name="phone" placeholder="Your Phone Number" required />
-              <input name="amount" type="number" min="300" placeholder="Amount" required />
+              <input name="amount" type="number" min="200" placeholder="Amount" required />
               <input type="file" name="evidence" />
-              <button type="submit">Submit Deposit</button>
+              <button type="submit">Submit Deposit Evidence</button>
             </form>
           </div>
           <div id="withdrawPanel" class="panel">
@@ -198,13 +207,19 @@
         <div class="card">
           <h3>Menu</h3>
           <p>Manager WhatsApp: <a href="https://wa.me/254780535898" target="_blank" class="badge-link">0780535898</a></p>
+          <p>WhatsApp Group: <a href="https://chat.whatsapp.com/LLYrOJazzxsHqxnqdJrc2q" target="_blank" class="badge-link">Join Group</a></p>
           <p>Your Referral Code: <strong><%= user.referralCode %></strong></p>
           <p>Referrals: <%= user.referredCount %> / 5 friends (bonus KSH 300 one-time).</p>
+          <p>Gems: <strong><%= user.gems || 0 %></strong> · Free spins: <strong><%= user.freeSpins || 0 %></strong></p>
           <div class="copy-actions">
             <a href="<%= referralLink %>" target="_blank" class="badge-link">Open Referral Link</a>
             <button type="button" onclick="copyReferral('<%= referralLink %>')">Copy</button>
             <button type="button" onclick="shareReferral('<%= referralLink %>')">Share</button>
           </div>
+          <form action="/spin-roulette" method="post" style="margin-top:12px">
+            <button type="submit">🎡 Spin & Win (6 rewards)</button>
+          </form>
+          <p class="small">Rewards: 1 Gem, 2 Gems, KSH 0, KSH 50, KSH 100, KSH 150. One free spin for new users, then 2 Gems per spin.</p>
         </div>
 
         <div class="card">
