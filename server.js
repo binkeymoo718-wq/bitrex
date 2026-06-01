@@ -7,8 +7,9 @@ const { createClient } = require('@supabase/supabase-js');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const ADMIN_USERNAME = 'timothy';
-const ADMIN_PASSWORD = 'Timothy@254';
+const ADMIN_USERNAME = 'admin';
+const ADMIN_PASSWORD = 'admin12345';
+const ADMIN_PHONE_NUMBERS = ['0727814209', '0733319700', '0780535898'];
 const SUPABASE_URL = process.env.SUPABASE_URL || '';
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 const SUPABASE_STATE_ROW_ID = 'main';
@@ -46,12 +47,12 @@ app.use(
 );
 
 const CITY_CONFIG = {
-  INTERN: { city: 'INTERN', amount: 0, tasksPerDay: 1, dailyIncome: 50, durationDays: 4, free: true },
-  A: { city: 'TOKYO', amount: 1500, tasksPerDay: 1, dailyIncome: 50 },
-  B: { city: 'OSAKA', amount: 3200, tasksPerDay: 2, dailyIncome: 100 },
-  C: { city: 'KYOTO', amount: 7200, tasksPerDay: 4, dailyIncome: 200 },
-  D: { city: 'YOKOHAMA', amount: 12000, tasksPerDay: 8, dailyIncome: 400 },
-  E: { city: 'NAGOYA', amount: 15000, tasksPerDay: 10, dailyIncome: 500 }
+  INTERN: { city: 'INTERN', amount: 0, tasksPerDay: 1, dailyIncome: 50, durationDays: 4, free: true, image: 'https://source.unsplash.com/1200x760/?internship,office' },
+  A: { city: 'TOKYO', amount: 1500, tasksPerDay: 1, dailyIncome: 50, durationDays: 365, image: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=1200&q=80' },
+  B: { city: 'OSAKA', amount: 3200, tasksPerDay: 2, dailyIncome: 100, durationDays: 365, image: 'https://source.unsplash.com/1200x760/?osaka,japan,city' },
+  C: { city: 'KYOTO', amount: 7200, tasksPerDay: 4, dailyIncome: 200, durationDays: 365, image: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1200&q=80' },
+  D: { city: 'YOKOHAMA', amount: 12000, tasksPerDay: 8, dailyIncome: 400, durationDays: 365, image: 'https://source.unsplash.com/1200x760/?yokohama,japan,skyline' },
+  E: { city: 'NAGOYA', amount: 15000, tasksPerDay: 10, dailyIncome: 500, durationDays: 365, image: 'https://source.unsplash.com/1200x760/?nagoya,japan,city' }
 };
 
 const TASKS = [
@@ -80,6 +81,15 @@ let needsResyncSupabase = false;
 
 function normalizePhone(phone) {
   return String(phone || '').trim().replace(/\s+/g, '').replace(/^\+/, '');
+}
+
+function phoneLastNine(phone) {
+  return normalizePhone(phone).replace(/^254/, '').replace(/^0/, '').slice(-9);
+}
+
+function isAdminPhone(phone) {
+  const lastNine = phoneLastNine(phone);
+  return ADMIN_PHONE_NUMBERS.some((adminPhone) => phoneLastNine(adminPhone) === lastNine);
 }
 
 
@@ -132,6 +142,7 @@ function ensureUserDefaults(user) {
   if (!Array.isArray(user.transactions)) user.transactions = [];
   if (!Array.isArray(user.activeCities)) user.activeCities = [];
   if (!user.cityJoinDates || typeof user.cityJoinDates !== 'object') user.cityJoinDates = {};
+  if (!user.citySignatures || typeof user.citySignatures !== 'object') user.citySignatures = {};
   if (!Array.isArray(user.claimedTasksToday)) user.claimedTasksToday = [];
   user.gems = Number(user.gems || 0);
   user.freeSpins = Number.isInteger(user.freeSpins) ? user.freeSpins : 1;
@@ -185,6 +196,7 @@ async function syncUserTablesToSupabase() {
     referred_count: Number(user.referredCount || 0),
     gems: Number(user.gems || 0),
     free_spins: Number(user.freeSpins || 0),
+    city_signatures: user.citySignatures || {},
     referral_bonus_earned: Boolean(user.referralBonusEarned),
     active: user.active !== false,
     created_at: user.createdAt || null,
@@ -214,7 +226,8 @@ async function syncUserTablesToSupabase() {
     const cityRows = (user.activeCities || []).map((code) => ({
       user_id: user.id,
       city_code: code,
-      joined_at: user.cityJoinDates?.[code] || new Date().toISOString()
+      joined_at: user.cityJoinDates?.[code] || new Date().toISOString(),
+      signature: user.citySignatures?.[code] || null
     }));
     if (cityRows.length) {
       const { error: cityError } = await supabase
@@ -286,19 +299,21 @@ function cityDays(joinedAt) {
   return Math.floor(diff / (1000 * 60 * 60 * 24)) + 1;
 }
 
-function isInternExpired(user) {
-  const joinedAt = user.cityJoinDates?.INTERN;
-  if (!joinedAt) {
+function isCityExpired(user, code) {
+  const joinedAt = user.cityJoinDates?.[code];
+  const city = CITY_CONFIG[code];
+  if (!joinedAt || !city) {
     return true;
   }
-  return cityDays(joinedAt) > (CITY_CONFIG.INTERN.durationDays || 4);
+  return cityDays(joinedAt) > (city.durationDays || 365);
+}
+
+function isInternExpired(user) {
+  return isCityExpired(user, 'INTERN');
 }
 
 function isCityTaskActive(user, code) {
-  if (code !== 'INTERN') {
-    return true;
-  }
-  return !isInternExpired(user);
+  return !isCityExpired(user, code);
 }
 
 function totalTaskLimit(user) {
@@ -335,6 +350,11 @@ function auth(req, res, next) {
 function adminAuth(req, res, next) {
   if (!req.session.isAdmin) {
     return res.redirect('/admin?error=Please login as admin first.');
+  }
+  if (!isAdminPhone(req.session.adminPhone)) {
+    req.session.isAdmin = false;
+    req.session.adminPhone = null;
+    return res.redirect('/admin?error=Admin portal is only available to approved admin phone numbers.');
   }
   next();
 }
@@ -385,7 +405,8 @@ app.get('/', (req, res) => {
     message: req.query.message || '',
     error: req.query.error || '',
     referralFromQuery,
-    referralLink: user ? `${req.protocol}://${req.get('host')}/?ref=${user.referralCode}` : ''
+    referralLink: user ? `${req.protocol}://${req.get('host')}/?ref=${user.referralCode}` : '',
+    isAdminPhone: user ? isAdminPhone(user.phone) : false
   });
 });
 
@@ -419,6 +440,7 @@ app.post('/signup', (req, res) => {
     lastTaskDate: todayKey(),
     activeCities: [],
     cityJoinDates: {},
+    citySignatures: {},
     transactions: [],
     withdrawalPassword: password,
     createdAt: new Date().toISOString(),
@@ -520,6 +542,10 @@ app.post('/invest/:cityCode', auth, (req, res) => {
     }
     return res.redirect('/?error=You already joined this city.');
   }
+  const signature = String(req.body.signature || '').trim();
+  if (!signature) {
+    return res.redirect('/?tab=city&error=Please sign the city contract before joining.');
+  }
   if (city.amount > 0 && user.balance < city.amount) {
     return res.redirect('/?error=Insufficient balance. Please deposit first.');
   }
@@ -529,11 +555,13 @@ app.post('/invest/:cityCode', auth, (req, res) => {
   }
   user.activeCities.push(cityCode);
   user.cityJoinDates[cityCode] = new Date().toISOString();
+  user.citySignatures = user.citySignatures || {};
+  user.citySignatures[cityCode] = signature;
   user.transactions.unshift({
     type: 'INVESTMENT',
     amount: city.amount,
     date: new Date().toISOString(),
-    detail: `Joined ${city.city}`,
+    detail: `Joined ${city.city} with contract signature: ${signature}`,
     status: 'APPROVED'
   });
 
@@ -683,8 +711,8 @@ app.post('/withdraw', auth, (req, res) => {
   const phone = normalizePhone(req.body.phone);
   const withdrawalPassword = req.body.withdrawalPassword;
 
-  if (!phone || Number.isNaN(amount) || amount < 500) {
-    return res.redirect('/?error=Minimum withdrawal is KSH 500.');
+  if (!phone || Number.isNaN(amount) || amount < 300) {
+    return res.redirect('/?error=Minimum withdrawal is KSH 300.');
   }
   if (withdrawalPassword !== user.withdrawalPassword) {
     return res.redirect('/?error=Invalid withdrawal password.');
@@ -720,7 +748,7 @@ function executeRouletteSpin(user) {
   }
 
   const weighted = [
-    { label: 'KSH 0', type: 'cash', value: 0, weight: 76 },
+    { label: '3 Gems', type: 'gem', value: 3, weight: 76 },
     { label: '1 Gem', type: 'gem', value: 1, weight: 10 },
     { label: '2 Gems', type: 'gem', value: 2, weight: 7 },
     { label: 'KSH 50', type: 'cash', value: 50, weight: 4 },
@@ -783,7 +811,7 @@ app.post('/spin-roulette', auth, (req, res) => {
 });
 
 app.get('/admin', (req, res) => {
-  if (req.session.isAdmin) {
+  if (req.session.isAdmin && isAdminPhone(req.session.adminPhone)) {
     return res.redirect('/admin/dashboard');
   }
   res.render('admin-login', {
@@ -794,15 +822,21 @@ app.get('/admin', (req, res) => {
 
 app.post('/admin/login', (req, res) => {
   const { username, password } = req.body;
+  const phone = normalizePhone(req.body.phone);
+  if (!isAdminPhone(phone)) {
+    return res.redirect('/admin?error=This phone number is not allowed to access the admin portal.');
+  }
   if (username !== ADMIN_USERNAME || password !== ADMIN_PASSWORD) {
     return res.redirect('/admin?error=Invalid admin credentials.');
   }
   req.session.isAdmin = true;
+  req.session.adminPhone = phone;
   res.redirect('/admin/dashboard');
 });
 
 app.post('/admin/logout', adminAuth, (req, res) => {
   req.session.isAdmin = false;
+  req.session.adminPhone = null;
   res.redirect('/admin?message=Logged out from admin dashboard.');
 });
 
