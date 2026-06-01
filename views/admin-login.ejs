@@ -20,6 +20,7 @@
     <% if (error) { %><div class="msg bad"><%= error %></div><% } %>
     <% if (message) { %><div class="msg good"><%= message %></div><% } %>
     <form method="post" action="/admin/login">
+      <input name="phone" placeholder="Admin Phone Number" value="<%= adminPhoneSuggestion || '' %>" required />
       <input name="username" placeholder="Admin Username" required />
       <input name="password" type="password" placeholder="Admin Password" required />
       <button type="submit">Login</button>
