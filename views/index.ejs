@@ -133,7 +133,8 @@
           <div class="small">Registered Number: <strong><%= user.phone %></strong></div>
         </div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-            <form action="/logout" method="post"><button class="btn-red" style="width:auto;padding:10px 14px;">Logout</button></form>
+          <% if (isAdminPhone) { %><a href="/admin" class="badge-link">⚙️ Admin Portal</a><% } %>
+          <form action="/logout" method="post"><button class="btn-red" style="width:auto;padding:10px 14px;">Logout</button></form>
         </div>
       </div>
 
