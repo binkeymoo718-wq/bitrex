@@ -12,9 +12,13 @@ create table if not exists public.profiles (
   tasks_completed_today integer not null default 0,
   referral_code text unique,
   referred_count integer not null default 0,
+  gems integer not null default 0,
+  free_spins integer not null default 0,
+  city_signatures jsonb not null default '{}'::jsonb,
   referral_bonus_earned boolean not null default false,
   active boolean not null default true,
   created_at timestamptz,
+  last_login_at timestamptz,
   last_task_date text,
   updated_at timestamptz not null default now()
 );
@@ -27,10 +31,12 @@ create table if not exists public.user_cities (
   user_id text not null references public.profiles(user_id) on delete cascade,
   city_code text not null,
   joined_at timestamptz not null default now(),
+  signature text,
   unique(user_id, city_code)
 );
 
 create index if not exists idx_user_cities_user on public.user_cities (user_id);
+
 
 -- Optional: keeps full serialized snapshot used by server for fallback/compatibility.
 create table if not exists public.app_state (
