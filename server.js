@@ -80,16 +80,21 @@ let isSyncingSupabase = false;
 let needsResyncSupabase = false;
 
 function normalizePhone(phone) {
-  return String(phone || '').trim().replace(/\s+/g, '').replace(/^\+/, '');
+  return String(phone || '').trim().replace(/\D/g, '');
 }
 
 function phoneLastNine(phone) {
-  return normalizePhone(phone).replace(/^254/, '').replace(/^0/, '').slice(-9);
+  return normalizePhone(phone).replace(/^2540/, '254').replace(/^254/, '').replace(/^0/, '').slice(-9);
 }
 
 function isAdminPhone(phone) {
   const lastNine = phoneLastNine(phone);
-  return ADMIN_PHONE_NUMBERS.some((adminPhone) => phoneLastNine(adminPhone) === lastNine);
+  return Boolean(lastNine) && ADMIN_PHONE_NUMBERS.some((adminPhone) => phoneLastNine(adminPhone) === lastNine);
+}
+
+function sessionAdminPhone(req) {
+  const sessionUser = req.session.userId ? users.get(req.session.userId) : null;
+  return sessionUser?.phone || req.session.adminPhone || '';
 }
 
 
@@ -351,11 +356,13 @@ function adminAuth(req, res, next) {
   if (!req.session.isAdmin) {
     return res.redirect('/admin?error=Please login as admin first.');
   }
-  if (!isAdminPhone(req.session.adminPhone)) {
+  const adminPhone = sessionAdminPhone(req);
+  if (!isAdminPhone(adminPhone)) {
     req.session.isAdmin = false;
     req.session.adminPhone = null;
     return res.redirect('/admin?error=Admin portal is only available to approved admin phone numbers.');
   }
+  req.session.adminPhone = adminPhone;
   next();
 }
 
@@ -811,20 +818,23 @@ app.post('/spin-roulette', auth, (req, res) => {
 });
 
 app.get('/admin', (req, res) => {
-  if (req.session.isAdmin && isAdminPhone(req.session.adminPhone)) {
+  const adminPhone = sessionAdminPhone(req);
+  if (req.session.isAdmin && isAdminPhone(adminPhone)) {
+    req.session.adminPhone = adminPhone;
     return res.redirect('/admin/dashboard');
   }
   res.render('admin-login', {
     message: req.query.message || '',
-    error: req.query.error || ''
+    error: req.query.error || '',
+    adminPhoneSuggestion: isAdminPhone(adminPhone) ? adminPhone : ''
   });
 });
 
 app.post('/admin/login', (req, res) => {
   const { username, password } = req.body;
-  const phone = normalizePhone(req.body.phone);
+  const phone = normalizePhone(req.body.phone || sessionAdminPhone(req));
   if (!isAdminPhone(phone)) {
-    return res.redirect('/admin?error=This phone number is not allowed to access the admin portal.');
+    return res.redirect('/admin?error=This phone number is not allowed to access the admin portal. Use 0727814209, 0733319700, or 0780535898.');
   }
   if (username !== ADMIN_USERNAME || password !== ADMIN_PASSWORD) {
     return res.redirect('/admin?error=Invalid admin credentials.');
