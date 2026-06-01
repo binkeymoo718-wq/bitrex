@@ -60,6 +60,19 @@
     .wheel-label{position:absolute;left:50%;top:50%;transform-origin:0 0;color:#fff7d6;font-weight:800;font-size:22px;text-shadow:0 2px 4px #000}
     .pointer{width:0;height:0;border-left:14px solid transparent;border-right:14px solid transparent;border-top:28px solid #fef3c7;filter:drop-shadow(0 2px 4px #000);margin-bottom:-8px;z-index:3}
     .spin-center{position:absolute;inset:41%;display:grid;place-items:center;z-index:3;color:#fff7d6;font-weight:900;font-size:30px}
+    .city-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+    .city-card{min-height:420px;border-radius:24px;overflow:hidden;position:relative;border:1px solid #6d5dfc99;background-size:cover;background-position:center;box-shadow:0 16px 34px #00000080}
+    .city-card::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,#02061733 15%,#020617bb 62%,#020617f2 100%)}
+    .city-content{position:absolute;inset:0;padding:18px;display:flex;flex-direction:column;justify-content:space-between;z-index:1}
+    .city-name{align-self:flex-start;padding:8px 20px;border-radius:999px;background:linear-gradient(120deg,#9333ea,#60a5fa);box-shadow:0 0 20px #a855f780;font-size:1.2rem;font-weight:900;letter-spacing:.04em}
+    .city-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:auto}
+    .city-stat{padding:12px;border-radius:18px;background:#111827cc;border:1px solid #a78bfa99;box-shadow:inset 0 0 18px #60a5fa33,0 0 16px #a855f755}
+    .city-stat .value{font-size:1.35rem;font-weight:900;color:#fff}
+    .signature-box{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end;margin-top:12px;padding:12px;border:1px solid #a78bfa99;border-radius:18px;background:#111827cc}
+    .signature-box input{border-width:0 0 1px 0;border-radius:0;background:transparent;margin:0}
+    .signature-box button{min-width:130px;background:linear-gradient(120deg,#047857,#22c55e)}
+    .terms-box{max-height:360px;overflow:auto;line-height:1.55;color:#dce7ff}
+    .terms-box h4{margin:16px 0 6px;color:#fff}
     @media(max-width:820px){.pill-grid,.row{grid-template-columns:1fr}.hero{flex-direction:column;align-items:flex-start}}
   </style>
 </head>
@@ -74,7 +87,6 @@
           <h2>Welcome to BITREX Business Platform</h2>
           <div class="small" style="color:#ecfeff">Create account, join cities, complete daily tasks and grow your earnings dashboard.</div>
         </div>
-        <a href="/admin" class="badge-link">⚙️ Admin Portal</a>
       </div>
       <% if (authMode === 'login') { %>
         <div class="card">
@@ -115,8 +127,7 @@
           <div class="small">Registered Number: <strong><%= user.phone %></strong></div>
         </div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-          <a href="/admin" class="badge-link">⚙️ Admin Portal</a>
-          <form action="/logout" method="post"><button class="btn-red" style="width:auto;padding:10px 14px;">Logout</button></form>
+            <form action="/logout" method="post"><button class="btn-red" style="width:auto;padding:10px 14px;">Logout</button></form>
         </div>
       </div>
 
@@ -125,6 +136,7 @@
           <div class="pill"><div class="small">Balance</div><div class="kpi">KSH <%= user.balance %></div></div>
           <div class="pill"><div class="small">Today's Income</div><div class="kpi">KSH <%= user.todayIncome %></div></div>
           <div class="pill"><div class="small">Total Earnings</div><div class="kpi">KSH <%= user.totalEarnings %></div></div>
+          <% if (isAdminPhone) { %><div class="pill"><div class="small">Admin</div><div class="kpi"><a href="/admin" class="badge-link">Portal</a></div></div><% } %>
         </div>
 
         <div class="card">
@@ -137,13 +149,11 @@
                 <tr>
                   <td><%= cityConfig[code].city %></td>
                   <td>
-                    <%= Math.floor((Date.now()-new Date(user.cityJoinDates[code]).getTime())/(1000*60*60*24))+1 %>
-                    <% if (code === 'INTERN') { %>
-                      / 4
-                      <% if (internExpired) { %><span class="status APPROVED">COMPLETED</span><% } %>
-                    <% } %>
+                    <% const daysActive = Math.floor((Date.now()-new Date(user.cityJoinDates[code]).getTime())/(1000*60*60*24))+1; const maxDays = cityConfig[code].durationDays || 365; const completed = daysActive >= maxDays; %>
+                    <%= Math.min(daysActive, maxDays) %> / <%= maxDays %>
+                    <% if (completed) { %><span class="status APPROVED">COMPLETED</span><% } %>
                   </td>
-                  <td>KSH <%= code === 'INTERN' && internExpired ? 0 : cityConfig[code].dailyIncome %></td>
+                  <td>KSH <%= completed ? 0 : cityConfig[code].dailyIncome %></td>
                 </tr>
               <% }) %>
             </tbody>
@@ -169,7 +179,7 @@
           <div id="withdrawPanel" class="panel">
             <form action="/withdraw" method="post">
               <input name="phone" placeholder="Phone to Receive Payment" required />
-              <input name="amount" type="number" min="500" placeholder="Amount" required />
+              <input name="amount" type="number" min="300" placeholder="Amount" required />
               <input name="withdrawalPassword" type="password" placeholder="Withdrawal Password" required />
               <button type="submit">Withdraw</button>
             </form>
@@ -200,19 +210,32 @@
 
       <section id="city" class="section <%= activeTab === 'city' ? 'active' : '' %>">
         <div class="card">
-          <h3>City Investments</h3>
-          <table>
-            <thead><tr><th>City</th><th>Amount</th><th>Task/day</th><th>Daily Income</th><th></th></tr></thead>
-            <tbody>
-              <% const cityIcons = { INTERN:'🆓', A:'🗼', B:'🏯', C:'🌸', D:'🚢', E:'🏙️' }; %>
-              <% Object.keys(cityConfig).forEach(code => { const c=cityConfig[code]; %>
-                <tr>
-                  <td><%= cityIcons[code] || '🏙️' %> <%= c.city %></td><td>KSH <%= c.amount %></td><td><%= c.tasksPerDay %></td><td>KSH <%= c.dailyIncome %></td>
-                  <td><form method="post" action="/invest/<%= code %>"><button type="submit">Join</button></form></td>
-                </tr>
-              <% }) %>
-            </tbody>
-          </table>
+          <h3>City Contracts</h3>
+          <p class="small">Sign each city contract before joining. Paid cities are valid for 365 days; INTERN is valid for 4 days.</p>
+          <div class="city-cards">
+            <% Object.keys(cityConfig).forEach(code => { const c=cityConfig[code]; const period = c.durationDays || 365; const monthly = c.dailyIncome * 30; const joined = user.activeCities.includes(code); %>
+              <div class="city-card" style="background-image:url('<%= c.image %>')">
+                <div class="city-content">
+                  <div class="city-name"><%= c.city %></div>
+                  <div>
+                    <div class="city-stats">
+                      <div class="city-stat"><div class="small">Investments</div><div class="value">Ksh. <%= c.amount.toLocaleString() %></div></div>
+                      <div class="city-stat"><div class="small">Daily Income</div><div class="value">Ksh. <%= c.dailyIncome.toLocaleString() %></div></div>
+                      <div class="city-stat"><div class="small">Contract Period</div><div class="value"><%= period %> days</div></div>
+                      <div class="city-stat"><div class="small">Monthly Income</div><div class="value">Ksh. <%= monthly.toLocaleString() %></div></div>
+                    </div>
+                    <form method="post" action="/invest/<%= code %>" class="signature-box">
+                      <label>
+                        <span class="small">Signature</span>
+                        <input name="signature" placeholder="Type your full name" value="<%= user.citySignatures?.[code] || '' %>" <%= joined ? 'readonly' : 'required' %> />
+                      </label>
+                      <button type="submit" <%= joined ? 'disabled' : '' %>><%= joined ? 'Joined ✓' : 'Confirm ✓' %></button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            <% }) %>
+          </div>
         </div>
       </section>
 
@@ -220,6 +243,7 @@
         <div class="card">
           <h3>Menu</h3>
           <p>Manager WhatsApp: <a href="https://wa.me/254780535898" target="_blank" class="badge-link">0780535898</a></p>
+          <% if (isAdminPhone) { %><p>Admin Portal: <a href="/admin" class="badge-link">Open Admin Dashboard</a></p><% } %>
           <p>WhatsApp Group: <a href="https://chat.whatsapp.com/LLYrOJazzxsHqxnqdJrc2q" target="_blank" class="badge-link">Join Group</a></p>
           <p>Your Referral Code: <strong><%= user.referralCode %></strong></p>
           <p>Referrals: <%= user.referredCount %> / 5 friends (bonus KSH 300 one-time).</p>
@@ -232,7 +256,7 @@
           <div class="wheel-wrap" style="margin-top:12px">
             <div class="pointer"></div>
             <div id="wheel" class="wheel">
-              <span class="wheel-label" style="transform:rotate(-60deg) translate(105px,-8px)">KSH 0</span>
+              <span class="wheel-label" style="transform:rotate(-60deg) translate(105px,-8px)">3 GEMS</span>
               <span class="wheel-label" style="transform:rotate(0deg) translate(110px,-8px)">KSH 150</span>
               <span class="wheel-label" style="transform:rotate(60deg) translate(112px,-8px)">1 GEM</span>
               <span class="wheel-label" style="transform:rotate(120deg) translate(105px,-8px)">2 GEMS</span>
@@ -242,7 +266,32 @@
             </div>
             <button type="button" id="spinBtn" onclick="spinWheel()">🎡 Spin</button>
           </div>
-          <p class="small">Rewards: 1 Gem, 2 Gems, KSH 0, KSH 50, KSH 100, KSH 150. One free spin for new users, then 2 Gems per spin.</p>
+          <p class="small">Rewards: 1 Gem, 2 Gems, 3 Gems, KSH 50, KSH 100, KSH 150. Every spin wins something. One free spin for new users, then 2 Gems per spin.</p>
+        </div>
+
+        <div class="card">
+          <h3>Terms & Conditions</h3>
+          <div class="terms-box">
+            <p><strong>Last updated: January 2025</strong></p>
+            <h4>1. Acceptance of Terms</h4>
+            <p>By accessing and using this platform, you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.</p>
+            <h4>2. Investment Risks</h4>
+            <p>All investments carry risk. Past performance is not indicative of future results. You should carefully consider your investment objectives, level of experience, and risk appetite before making any investment decisions.</p>
+            <h4>3. Account Responsibility</h4>
+            <p>You are responsible for maintaining the confidentiality of your account and password. You agree to accept responsibility for all activities that occur under your account. Notify us immediately of any unauthorized use.</p>
+            <h4>4. Deposits and Withdrawals</h4>
+            <p>Minimum deposit amount is Ksh200. Minimum withdrawal amount is Ksh300. Withdrawals are processed within 24 hours. We reserve the right to request verification documents before processing withdrawals.</p>
+            <h4>5. Referral Program</h4>
+            <p>Referral bonuses are when you refer a friend to join a city you earn a one time bonus of ksh300.</p>
+            <h4>6. Privacy Policy</h4>
+            <p>We respect your privacy and are committed to protecting your personal data. We collect and process personal information in accordance with applicable data protection laws.</p>
+            <h4>7. Prohibited Activities</h4>
+            <p>Users are prohibited from: creating multiple accounts, using automated systems, engaging in fraudulent activities, or attempting to manipulate the platform in any way.</p>
+            <h4>8. Termination</h4>
+            <p>We may terminate or suspend your account immediately, without prior notice, for any breach of these Terms. Upon termination, your right to use the platform will immediately cease.</p>
+            <h4>9. Contact Us</h4>
+            <p>If you have any questions about these Terms, please contact our support team or hiring manager.</p>
+          </div>
         </div>
 
         <div class="card">
@@ -336,7 +385,7 @@
           }
         }
         let currentRotation = 0;
-        const prizeAngle = { 'KSH 0':30, 'KSH 150':90, '1 Gem':150, '2 Gems':210, 'KSH 100':270, 'KSH 50':330 };
+        const prizeAngle = { '3 Gems':30, 'KSH 150':90, '1 Gem':150, '2 Gems':210, 'KSH 100':270, 'KSH 50':330 };
         async function spinWheel(){
           const btn=document.getElementById('spinBtn');
           const wheel=document.getElementById('wheel');
