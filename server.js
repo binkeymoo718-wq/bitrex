@@ -13,6 +13,13 @@ const ADMIN_PHONE_NUMBERS = ['0727814209', '0733319700', '0780535898'];
 const SUPABASE_URL = process.env.SUPABASE_URL || '';
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 const SUPABASE_STATE_ROW_ID = 'main';
+const INTASEND_PUBLISHABLE_KEY = process.env.INTASEND_PUBLISHABLE_KEY || '';
+const INTASEND_SECRET_KEY = process.env.INTASEND_SECRET_KEY || '';
+const INTASEND_TEST_MODE = String(
+  process.env.INTASEND_TEST_MODE || (process.env.NODE_ENV === 'production' ? 'false' : 'true')
+).toLowerCase() === 'true';
+const INTASEND_WEBHOOK_CHALLENGE = process.env.INTASEND_WEBHOOK_CHALLENGE || '';
+const PUBLIC_BASE_URL = process.env.PUBLIC_BASE_URL || '';
 
 const uploadDir = path.join(__dirname, 'uploads');
 const storageDir = path.join(__dirname, 'storage');
@@ -81,6 +88,12 @@ let needsResyncSupabase = false;
 
 function normalizePhone(phone) {
   return String(phone || '').trim().replace(/\D/g, '');
+}
+
+function toIntasendPhone(phone) {
+  const normalized = normalizePhone(phone);
+  const lastNine = phoneLastNine(normalized);
+  return lastNine ? `254${lastNine}` : '';
 }
 
 function phoneLastNine(phone) {
@@ -392,6 +405,93 @@ function pushTxRequest({ userId, type, amount, detail, evidence }) {
   });
   stats.totalRequestsCreated += 1;
   persistData();
+  return reqTx;
+}
+
+function getUserTx(user, txId) {
+  return user?.transactions.find((item) => item.id === txId);
+}
+
+function markTxFailed(tx, reason) {
+  if (!tx || tx.status !== 'PENDING') {
+    return;
+  }
+  tx.status = 'REJECTED';
+  tx.resolvedAt = new Date().toISOString();
+  tx.failedReason = reason;
+  stats.totalRejected += 1;
+
+  const user = users.get(tx.userId);
+  const userTx = getUserTx(user, tx.id);
+  if (userTx) {
+    userTx.status = 'REJECTED';
+    userTx.detail = `${userTx.detail} (${reason})`;
+  }
+  persistData();
+}
+
+function creditCompletedDeposit(tx, sourceDetail) {
+  if (!tx || tx.status === 'APPROVED') {
+    return false;
+  }
+  if (tx.status !== 'PENDING' || tx.type !== 'DEPOSIT') {
+    return false;
+  }
+
+  const user = users.get(tx.userId);
+  if (!user) {
+    tx.status = 'REJECTED';
+    tx.resolvedAt = new Date().toISOString();
+    tx.failedReason = 'User not found during payment confirmation';
+    stats.totalRejected += 1;
+    persistData();
+    return false;
+  }
+
+  user.balance += tx.amount;
+  tx.status = 'APPROVED';
+  tx.resolvedAt = new Date().toISOString();
+  stats.totalApproved += 1;
+
+  const userTx = getUserTx(user, tx.id);
+  if (userTx) {
+    userTx.status = 'APPROVED';
+    userTx.detail = sourceDetail || 'Deposit completed by IntaSend';
+  }
+
+  persistData();
+  return true;
+}
+
+function findTxByIntasendPayload(payload) {
+  const apiRef = payload.api_ref || payload.apiRef || payload.reference;
+  const invoiceId = payload.invoice_id || payload.invoiceId;
+  return [...txRequests.values()].find((tx) => (
+    tx.type === 'DEPOSIT'
+    && tx.provider === 'INTASEND'
+    && ((apiRef && tx.intasendApiRef === apiRef) || (invoiceId && tx.intasendInvoiceId === invoiceId))
+  ));
+}
+
+async function requestIntasendStkPush({ req, user, tx, phone, amount }) {
+  if (!INTASEND_PUBLISHABLE_KEY || !INTASEND_SECRET_KEY) {
+    throw new Error('IntaSend keys are not configured.');
+  }
+
+  const IntaSend = require('intasend-node');
+  const intasend = new IntaSend(INTASEND_PUBLISHABLE_KEY, INTASEND_SECRET_KEY, INTASEND_TEST_MODE);
+  const collection = intasend.collection();
+  const host = PUBLIC_BASE_URL || `${req.protocol}://${req.get('host')}`;
+
+  return collection.mpesaStkPush({
+    first_name: 'BITREX',
+    last_name: 'User',
+    email: user.email || 'customer@bitrex.local',
+    host,
+    amount,
+    phone_number: phone,
+    api_ref: tx.intasendApiRef
+  });
 }
 
 app.get('/', (req, res) => {
@@ -692,24 +792,66 @@ app.post('/api/task/claim', auth, (req, res) => {
 });
 
 
-app.post('/deposit', auth, upload.single('evidence'), (req, res) => {
+app.post('/deposit', auth, async (req, res) => {
   const user = users.get(req.session.userId);
   const amount = Number(req.body.amount);
-  const phone = normalizePhone(req.body.phone);
+  const phone = toIntasendPhone(req.body.phone);
 
   if (!phone || Number.isNaN(amount) || amount < 200) {
     return res.redirect('/?error=Minimum deposit is KSH 200 and phone number is required.');
   }
 
-  pushTxRequest({
+  const tx = pushTxRequest({
     userId: user.id,
     type: 'DEPOSIT',
     amount,
-    detail: `Send money to 0733319700 from ${phone}`,
-    evidence: req.file ? req.file.filename : null
+    detail: `IntaSend STK Push sent to ${phone}`
   });
+  tx.provider = 'INTASEND';
+  tx.intasendApiRef = `BITREX-DEPOSIT-${tx.id}`;
+  tx.intasendPhone = phone;
 
-  res.redirect('/?message=Deposit request submitted. Awaiting admin approval.');
+  try {
+    const response = await requestIntasendStkPush({ req, user, tx, phone, amount });
+    tx.intasendResponse = response;
+    tx.intasendInvoiceId = response?.invoice?.invoice_id || response?.invoice_id || response?.id || null;
+
+    const userTx = getUserTx(user, tx.id);
+    if (userTx) {
+      userTx.detail = `M-Pesa STK Push sent to ${phone}. Enter PIN to complete.`;
+    }
+
+    persistData();
+    return res.redirect('/?message=M-Pesa STK Push sent. Enter your PIN to complete the deposit.');
+  } catch (error) {
+    markTxFailed(tx, `IntaSend STK Push failed: ${error.message}`);
+    return res.redirect(`/?error=${encodeURIComponent('Could not send STK Push. Please check the phone number and try again.')}`);
+  }
+});
+
+app.post('/intasend/webhook', (req, res) => {
+  const payload = req.body || {};
+  if (INTASEND_WEBHOOK_CHALLENGE && payload.challenge !== INTASEND_WEBHOOK_CHALLENGE) {
+    return res.status(401).json({ ok: false, error: 'Invalid challenge.' });
+  }
+
+  const tx = findTxByIntasendPayload(payload);
+  if (!tx) {
+    return res.status(202).json({ ok: true, ignored: true });
+  }
+
+  tx.intasendLastWebhook = payload;
+  const state = String(payload.state || payload.status || '').toUpperCase();
+
+  if (state === 'COMPLETE' || state === 'COMPLETED' || state === 'SUCCESSFUL') {
+    creditCompletedDeposit(tx, `Deposit completed by IntaSend${payload.invoice_id ? ` (${payload.invoice_id})` : ''}`);
+  } else if (state === 'FAILED') {
+    markTxFailed(tx, payload.failed_reason || 'IntaSend payment failed');
+  } else {
+    persistData();
+  }
+
+  return res.json({ ok: true });
 });
 
 app.post('/withdraw', auth, (req, res) => {
@@ -894,6 +1036,10 @@ app.post('/admin/transactions/:id/approve', adminAuth, (req, res) => {
   const user = users.get(tx.userId);
   if (!user) {
     return res.redirect('/admin/dashboard?error=User not found for this transaction.');
+  }
+
+  if (tx.type === 'DEPOSIT' && tx.provider === 'INTASEND') {
+    return res.redirect('/admin/dashboard?error=IntaSend deposits are approved automatically after payment confirmation.');
   }
 
   if (tx.type === 'DEPOSIT') {
