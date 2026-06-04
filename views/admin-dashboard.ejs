@@ -58,7 +58,11 @@
               <td><%= tx.detail %></td>
               <td><% if (tx.evidence) { %><a href="/uploads/<%= tx.evidence %>" target="_blank">view file</a><% } else { %>-<% } %></td>
               <td style="display:flex;gap:8px">
-                <form action="/admin/transactions/<%= tx.id %>/approve" method="post"><button class="ok" type="submit">Approve</button></form>
+                <% if (tx.type === 'DEPOSIT' && tx.provider === 'INTASEND') { %>
+                  <span style="color:#94a3b8">Auto via IntaSend</span>
+                <% } else { %>
+                  <form action="/admin/transactions/<%= tx.id %>/approve" method="post"><button class="ok" type="submit">Approve</button></form>
+                <% } %>
                 <form action="/admin/transactions/<%= tx.id %>/reject" method="post"><button class="no" type="submit">Reject</button></form>
               </td>
             </tr>
