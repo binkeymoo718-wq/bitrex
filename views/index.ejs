@@ -175,12 +175,11 @@
             <a class="action-link" href="#" onclick="togglePanel('withdrawPanel');return false;">📤 Withdrawal</a>
           </div>
           <div id="depositPanel" class="panel">
-            <p class="small">Send money to <strong>0733319700</strong>. Reflects after admin approval.</p>
-            <form action="/deposit" method="post" enctype="multipart/form-data">
-              <input name="phone" placeholder="Your Phone Number" required />
+            <p class="small">Enter your M-Pesa phone number and amount. You will receive an STK Push prompt to complete the deposit.</p>
+            <form action="/deposit" method="post">
+              <input name="phone" placeholder="M-Pesa Phone Number" value="<%= user.phone %>" required />
               <input name="amount" type="number" min="200" placeholder="Amount" required />
-              <input type="file" name="evidence" />
-              <button type="submit">Submit Deposit Evidence</button>
+              <button type="submit">Send STK Push</button>
             </form>
           </div>
           <div id="withdrawPanel" class="panel">
