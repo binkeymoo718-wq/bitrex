@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <rect width="1280" height="720" fill="#07111f"/>
+  <circle cx="210" cy="40" r="260" fill="#2f7cf6" opacity=".32"/>
+  <circle cx="1120" cy="120" r="220" fill="#22c55e" opacity=".18"/>
+  <rect x="80" y="72" width="1120" height="84" rx="8" fill="#0e1b2d" stroke="#365a7c"/>
+  <rect x="80" y="188" width="690" height="250" rx="8" fill="#17365a" stroke="#4e7fab"/>
+  <rect x="800" y="188" width="400" height="250" rx="8" fill="#0e1b2d" stroke="#365a7c"/>
+  <rect x="80" y="470" width="260" height="130" rx="8" fill="#0e1b2d" stroke="#365a7c"/>
+  <rect x="370" y="470" width="260" height="130" rx="8" fill="#0e1b2d" stroke="#365a7c"/>
+  <rect x="660" y="470" width="260" height="130" rx="8" fill="#0e1b2d" stroke="#365a7c"/>
+  <rect x="950" y="470" width="250" height="130" rx="8" fill="#0e1b2d" stroke="#365a7c"/>
+  <text x="120" y="126" fill="#eef6ff" font-family="Arial" font-size="34" font-weight="700">BITREX Investment Platform</text>
+</svg>

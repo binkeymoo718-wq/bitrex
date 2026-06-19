@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="540" height="960" viewBox="0 0 540 960">
+  <rect width="540" height="960" fill="#07111f"/>
+  <circle cx="80" cy="20" r="180" fill="#2f7cf6" opacity=".32"/>
+  <rect x="24" y="32" width="492" height="74" rx="8" fill="#0e1b2d" stroke="#365a7c"/>
+  <rect x="24" y="130" width="492" height="230" rx="8" fill="#17365a" stroke="#4e7fab"/>
+  <rect x="24" y="384" width="492" height="132" rx="8" fill="#0e1b2d" stroke="#365a7c"/>
+  <rect x="24" y="536" width="492" height="132" rx="8" fill="#0e1b2d" stroke="#365a7c"/>
+  <rect x="24" y="688" width="492" height="132" rx="8" fill="#0e1b2d" stroke="#365a7c"/>
+  <rect x="24" y="870" width="492" height="64" rx="8" fill="#091423" stroke="#365a7c"/>
+  <text x="52" y="78" fill="#eef6ff" font-family="Arial" font-size="26" font-weight="700">BITREX</text>
+</svg>
