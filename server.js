@@ -3,6 +3,7 @@ const session = require('express-session');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+require('dotenv').config();
 const { createClient } = require('@supabase/supabase-js');
 
 const app = express();
@@ -23,12 +24,16 @@ const PUBLIC_BASE_URL = process.env.PUBLIC_BASE_URL || '';
 
 const uploadDir = path.join(__dirname, 'uploads');
 const storageDir = path.join(__dirname, 'storage');
+const publicDir = path.join(__dirname, 'public');
 const dataFile = path.join(storageDir, 'data.json');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 if (!fs.existsSync(storageDir)) {
   fs.mkdirSync(storageDir, { recursive: true });
+}
+if (!fs.existsSync(publicDir)) {
+  fs.mkdirSync(publicDir, { recursive: true });
 }
 const supabase = SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY
   ? createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } })
@@ -43,6 +48,7 @@ const upload = multer({ storage });
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use('/uploads', express.static(uploadDir));
+app.use(express.static(publicDir));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(
@@ -123,6 +129,7 @@ function getSerializableData() {
   return {
     users: [...users.entries()],
     txRequests: [...txRequests.entries()],
+    cityConfig: CITY_CONFIG,
     txCounter,
     stats
   };
@@ -144,6 +151,13 @@ function applyStateData(raw) {
   if (Array.isArray(raw.txRequests)) {
     raw.txRequests.forEach(([key, value]) => txRequests.set(Number(key), value));
   }
+  if (raw.cityConfig && typeof raw.cityConfig === 'object') {
+    Object.keys(raw.cityConfig).forEach((code) => {
+      if (CITY_CONFIG[code]) {
+        Object.assign(CITY_CONFIG[code], raw.cityConfig[code]);
+      }
+    });
+  }
   if (Number.isInteger(raw.txCounter)) {
     txCounter = raw.txCounter;
   }
@@ -157,6 +171,8 @@ function applyStateData(raw) {
 
 function ensureUserDefaults(user) {
   if (!user) return;
+  user.name = user.name || (user.email ? String(user.email).split('@')[0] : 'Investor');
+  user.emailVerified = Boolean(user.emailVerified);
   if (!Array.isArray(user.transactions)) user.transactions = [];
   if (!Array.isArray(user.activeCities)) user.activeCities = [];
   if (!user.cityJoinDates || typeof user.cityJoinDates !== 'object') user.cityJoinDates = {};
@@ -478,6 +494,16 @@ async function requestIntasendStkPush({ req, user, tx, phone, amount }) {
     throw new Error('IntaSend keys are not configured.');
   }
 
+  console.log('Starting IntaSend STK Push:', {
+    txId: tx.id,
+    amount,
+    phone,
+    testMode: INTASEND_TEST_MODE,
+    hasPublishableKey: Boolean(INTASEND_PUBLISHABLE_KEY),
+    hasSecretKey: Boolean(INTASEND_SECRET_KEY),
+    publicBaseUrl: PUBLIC_BASE_URL || `${req.protocol}://${req.get('host')}`
+  });
+
   const IntaSend = require('intasend-node');
   const intasend = new IntaSend(INTASEND_PUBLISHABLE_KEY, INTASEND_SECRET_KEY, INTASEND_TEST_MODE);
   const collection = intasend.collection();
@@ -497,7 +523,7 @@ async function requestIntasendStkPush({ req, user, tx, phone, amount }) {
 app.get('/', (req, res) => {
   const user = req.session.userId ? users.get(req.session.userId) : null;
   const referralFromQuery = req.query.ref ? String(req.query.ref) : '';
-  const authMode = req.query.auth === 'signup' ? 'signup' : 'login';
+  const authMode = ['signup', 'forgot', 'verify'].includes(req.query.auth) ? req.query.auth : 'login';
   if (user) {
     ensureDailyReset(user);
   }
@@ -519,6 +545,7 @@ app.get('/', (req, res) => {
 
 app.post('/signup', (req, res) => {
   const { email, password, referralCode } = req.body;
+  const name = String(req.body.name || '').trim();
   const phone = normalizePhone(req.body.phone);
   if (!phone || !email || !password || password.length < 6 || password.length > 8) {
     return res.redirect('/?error=Provide valid signup details. Password must be 6-8 characters.');
@@ -530,8 +557,10 @@ app.post('/signup', (req, res) => {
   const code = generateReferralCode(phone);
   const newUser = {
     id: phone,
+    name: name || String(email).split('@')[0],
     phone,
     email,
+    emailVerified: false,
     password,
     referralCode: code,
     referredByCode: referralCode || '',
@@ -558,7 +587,7 @@ app.post('/signup', (req, res) => {
   stats.totalUsersJoined += 1;
   persistData();
   req.session.userId = phone;
-  res.redirect('/?message=Signup successful. Welcome!');
+  res.redirect('/?auth=verify&message=Signup successful. Please verify your email to complete account setup.');
 });
 
 app.post('/login', (req, res) => {
@@ -813,6 +842,7 @@ app.post('/deposit', auth, async (req, res) => {
 
   try {
     const response = await requestIntasendStkPush({ req, user, tx, phone, amount });
+    console.log('IntaSend STK Push response:', JSON.stringify(response));
     tx.intasendResponse = response;
     tx.intasendInvoiceId = response?.invoice?.invoice_id || response?.invoice_id || response?.id || null;
 
@@ -824,9 +854,24 @@ app.post('/deposit', auth, async (req, res) => {
     persistData();
     return res.redirect('/?message=M-Pesa STK Push sent. Enter your PIN to complete the deposit.');
   } catch (error) {
+    console.error('IntaSend STK Push failed:', error);
     markTxFailed(tx, `IntaSend STK Push failed: ${error.message}`);
-    return res.redirect(`/?error=${encodeURIComponent('Could not send STK Push. Please check the phone number and try again.')}`);
+    return res.redirect(`/?error=${encodeURIComponent(`Could not send STK Push: ${error.message}`)}`);
   }
+});
+
+app.post('/verify-email', auth, (req, res) => {
+  const user = users.get(req.session.userId);
+  user.emailVerified = true;
+  user.transactions.unshift({
+    type: 'EMAIL VERIFICATION',
+    amount: 0,
+    date: new Date().toISOString(),
+    detail: 'Email address verified',
+    status: 'APPROVED'
+  });
+  persistData();
+  res.redirect('/?message=Email verified successfully.');
 });
 
 app.post('/intasend/webhook', (req, res) => {
@@ -1003,6 +1048,7 @@ app.get('/admin/dashboard', adminAuth, (req, res) => {
     resolved,
     users,
     usersList,
+    cityConfig: CITY_CONFIG,
     stats,
     message: req.query.message || '',
     error: req.query.error || ''
@@ -1136,4 +1182,21 @@ async function startServer() {
 startServer().catch((error) => {
   console.error('Startup failed:', error.message);
   process.exit(1);
+});
+
+app.post('/admin/packages/:code', adminAuth, (req, res) => {
+  const code = req.params.code;
+  const city = CITY_CONFIG[code];
+  if (!city) {
+    return res.redirect('/admin/dashboard?error=Investment package not found.');
+  }
+
+  city.city = String(req.body.city || city.city).trim().toUpperCase();
+  city.amount = Math.max(0, Number(req.body.amount || city.amount));
+  city.tasksPerDay = Math.max(0, Number(req.body.tasksPerDay || city.tasksPerDay));
+  city.dailyIncome = Math.max(0, Number(req.body.dailyIncome || city.dailyIncome));
+  city.durationDays = Math.max(1, Number(req.body.durationDays || city.durationDays || 365));
+
+  persistData();
+  res.redirect('/admin/dashboard?message=Investment package updated.');
 });
