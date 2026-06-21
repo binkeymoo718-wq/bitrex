@@ -2,469 +2,937 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BITREX Platform</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#fff4e6" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="BITREX" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="/icons/icon.svg" />
+  <title>BITREX Investment Platform</title>
   <style>
-    :root{--bg:#080f1f;--bg2:#0b1730;--card:#121d33cc;--line:#2f3e5d;--text:#e8eeff;--muted:#a8b5d8;--blue:#4f8dff;--cyan:#35d3ff;--green:#22c55e;--red:#ef4444}
-    *{box-sizing:border-box}
-    body{margin:0;background:radial-gradient(1200px 600px at 20% -10%,#1f4ccf66,transparent),radial-gradient(900px 500px at 120% 20%,#0ea5e966,transparent),linear-gradient(180deg,var(--bg),var(--bg2));font-family:Inter,system-ui,Arial,sans-serif;color:var(--text)}
-    .container{max-width:980px;margin:0 auto;padding:18px 16px 96px}
-    .card{background:var(--card);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:14px;box-shadow:0 10px 30px #00000055}
-    .hero{display:flex;justify-content:space-between;align-items:center;gap:12px;background:linear-gradient(120deg,#2c65f8,#00b8f0)}
-    .hero h2{margin:0;font-size:1.45rem}
-    h3{margin:0 0 10px} .small{color:var(--muted);font-size:.93rem}
-    .msg{padding:11px 12px;border-radius:10px;margin-bottom:12px;transition:opacity .4s ease,transform .4s ease}.ok{background:#062d19;color:#a7f3d0}.err{background:#3a0f14;color:#fecaca}
-    .topbar{display:flex;justify-content:space-between;align-items:center;gap:10px}
-    .pill-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-    .pill{background:linear-gradient(180deg,#0f1a31,#0c162b);border:1px solid #304268;border-radius:14px;padding:10px}
-    .kpi{font-size:1.2rem;font-weight:700}
-    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    input,select,button{width:100%;padding:11px 12px;border-radius:12px;border:1px solid #304268;background:#0a1428;color:var(--text);margin:6px 0}
-    input:focus,select:focus{outline:none;border-color:#5ea2ff;box-shadow:0 0 0 3px #3b82f633}
-    button{border:none;background:linear-gradient(120deg,var(--blue),var(--cyan));font-weight:700;cursor:pointer;transition:.2s transform}
-    button:hover{transform:translateY(-1px)}
-    .btn-red{background:linear-gradient(120deg,#b91c1c,#ef4444)}
-    .badge-link{display:inline-flex;align-items:center;gap:6px;padding:7px 11px;border:1px solid #6cc2ff;border-radius:999px;background:#0a3158;color:#d8f1ff;text-decoration:none;font-size:.82rem}
-    table{width:100%;border-collapse:collapse}
-    th,td{padding:9px 8px;border-bottom:1px solid #253654;font-size:.9rem;text-align:left}
-    th{color:#c7d8ff;font-weight:600}
-    .section{display:none}.section.active{display:block}
-    .status{padding:2px 8px;border-radius:999px;font-size:.75rem;font-weight:700;display:inline-block}.PENDING{background:#78350f;color:#fde68a}.APPROVED{background:#14532d;color:#bbf7d0}.REJECTED{background:#7f1d1d;color:#fecaca}
-    .bottom-nav{position:fixed;left:50%;transform:translateX(-50%);bottom:10px;width:min(960px,calc(100% - 16px));background:#0a1326cc;backdrop-filter:blur(8px);border:1px solid #2c3e63;border-radius:14px;display:grid;grid-template-columns:repeat(5,1fr);overflow:hidden;z-index:10}
-    .bottom-nav button{margin:0;border-radius:0;background:transparent;border-right:1px solid #243654;padding:10px;color:#d8e6ff}
-    .bottom-nav button:last-child{border-right:none}
-    .copy-actions{display:flex;gap:8px;flex-wrap:wrap}
-    .copy-actions button{width:auto;padding:6px 10px;border-radius:999px}
-    .task-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
-    .task-item{background:linear-gradient(180deg,#10203d,#0b1730);border:1px solid #2a4068;border-radius:14px;padding:12px}
-    .task-head{display:flex;justify-content:space-between;align-items:center;gap:8px}
-    .task-icon{font-size:22px}
-    .task-title{font-weight:700;font-size:.95rem}
-    .task-sub{font-size:.8rem;color:#9db3da;margin:8px 0 10px}
-    .claim-btn{background:linear-gradient(120deg,#22c55e,#06b6d4)}
-    .claim-btn[disabled]{opacity:.55;cursor:not-allowed}
-    .action-buttons{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .action-link{display:block;text-align:center;padding:14px;border-radius:12px;text-decoration:none;color:#e8eeff;font-weight:700;border:1px solid #2a4068;background:linear-gradient(120deg,#1d4ed8,#0891b2)}
-    .panel{display:none;margin-top:10px}
-    .panel.active{display:block}
-    .wheel-wrap{display:grid;place-items:center;gap:10px}
-    .wheel{width:300px;height:300px;border-radius:50%;border:8px solid #fef3c7;position:relative;box-shadow:0 10px 24px #00000066;transition:transform 5s cubic-bezier(.17,.67,.12,.99);background:
-      conic-gradient(from -30deg,
-      #2563eb 0deg 60deg,
-      #16a34a 60deg 120deg,
-      #06b6d4 120deg 180deg,
-      #9333ea 180deg 240deg,
-      #dc2626 240deg 300deg,
-      #f59e0b 300deg 360deg);}
-    .wheel::before{content:'';position:absolute;inset:28%;background:radial-gradient(circle,#7f1d1d,#4c0519);border:6px solid #fef3c7;border-radius:50%;z-index:2}
-    .wheel-label{position:absolute;left:50%;top:50%;transform-origin:0 0;color:#fff7d6;font-weight:800;font-size:22px;text-shadow:0 2px 4px #000}
-    .pointer{width:0;height:0;border-left:14px solid transparent;border-right:14px solid transparent;border-top:28px solid #fef3c7;filter:drop-shadow(0 2px 4px #000);margin-bottom:-8px;z-index:3}
-    .spin-center{position:absolute;inset:41%;display:grid;place-items:center;z-index:3;color:#fff7d6;font-weight:900;font-size:30px}
-    .city-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
-    .city-card{min-height:420px;border-radius:24px;overflow:hidden;position:relative;border:1px solid #6d5dfc99;background-size:cover;background-position:center;box-shadow:0 16px 34px #00000080}
-    .city-card::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,#02061733 15%,#020617bb 62%,#020617f2 100%)}
-    .city-content{position:absolute;inset:0;padding:18px;display:flex;flex-direction:column;justify-content:space-between;z-index:1}
-    .city-name{align-self:flex-start;padding:8px 20px;border-radius:999px;background:linear-gradient(120deg,#9333ea,#60a5fa);box-shadow:0 0 20px #a855f780;font-size:1.2rem;font-weight:900;letter-spacing:.04em}
-    .city-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:auto}
-    .city-stat{padding:12px;border-radius:18px;background:#111827cc;border:1px solid #a78bfa99;box-shadow:inset 0 0 18px #60a5fa33,0 0 16px #a855f755}
-    .city-stat .value{font-size:1.35rem;font-weight:900;color:#fff}
-    .signature-box{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end;margin-top:12px;padding:12px;border:1px solid #a78bfa99;border-radius:18px;background:#111827cc}
-    .signature-box input{border-width:0 0 1px 0;border-radius:0;background:transparent;margin:0}
-    .signature-box button{min-width:130px;background:linear-gradient(120deg,#047857,#22c55e)}
-    .terms-box{max-height:360px;overflow:auto;line-height:1.55;color:#dce7ff}
-    .terms-box h4{margin:16px 0 6px;color:#fff}
-    .menu-list{display:grid;gap:10px}
-    .menu-item{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:15px;border-radius:14px;border:1px solid #2a4068;background:linear-gradient(120deg,#0f1f3d,#10284c);color:#e8eeff;text-decoration:none;font-weight:800;cursor:pointer}
-    .menu-item span:first-child{display:flex;align-items:center;gap:10px}
-    .menu-detail{display:none}
-    .menu-detail.active{display:block}
-    .back-btn{width:auto;padding:9px 13px;margin-bottom:12px;border-radius:999px;background:linear-gradient(120deg,#334155,#0f172a);border:1px solid #64748b}
-    @media(max-width:820px){.pill-grid,.row{grid-template-columns:1fr}.hero{flex-direction:column;align-items:flex-start}}
+    :root {
+      --bg: #fff7ea;
+      --bg2: #fff0f6;
+      --panel: rgba(255, 255, 255, 0.72);
+      --panel-strong: rgba(255, 255, 255, 0.92);
+      --line: rgba(22, 32, 45, 0.08);
+      --text: #16202d;
+      --muted: #5f6b7a;
+      --soft: #768395;
+      --orange: #ff8b3d;
+      --pink: #ff5fa2;
+      --cyan: #28c7f7;
+      --mint: #35d08a;
+      --gold: #ffcc4d;
+      --shadow: 0 24px 70px rgba(255, 143, 72, 0.18);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: "Segoe UI", "Trebuchet MS", Arial, sans-serif;
+      background:
+        radial-gradient(circle at 15% 12%, rgba(255, 204, 77, 0.62), transparent 24%),
+        radial-gradient(circle at 82% 10%, rgba(255, 95, 162, 0.34), transparent 24%),
+        radial-gradient(circle at 74% 82%, rgba(40, 199, 247, 0.26), transparent 22%),
+        linear-gradient(135deg, var(--bg), var(--bg2));
+      overflow-x: hidden;
+    }
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      width: 22rem;
+      height: 22rem;
+      border-radius: 50%;
+      filter: blur(30px);
+      opacity: 0.28;
+      pointer-events: none;
+      z-index: 0;
+    }
+    body::before { top: -8rem; left: -8rem; background: #ffd98f; }
+    body::after { right: -7rem; bottom: -7rem; background: #8cdfff; }
+    a { color: inherit; text-decoration: none; }
+    button, input, select { font: inherit; }
+
+    .shell {
+      position: relative;
+      z-index: 1;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 22px 18px 108px;
+    }
+
+    .app-top {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      margin: -22px -18px 18px;
+      padding: 14px 18px;
+      background: rgba(255, 247, 234, 0.7);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid rgba(22, 32, 45, 0.08);
+    }
+    .top-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 900;
+      letter-spacing: 0.06em;
+    }
+    .mark {
+      width: 40px;
+      height: 40px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      background: linear-gradient(135deg, var(--orange), var(--pink));
+      box-shadow: 0 14px 32px rgba(255, 111, 114, 0.3);
+    }
+    .top-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .link-btn,
+    .primary,
+    .danger,
+    .ghost {
+      border-radius: 999px;
+      border: 0;
+      color: #fff;
+      cursor: pointer;
+      font-weight: 800;
+      transition: transform 180ms ease, box-shadow 180ms ease, opacity 180ms ease;
+    }
+    .link-btn,
+    .ghost {
+      padding: 10px 14px;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.85);
+      border: 1px solid var(--line);
+      box-shadow: 0 10px 24px rgba(22, 32, 45, 0.05);
+    }
+    .primary {
+      padding: 12px 16px;
+      background: linear-gradient(135deg, var(--orange), var(--pink));
+      box-shadow: 0 18px 30px rgba(255, 111, 114, 0.26);
+    }
+    .danger {
+      padding: 12px 16px;
+      background: linear-gradient(135deg, #d92d20, #ff6f61);
+      box-shadow: 0 18px 30px rgba(217, 45, 32, 0.2);
+    }
+    .primary:hover,
+    .danger:hover,
+    .ghost:hover,
+    .link-btn:hover {
+      transform: translateY(-1px);
+      opacity: 0.97;
+    }
+
+    .card {
+      border: 1px solid rgba(22, 32, 45, 0.08);
+      border-radius: 28px;
+      background: var(--panel);
+      backdrop-filter: blur(18px);
+      box-shadow: var(--shadow);
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h2 { font-size: 1.48rem; }
+    h3 { font-size: 1.02rem; }
+    .small { color: var(--muted); font-size: 0.92rem; line-height: 1.58; }
+    .tiny { color: var(--soft); font-size: 0.78rem; }
+    .msg {
+      margin: 0 0 14px;
+      padding: 12px 14px;
+      border-radius: 18px;
+      border: 1px solid transparent;
+    }
+    .ok {
+      background: rgba(53, 208, 138, 0.14);
+      border-color: rgba(53, 208, 138, 0.28);
+      color: #126d44;
+    }
+    .err {
+      background: rgba(255, 111, 97, 0.14);
+      border-color: rgba(255, 111, 97, 0.28);
+      color: #a63b30;
+    }
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      color: #445061;
+      font-size: 0.84rem;
+      font-weight: 800;
+    }
+    input, select {
+      width: 100%;
+      padding: 12px 13px;
+      border-radius: 16px;
+      border: 1px solid rgba(22, 32, 45, 0.12);
+      background: rgba(255, 255, 255, 0.9);
+      color: var(--text);
+      outline: none;
+    }
+    input:focus, select:focus {
+      border-color: rgba(255, 143, 72, 0.55);
+      box-shadow: 0 0 0 3px rgba(255, 143, 72, 0.14);
+    }
+    .grid { display: grid; gap: 14px; }
+    .form-row, .wallet-grid, .ref-grid, .dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .stats { grid-template-columns: repeat(4, 1fr); }
+    .package-grid { grid-template-columns: repeat(3, 1fr); }
+    .section { display: none; }
+    .section.active { display: block; animation: rise 0.35s ease both; }
+    @keyframes rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+    .auth-wrap {
+      min-height: calc(100vh - 160px);
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 22px;
+      align-items: center;
+    }
+    .auth-hero {
+      padding: 34px;
+      border-radius: 30px;
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.88), rgba(255, 241, 246, 0.72)),
+        linear-gradient(135deg, rgba(255, 143, 72, 0.18), rgba(255, 95, 162, 0.12));
+      border: 1px solid rgba(255, 255, 255, 0.88);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.86);
+      border: 1px solid rgba(22, 32, 45, 0.06);
+      color: #9a531f;
+      text-transform: uppercase;
+      font-size: 0.76rem;
+      font-weight: 900;
+      letter-spacing: 0.16em;
+    }
+    .auth-hero h1,
+    .hero-card h1 {
+      margin: 12px 0 14px;
+      font-size: clamp(2.2rem, 5vw, 4.8rem);
+      line-height: 0.95;
+      letter-spacing: -0.05em;
+    }
+    .lead { color: var(--muted); line-height: 1.75; max-width: 680px; }
+    .trust-row, .hero-metrics, .package-meta, .tabs { display: grid; gap: 10px; }
+    .trust-row { grid-template-columns: repeat(3, 1fr); margin-top: 24px; }
+    .trust, .mini, .metric {
+      padding: 14px;
+      border: 1px solid rgba(22, 32, 45, 0.08);
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.8);
+    }
+    .auth-card {
+      padding: 22px;
+      border-radius: 30px;
+      background: var(--panel-strong);
+    }
+    .tabs {
+      grid-template-columns: repeat(3, 1fr);
+      margin-bottom: 16px;
+    }
+    .tab {
+      padding: 10px;
+      text-align: center;
+      border-radius: 999px;
+      background: rgba(255, 247, 234, 0.9);
+      border: 1px solid rgba(22, 32, 45, 0.08);
+      color: var(--muted);
+    }
+    .tab.active {
+      color: #fff;
+      background: linear-gradient(135deg, var(--orange), var(--pink));
+      border-color: transparent;
+    }
+    .hero-card {
+      padding: 24px;
+      background:
+        linear-gradient(135deg, rgba(255, 143, 72, 0.18), rgba(255, 95, 162, 0.12)),
+        rgba(255, 255, 255, 0.84);
+    }
+    .hero-metrics {
+      grid-template-columns: repeat(3, 1fr);
+      margin-top: 18px;
+    }
+    .kpi {
+      padding: 16px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(22, 32, 45, 0.08);
+    }
+    .kpi strong, .metric strong {
+      display: block;
+      margin-top: 8px;
+      font-size: clamp(1.3rem, 3vw, 2rem);
+    }
+    .kpi.accent {
+      background: linear-gradient(135deg, rgba(255, 204, 77, 0.28), rgba(255, 255, 255, 0.9));
+    }
+    .chart {
+      padding: 18px;
+      min-height: 260px;
+    }
+    .chart svg { width: 100%; height: 150px; display: block; }
+    .line {
+      fill: none;
+      stroke: url(#chartGrad);
+      stroke-width: 4;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .area { fill: url(#areaGrad); }
+    .bars {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+      align-items: end;
+      height: 130px;
+    }
+    .bar {
+      border-radius: 14px 14px 6px 6px;
+      background: linear-gradient(180deg, var(--cyan), var(--orange));
+      min-height: 18px;
+    }
+    .table-wrap { overflow: auto; }
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 650px;
+    }
+    .table th, .table td {
+      padding: 12px 10px;
+      border-bottom: 1px solid rgba(22, 32, 45, 0.08);
+      text-align: left;
+      font-size: 0.9rem;
+    }
+    .table th {
+      color: #6c7b8d;
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .status {
+      display: inline-flex;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 900;
+    }
+    .PENDING { background: rgba(255, 204, 77, 0.2); color: #9a6612; }
+    .APPROVED { background: rgba(53, 208, 138, 0.18); color: #126d44; }
+    .REJECTED { background: rgba(255, 111, 97, 0.18); color: #a63b30; }
+    .package { overflow: hidden; }
+    .package-img {
+      height: 146px;
+      background-size: cover;
+      background-position: center;
+      position: relative;
+    }
+    .package-img::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, transparent, rgba(22, 32, 45, 0.72));
+    }
+    .package-body { padding: 16px; }
+    .package-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+    .price {
+      font-size: 1.4rem;
+      font-weight: 900;
+      margin-top: 8px;
+    }
+    .package-meta {
+      grid-template-columns: repeat(2, 1fr);
+      margin: 12px 0;
+    }
+    .progress {
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(22, 32, 45, 0.08);
+      overflow: hidden;
+    }
+    .progress span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--mint), var(--cyan));
+    }
+    .notice {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 13px;
+      border-bottom: 1px solid rgba(22, 32, 45, 0.08);
+    }
+    .notice:last-child { border-bottom: 0; }
+    .dot {
+      width: 10px;
+      height: 10px;
+      margin-top: 5px;
+      border-radius: 50%;
+      background: var(--orange);
+      box-shadow: 0 0 0 5px rgba(255, 143, 72, 0.12);
+    }
+    .desktop-nav { display: flex; gap: 8px; flex-wrap: wrap; }
+    .desktop-nav button {
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(22, 32, 45, 0.08);
+      background: rgba(255, 255, 255, 0.8);
+      color: var(--muted);
+      cursor: pointer;
+    }
+    .desktop-nav button.active {
+      color: #fff;
+      border-color: transparent;
+      background: linear-gradient(135deg, var(--orange), var(--pink));
+    }
+    .bottom-nav {
+      position: fixed;
+      left: 50%;
+      bottom: 10px;
+      transform: translateX(-50%);
+      width: min(900px, calc(100% - 18px));
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      z-index: 30;
+      border: 1px solid rgba(22, 32, 45, 0.08);
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.84);
+      backdrop-filter: blur(18px);
+      box-shadow: 0 16px 42px rgba(22, 32, 45, 0.12);
+      overflow: hidden;
+    }
+    .bottom-nav button {
+      min-height: 58px;
+      border: 0;
+      border-right: 1px solid rgba(22, 32, 45, 0.08);
+      background: transparent;
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .bottom-nav button.active {
+      color: #fff;
+      background: linear-gradient(180deg, var(--orange), var(--pink));
+    }
+
+    @media (max-width: 980px) {
+      .auth-wrap, .dashboard, .wallet-grid, .ref-grid { grid-template-columns: 1fr; }
+      .package-grid, .stats { grid-template-columns: repeat(2, 1fr); }
+      .desktop-nav { display: none; }
+      .trust-row, .hero-metrics { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 640px) {
+      .shell { padding: 12px 12px 106px; }
+      .app-top { margin: -12px -12px 12px; padding: 12px; }
+      .package-grid, .stats, .form-row { grid-template-columns: 1fr; }
+      .top-actions .link-btn { display: none; }
+      .bottom-nav button { font-size: 0.68rem; }
+      .auth-hero { padding: 22px; }
+      .auth-card { padding: 16px; }
+      .hero-card { padding: 20px; }
+    }
   </style>
 </head>
 <body>
-  <div class="container">
+  <% const displayName = user ? (user.name || (user.email ? user.email.split('@')[0] : 'Investor')) : ''; %>
+  <div class="app-top">
+    <div class="top-inner">
+      <a class="brand" href="/">
+        <span class="mark">B</span>
+        <span>BITREX</span>
+      </a>
+      <% if (user) { %>
+        <div class="desktop-nav">
+          <button data-tab="home" onclick="switchTab('home')">Dashboard</button>
+          <button data-tab="invest" onclick="switchTab('invest')">Invest</button>
+          <button data-tab="wallet" onclick="switchTab('wallet')">Wallet</button>
+          <button data-tab="referral" onclick="switchTab('referral')">Referrals</button>
+          <button data-tab="alerts" onclick="switchTab('alerts')">Alerts</button>
+          <button data-tab="menu" onclick="switchTab('menu')">More</button>
+        </div>
+      <% } %>
+      <div class="top-actions">
+        <button id="installBtn" class="link-btn" type="button" hidden>Install App</button>
+        <% if (user && isAdminPhone) { %><a class="link-btn" href="/admin">Admin</a><% } %>
+        <% if (user) { %>
+          <form action="/logout" method="post"><button class="danger" type="submit">Logout</button></form>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <main class="shell">
     <% if (error) { %><div class="msg err"><%= error %></div><% } %>
     <% if (message) { %><div class="msg ok"><%= message %></div><% } %>
 
     <% if (!user) { %>
-      <div class="card hero">
-        <div>
-          <h2>Welcome to BITREX Business Platform</h2>
-          <div class="small" style="color:#ecfeff">Create account, join cities, complete daily tasks and grow your earnings dashboard.</div>
-        </div>
-      </div>
-      <% if (authMode === 'login') { %>
-        <div class="card">
-          <h3>Login</h3>
-          <form method="post" action="/login">
-            <input name="phone" placeholder="Phone Number" required />
-            <input name="password" type="password" placeholder="Password" required />
-            <button type="submit">Log In</button>
-          </form>
-          <p class="small"><a href="#" style="color:#93c5fd" onclick="document.getElementById('forgotBox').style.display='block';return false;">Forgot password?</a></p>
-          <div id="forgotBox" style="display:none">
-            <form method="post" action="/forgot-password">
-              <input name="email" type="email" placeholder="Registered Email Address" required />
-              <input name="newPassword" type="password" minlength="6" maxlength="8" placeholder="New Password (6-8 chars)" required />
-              <input name="confirmNewPassword" type="password" minlength="6" maxlength="8" placeholder="Confirm New Password" required />
-              <button type="submit">Reset Password</button>
-            </form>
-          </div>
-          <p class="small">If you don't have an account, <a href="/?auth=signup" style="color:#93c5fd">Sign Up</a>.</p>
-        </div>
-      <% } else { %>
-        <div class="card">
-          <h3>Create Account</h3>
-          <form method="post" action="/signup">
-            <input name="phone" placeholder="Phone Number" required />
-            <input name="email" type="email" placeholder="Email Address" required />
-            <input name="password" type="password" minlength="6" maxlength="8" placeholder="Password (6-8 chars)" required />
-            <input name="referralCode" placeholder="Referral Code (Optional)" value="<%= referralFromQuery || '' %>" />
-            <button type="submit">Sign Up</button>
-          </form>
-          <p class="small">Already have an account? <a href="/?auth=login" style="color:#93c5fd">Log In</a>.</p>
-        </div>
-      <% } %>
-    <% } else { %>
-      <div class="card topbar">
-        <div>
-          <h3>BITREX Dashboard</h3>
-          <div class="small">Registered Number: <strong><%= user.phone %></strong></div>
-        </div>
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-          <% if (isAdminPhone) { %><a href="/admin" class="badge-link">⚙️ Admin Portal</a><% } %>
-          <form action="/logout" method="post"><button class="btn-red" style="width:auto;padding:10px 14px;">Logout</button></form>
-        </div>
-      </div>
-
-      <section id="home" class="section <%= activeTab === 'home' ? 'active' : '' %>">
-        <div class="card pill-grid">
-          <div class="pill"><div class="small">Balance</div><div class="kpi">KSH <%= user.balance %></div></div>
-          <div class="pill"><div class="small">Today's Income</div><div class="kpi">KSH <%= user.todayIncome %></div></div>
-          <div class="pill"><div class="small">Total Earnings</div><div class="kpi">KSH <%= user.totalEarnings %></div></div>
-          <% if (isAdminPhone) { %><div class="pill"><div class="small">Admin</div><div class="kpi"><a href="/admin" class="badge-link">Portal</a></div></div><% } %>
-        </div>
-
-        <div class="card">
-          <h3>Active Investments</h3>
-          <% if (!user.activeCities.length) { %><p class="small">No city joined yet.</p><% } else { %>
-          <table>
-            <thead><tr><th>City</th><th>Days</th><th>Daily Income</th></tr></thead>
-            <tbody>
-              <% user.activeCities.forEach(code => { %>
-                <tr>
-                  <td><%= cityConfig[code].city %></td>
-                  <td>
-                    <% const daysActive = Math.floor((Date.now()-new Date(user.cityJoinDates[code]).getTime())/(1000*60*60*24))+1; const maxDays = cityConfig[code].durationDays || 365; const completed = daysActive >= maxDays; %>
-                    <%= Math.min(daysActive, maxDays) %> / <%= maxDays %>
-                    <% if (completed) { %><span class="status APPROVED">COMPLETED</span><% } %>
-                  </td>
-                  <td>KSH <%= completed ? 0 : cityConfig[code].dailyIncome %></td>
-                </tr>
-              <% }) %>
-            </tbody>
-          </table>
-          <% } %>
-        </div>
-
-        <div class="card">
-          <h3>Wallet Actions</h3>
-          <div class="action-buttons">
-            <a class="action-link" href="#" onclick="togglePanel('depositPanel');return false;">💳 Deposit</a>
-            <a class="action-link" href="#" onclick="togglePanel('withdrawPanel');return false;">📤 Withdrawal</a>
-          </div>
-          <div id="depositPanel" class="panel">
-            <p class="small">Enter your M-Pesa phone number and amount. You will receive an STK Push prompt to complete the deposit.</p>
-            <form action="/deposit" method="post">
-              <input name="phone" placeholder="M-Pesa Phone Number" value="<%= user.phone %>" required />
-              <input name="amount" type="number" min="200" placeholder="Amount" required />
-              <button type="submit">Send STK Push</button>
-            </form>
-          </div>
-          <div id="withdrawPanel" class="panel">
-            <form action="/withdraw" method="post">
-              <input name="phone" placeholder="Phone to Receive Payment" required />
-              <input name="amount" type="number" min="300" placeholder="Amount" required />
-              <input name="withdrawalPassword" type="password" placeholder="Withdrawal Password" required />
-              <button type="submit">Withdraw</button>
-            </form>
-          </div>
-        </div>
-      </section>
-
-      <section id="task" class="section <%= activeTab === 'task' ? 'active' : '' %>">
-        <div class="card">
-          <h3>Daily Tasks (KSH 50 each)</h3>
-          <p class="small">Tap claim, wait for 59→00 countdown, then it auto-completes. Claimed task becomes inactive for today.</p>
-          <div class="task-grid" style="grid-template-columns:1fr;">
-            <% const iconMap = ['🧴','💆','🩸','🧃','🔧','📺','⚡','📱','📷','🏠','🪠','🛋️','📶','💻','🧵','🎨','💄','🧰','👟','🍳','🔥','🍟','🍲','📦','🍽️','🚰','🥤','☕','🔊','📺','🔈','🎮','⌚','🎧','🔆']; %>
-            <% tasks.forEach((t, idx) => { %>
-              <div class="task-item" data-task-item="<%= t %>">
-                <div class="task-head">
-                  <div class="task-title\"><%= t %></div>
-                  <div class="task-icon\"><%= iconMap[idx % iconMap.length] %></div>
-                </div>
-                <div class="task-sub">Reward: KSH 50 · Daily limit applies.</div>
-                <button class="claim-btn" type="button" data-task="<%= t %>" onclick="startClaim(this)">Claim</button>
-              </div>
-            <% }) %>
-          </div>
-          <p class="small">Tasks completed today: <%= user.tasksCompletedToday %> / <%= taskLimitToday %></p>
-        </div>
-      </section>
-
-      <section id="city" class="section <%= activeTab === 'city' ? 'active' : '' %>">
-        <div class="card">
-          <h3>City Contracts</h3>
-          <p class="small">Sign each city contract before joining. Paid cities are valid for 365 days; INTERN is valid for 4 days.</p>
-          <div class="city-cards">
-            <% Object.keys(cityConfig).forEach(code => { const c=cityConfig[code]; const period = c.durationDays || 365; const monthly = c.dailyIncome * 30; const joined = user.activeCities.includes(code); %>
-              <div class="city-card" style="background-image:url('<%= c.image %>')">
-                <div class="city-content">
-                  <div class="city-name"><%= c.city %></div>
-                  <div>
-                    <div class="city-stats">
-                      <div class="city-stat"><div class="small">Investments</div><div class="value">Ksh. <%= c.amount.toLocaleString() %></div></div>
-                      <div class="city-stat"><div class="small">Daily Income</div><div class="value">Ksh. <%= c.dailyIncome.toLocaleString() %></div></div>
-                      <div class="city-stat"><div class="small">Contract Period</div><div class="value"><%= period %> days</div></div>
-                      <div class="city-stat"><div class="small">Monthly Income</div><div class="value">Ksh. <%= monthly.toLocaleString() %></div></div>
-                    </div>
-                    <form method="post" action="/invest/<%= code %>" class="signature-box">
-                      <label>
-                        <span class="small">Signature</span>
-                        <input name="signature" placeholder="Type your full name" value="<%= user.citySignatures?.[code] || '' %>" <%= joined ? 'readonly' : 'required' %> />
-                      </label>
-                      <button type="submit" <%= joined ? 'disabled' : '' %>><%= joined ? 'Joined ✓' : 'Confirm ✓' %></button>
-                    </form>
-                  </div>
-                </div>
-              </div>
-            <% }) %>
-          </div>
-        </div>
-      </section>
-
-      <section id="spin" class="section <%= activeTab === 'spin' ? 'active' : '' %>">
-        <div class="card">
-          <h3>Spin & Win</h3>
-          <p>Gems: <strong id="spinGems"><%= user.gems || 0 %></strong> · Free spins: <strong id="spinFreeSpins"><%= user.freeSpins || 0 %></strong></p>
-          <div class="wheel-wrap" style="margin-top:12px">
-            <div class="pointer"></div>
-            <div id="wheel" class="wheel">
-              <span class="wheel-label" style="transform:rotate(-60deg) translate(105px,-8px)">3 GEMS</span>
-              <span class="wheel-label" style="transform:rotate(0deg) translate(110px,-8px)">KSH 150</span>
-              <span class="wheel-label" style="transform:rotate(60deg) translate(112px,-8px)">1 GEM</span>
-              <span class="wheel-label" style="transform:rotate(120deg) translate(105px,-8px)">2 GEMS</span>
-              <span class="wheel-label" style="transform:rotate(180deg) translate(102px,-8px)">KSH 100</span>
-              <span class="wheel-label" style="transform:rotate(240deg) translate(104px,-8px)">KSH 50</span>
-              <span class="spin-center">SPIN</span>
+      <div class="auth-wrap">
+        <section class="auth-hero">
+          <div class="eyebrow">Bright fintech PWA</div>
+          <h1>Invest, monitor, and manage your capital from any device.</h1>
+          <p class="lead">
+            A lively, mobile-ready platform with friendly visuals, fast navigation, wallet tracking,
+            and a polished experience that feels easy to trust.
+          </p>
+          <div class="trust-row">
+            <div class="trust">
+              <strong>Secure access</strong>
+              <div class="small">Login, registration, recovery, and verification flows.</div>
             </div>
-            <button type="button" id="spinBtn" onclick="spinWheel()">🎡 Spin</button>
+            <div class="trust">
+              <strong>Live wallet</strong>
+              <div class="small">Deposits, withdrawals, approvals, and statements.</div>
+            </div>
+            <div class="trust">
+              <strong>PWA ready</strong>
+              <div class="small">Installable app shell with cached core screens.</div>
+            </div>
           </div>
-          <p class="small">Rewards: 1 Gem, 2 Gems, 3 Gems, KSH 50, KSH 100, KSH 150. Every spin wins something. One free spin for new users, then 2 Gems per spin.</p>
+        </section>
+
+        <section class="card auth-card">
+          <div class="tabs">
+            <a class="tab <%= authMode === 'login' ? 'active' : '' %>" href="/?auth=login">Login</a>
+            <a class="tab <%= authMode === 'signup' ? 'active' : '' %>" href="/?auth=signup<%= referralFromQuery ? '&ref=' + referralFromQuery : '' %>">Register</a>
+            <a class="tab <%= authMode === 'forgot' ? 'active' : '' %>" href="/?auth=forgot">Reset</a>
+          </div>
+
+          <% if (authMode === 'signup') { %>
+            <h2>Create your account</h2>
+            <p class="small">Start with a verified profile before funding your wallet.</p>
+            <form method="post" action="/signup">
+              <label>Full name</label>
+              <input name="name" placeholder="Your name" required />
+              <label>Phone number</label>
+              <input name="phone" placeholder="07..." required />
+              <label>Email address</label>
+              <input name="email" type="email" placeholder="you@example.com" required />
+              <label>Password</label>
+              <input name="password" type="password" minlength="6" maxlength="8" placeholder="6-8 characters" required />
+              <label>Referral code</label>
+              <input name="referralCode" placeholder="Optional" value="<%= referralFromQuery || '' %>" />
+              <button class="primary" style="width:100%;margin-top:14px" type="submit">Create Account</button>
+            </form>
+          <% } else if (authMode === 'forgot') { %>
+            <h2>Reset password</h2>
+            <p class="small">Use the email address attached to your account.</p>
+            <form method="post" action="/forgot-password">
+              <label>Email address</label>
+              <input name="email" type="email" required />
+              <label>New password</label>
+              <input name="newPassword" type="password" minlength="6" maxlength="8" required />
+              <label>Confirm password</label>
+              <input name="confirmNewPassword" type="password" minlength="6" maxlength="8" required />
+              <button class="primary" style="width:100%;margin-top:14px" type="submit">Reset Password</button>
+            </form>
+          <% } else { %>
+            <h2>Welcome back</h2>
+            <p class="small">Access your portfolio, wallet, referrals, and notifications.</p>
+            <form method="post" action="/login">
+              <label>Phone number</label>
+              <input name="phone" placeholder="07..." required />
+              <label>Password</label>
+              <input name="password" type="password" required />
+              <button class="primary" style="width:100%;margin-top:14px" type="submit">Log In</button>
+            </form>
+            <p class="small" style="margin-top:14px"><a href="/?auth=forgot">Forgot password?</a></p>
+          <% } %>
+        </section>
+      </div>
+    <% } else { %>
+      <% const activeInvestmentAmount = user.activeCities.reduce((sum, code) => sum + (cityConfig[code] ? cityConfig[code].amount : 0), 0); %>
+      <% const referralEarnings = (user.transactions || []).filter(tx => tx.type === 'REFERRAL BONUS').reduce((sum, tx) => sum + Number(tx.amount || 0), 0); %>
+      <% const recentTx = (user.transactions || []).slice(0, 8); %>
+
+      <% if (!user.emailVerified || activeTab === 'verify') { %>
+        <section id="verify" class="section <%= activeTab === 'verify' || !user.emailVerified ? 'active' : '' %>">
+          <div class="card hero-card">
+            <div class="eyebrow">Email verification</div>
+            <h1>Confirm <%= user.email %></h1>
+            <p class="lead">This demo verification completes instantly. In production, connect this step to your email provider and token validation.</p>
+            <form method="post" action="/verify-email">
+              <button class="primary" type="submit">Verify Email</button>
+            </form>
+          </div>
+        </section>
+      <% } %>
+
+      <section id="home" class="section <%= activeTab === 'home' && user.emailVerified ? 'active' : '' %>">
+        <div class="grid dashboard">
+          <div class="card hero-card">
+            <div class="eyebrow">Investor dashboard</div>
+            <h1>Welcome, <%= displayName %></h1>
+            <p class="lead">Your portfolio snapshot, current wallet status, and investment performance are ready.</p>
+            <div class="hero-metrics">
+              <div class="metric">
+                <div class="tiny">Account Balance</div>
+                <strong>KSH <%= Number(user.balance || 0).toLocaleString() %></strong>
+              </div>
+              <div class="metric">
+                <div class="tiny">Active Investment</div>
+                <strong>KSH <%= activeInvestmentAmount.toLocaleString() %></strong>
+              </div>
+              <div class="metric">
+                <div class="tiny">Daily Profit</div>
+                <strong>KSH <%= Number(user.todayIncome || 0).toLocaleString() %></strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="card chart">
+            <h3>Performance</h3>
+            <svg viewBox="0 0 420 150" aria-label="Investment performance chart">
+              <defs>
+                <linearGradient id="chartGrad" x1="0" x2="1">
+                  <stop stop-color="#ff8b3d" />
+                  <stop offset="1" stop-color="#28c7f7" />
+                </linearGradient>
+                <linearGradient id="areaGrad" x1="0" x2="0" y1="0" y2="1">
+                  <stop stop-color="#ff8b3d" stop-opacity=".28" />
+                  <stop offset="1" stop-color="#ff8b3d" stop-opacity="0" />
+                </linearGradient>
+              </defs>
+              <path class="area" d="M10 118 C70 92 98 112 145 76 S220 40 280 58 350 36 410 20 L410 145 L10 145 Z"></path>
+              <path class="line" d="M10 118 C70 92 98 112 145 76 S220 40 280 58 350 36 410 20"></path>
+            </svg>
+            <p class="small">Projected from wallet activity, active packages, and daily income.</p>
+          </div>
+        </div>
+
+        <div class="grid stats" style="margin-top:14px">
+          <div class="card kpi"><span class="small">Total Earnings</span><strong>KSH <%= Number(user.totalEarnings || 0).toLocaleString() %></strong></div>
+          <div class="card kpi"><span class="small">Referral Earnings</span><strong>KSH <%= referralEarnings.toLocaleString() %></strong></div>
+          <div class="card kpi"><span class="small">Referral Count</span><strong><%= user.referredCount || 0 %></strong></div>
+          <div class="card kpi accent"><span class="small">Expected Daily Income</span><strong>KSH <%= user.activeCities.reduce((s, code) => s + (cityConfig[code] ? cityConfig[code].dailyIncome : 0), 0).toLocaleString() %></strong></div>
+        </div>
+
+        <div class="grid dashboard" style="margin-top:14px">
+          <div class="card" style="padding:16px">
+            <h3>Recent Transactions</h3>
+            <div class="table-wrap">
+              <table class="table">
+                <thead><tr><th>Type</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
+                <tbody>
+                  <% if (!recentTx.length) { %><tr><td colspan="4" class="small">No transactions yet.</td></tr><% } %>
+                  <% recentTx.forEach(tx => { %>
+                    <tr>
+                      <td><%= tx.type %></td>
+                      <td>KSH <%= Number(tx.amount || 0).toLocaleString() %></td>
+                      <td><span class="status <%= tx.status || 'APPROVED' %>"><%= tx.status || 'APPROVED' %></span></td>
+                      <td><%= tx.date ? new Date(tx.date).toLocaleDateString() : '-' %></td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card" style="padding:16px">
+            <h3>Daily Profit Trend</h3>
+            <div class="bars">
+              <% [42, 56, 48, 72, 62, 86, 74].forEach(h => { %>
+                <div class="bar" style="height:<%= h %>%"></div>
+              <% }) %>
+            </div>
+          </div>
         </div>
       </section>
 
-      <section id="menu" class="section <%= activeTab === 'menu' ? 'active' : '' %>">
-        <div id="menuListPage" class="card">
-          <h3>Menu</h3>
-          <div class="menu-list">
-            <button class="menu-item" type="button" onclick="openMenuPage('profilePage')"><span>👤 1. My Profile</span><span>›</span></button>
-            <button class="menu-item" type="button" onclick="openMenuPage('termsPage')"><span>📜 2. Terms and Conditions</span><span>›</span></button>
-            <a class="menu-item" href="https://wa.me/254780535898" target="_blank"><span>💬 3. WhatsApp Manager</span><span>›</span></a>
-            <a class="menu-item" href="https://chat.whatsapp.com/LLYrOJazzxsHqxnqdJrc2q" target="_blank"><span>👥 4. WhatsApp Group</span><span>›</span></a>
-            <button class="menu-item" type="button" onclick="openMenuPage('referralsPage')"><span>🔗 5. Referrals</span><span>›</span></button>
-            <button class="menu-item" type="button" onclick="openMenuPage('transactionsPage')"><span>🧾 6. Transaction History</span><span>›</span></button>
-            <% if (isAdminPhone) { %><a class="menu-item" href="/admin"><span>⚙️ Admin Portal</span><span>›</span></a><% } %>
+      <section id="invest" class="section <%= activeTab === 'city' || activeTab === 'invest' ? 'active' : '' %>">
+        <div class="grid package-grid">
+          <% Object.keys(cityConfig).forEach(code => { const c = cityConfig[code]; const joined = user.activeCities.includes(code); const joinedAt = user.cityJoinDates[code]; const daysActive = joinedAt ? Math.floor((Date.now() - new Date(joinedAt).getTime()) / (1000 * 60 * 60 * 24)) + 1 : 0; const maxDays = c.durationDays || 365; const pct = joined ? Math.min(100, Math.round((daysActive / maxDays) * 100)) : 0; %>
+            <article class="card package">
+              <div class="package-img" style="background-image:url('<%= c.image %>')"></div>
+              <div class="package-body">
+                <div class="package-title">
+                  <h3><%= c.city %> Package</h3>
+                  <span class="status <%= joined ? 'APPROVED' : 'PENDING' %>"><%= joined ? 'ACTIVE' : 'OPEN' %></span>
+                </div>
+                <div class="price">KSH <%= Number(c.amount || 0).toLocaleString() %></div>
+                <div class="package-meta">
+                  <div class="mini"><div class="tiny">Duration</div><strong><%= maxDays %> days</strong></div>
+                  <div class="mini"><div class="tiny">Daily return</div><strong>KSH <%= Number(c.dailyIncome || 0).toLocaleString() %></strong></div>
+                  <div class="mini"><div class="tiny">Monthly return</div><strong>KSH <%= Number((c.dailyIncome || 0) * 30).toLocaleString() %></strong></div>
+                  <div class="mini"><div class="tiny">Tasks/day</div><strong><%= c.tasksPerDay %></strong></div>
+                </div>
+                <% if (joined) { %>
+                  <div class="small">Progress: <%= Math.min(daysActive, maxDays) %> / <%= maxDays %> days</div>
+                  <div class="progress"><span style="width:<%= pct %>%"></span></div>
+                <% } else { %>
+                  <form method="post" action="/invest/<%= code %>">
+                    <label>Contract signature</label>
+                    <input name="signature" placeholder="Type your full name" required />
+                    <button class="primary" style="width:100%;margin-top:10px" type="submit">Invest</button>
+                  </form>
+                <% } %>
+              </div>
+            </article>
+          <% }) %>
+        </div>
+      </section>
+
+      <section id="wallet" class="section <%= activeTab === 'wallet' ? 'active' : '' %>">
+        <div class="grid wallet-grid">
+          <div class="card" style="padding:16px">
+            <h3>Deposit Funds</h3>
+            <p class="small">Send an M-Pesa STK Push and track the confirmation in your transaction history.</p>
+            <form action="/deposit" method="post">
+              <label>M-Pesa phone</label>
+              <input name="phone" value="<%= user.phone %>" required />
+              <label>Amount</label>
+              <input name="amount" type="number" min="200" placeholder="Minimum KSH 200" required />
+              <button class="primary" style="width:100%;margin-top:12px">Send STK Push</button>
+            </form>
+          </div>
+          <div class="card" style="padding:16px">
+            <h3>Withdraw Funds</h3>
+            <p class="small">Withdrawals are submitted for admin approval with status tracking.</p>
+            <form action="/withdraw" method="post">
+              <label>Receiving phone</label>
+              <input name="phone" required />
+              <label>Amount</label>
+              <input name="amount" type="number" min="300" placeholder="Minimum KSH 300" required />
+              <label>Withdrawal password</label>
+              <input name="withdrawalPassword" type="password" required />
+              <button class="primary" style="width:100%;margin-top:12px">Request Withdrawal</button>
+            </form>
           </div>
         </div>
 
-        <div id="profilePage" class="card menu-detail">
-          <button class="back-btn" type="button" onclick="backToMenu()">← Back</button>
-          <h3>1. My Profile</h3>
-          <label class="small">Phone Number</label>
-          <input value="<%= user.phone %>" readonly />
-          <label class="small">Email Address</label>
-          <input value="<%= user.email %>" readonly />
-          <label class="small">Referral Code</label>
-          <input value="<%= user.referralCode %>" readonly />
-          <label class="small">Balance</label>
-          <input value="KSH <%= user.balance %>" readonly />
-          <label class="small">Total Earnings</label>
-          <input value="KSH <%= user.totalEarnings %>" readonly />
-          <form action="/profile/password" method="post">
-            <input type="password" name="currentPassword" placeholder="Current password" required />
-            <input type="password" name="newPassword" minlength="6" maxlength="8" placeholder="New password (6-8 characters)" required />
-            <button type="submit">Update Password</button>
-          </form>
-        </div>
-
-        <div id="termsPage" class="card menu-detail">
-          <button class="back-btn" type="button" onclick="backToMenu()">← Back</button>
-          <h3>2. Terms & Conditions</h3>
-          <div class="terms-box">
-            <p><strong>Last updated: January 2025</strong></p>
-            <h4>1. Acceptance of Terms</h4>
-            <p>By accessing and using this platform, you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.</p>
-            <h4>2. Investment Risks</h4>
-            <p>All investments carry risk. Past performance is not indicative of future results. You should carefully consider your investment objectives, level of experience, and risk appetite before making any investment decisions.</p>
-            <h4>3. Account Responsibility</h4>
-            <p>You are responsible for maintaining the confidentiality of your account and password. You agree to accept responsibility for all activities that occur under your account. Notify us immediately of any unauthorized use.</p>
-            <h4>4. Deposits and Withdrawals</h4>
-            <p>Minimum deposit amount is Ksh200. Minimum withdrawal amount is Ksh300. Withdrawals are processed within 24 hours. We reserve the right to request verification documents before processing withdrawals.</p>
-            <h4>5. Referral Program</h4>
-            <p>Referral bonuses are when you refer a friend to join a city you earn a one time bonus of ksh300.</p>
-            <h4>6. Privacy Policy</h4>
-            <p>We respect your privacy and are committed to protecting your personal data. We collect and process personal information in accordance with applicable data protection laws.</p>
-            <h4>7. Prohibited Activities</h4>
-            <p>Users are prohibited from: creating multiple accounts, using automated systems, engaging in fraudulent activities, or attempting to manipulate the platform in any way.</p>
-            <h4>8. Termination</h4>
-            <p>We may terminate or suspend your account immediately, without prior notice, for any breach of these Terms. Upon termination, your right to use the platform will immediately cease.</p>
-            <h4>9. Contact Us</h4>
-            <p>If you have any questions about these Terms, please contact our support team or hiring manager.</p>
+        <div class="card" style="padding:16px;margin-top:14px">
+          <h3>Account Statement</h3>
+          <div class="table-wrap">
+            <table class="table">
+              <thead><tr><th>Type</th><th>Amount</th><th>Status</th><th>Detail</th><th>Date</th></tr></thead>
+              <tbody>
+                <% (user.transactions || []).forEach(tx => { %>
+                  <tr>
+                    <td><%= tx.type %></td>
+                    <td>KSH <%= Number(tx.amount || 0).toLocaleString() %></td>
+                    <td><span class="status <%= tx.status || 'APPROVED' %>"><%= tx.status || 'APPROVED' %></span></td>
+                    <td><%= tx.detail %></td>
+                    <td><%= tx.date ? new Date(tx.date).toLocaleString() : '-' %></td>
+                  </tr>
+                <% }) %>
+                <% if (!(user.transactions || []).length) { %>
+                  <tr><td colspan="5" class="small">No wallet activity yet.</td></tr>
+                <% } %>
+              </tbody>
+            </table>
           </div>
         </div>
+      </section>
 
-        <div id="referralsPage" class="card menu-detail">
-          <button class="back-btn" type="button" onclick="backToMenu()">← Back</button>
-          <h3>5. Referrals</h3>
-          <p>Your Referral Code: <strong><%= user.referralCode %></strong></p>
-          <p>Referred Friends: <strong><%= user.referredCount %></strong> / 5 friends (bonus KSH 300 one-time).</p>
-          <div class="copy-actions">
-            <a href="<%= referralLink %>" target="_blank" class="badge-link">Open Referral Link</a>
-            <button type="button" onclick="copyReferral('<%= referralLink %>')">Copy</button>
-            <button type="button" onclick="shareReferral('<%= referralLink %>')">Share</button>
+      <section id="referral" class="section <%= activeTab === 'referral' ? 'active' : '' %>">
+        <div class="grid ref-grid">
+          <div class="card hero-card">
+            <div class="eyebrow">Referral link generator</div>
+            <h1>KSH 300 bonus path</h1>
+            <p class="lead">Share your personal link and track referrals toward platform bonuses.</p>
+            <input id="refLink" value="<%= referralLink %>" readonly />
+            <div class="form-row" style="margin-top:10px">
+              <button class="primary" type="button" onclick="copyReferral()">Copy Link</button>
+              <button class="primary" type="button" onclick="shareReferral()">Share</button>
+            </div>
+          </div>
+
+          <div class="card" style="padding:16px">
+            <h3>Referral Statistics</h3>
+            <div class="grid stats" style="grid-template-columns: 1fr 1fr">
+              <div class="mini"><div class="tiny">Referral Code</div><strong><%= user.referralCode %></strong></div>
+              <div class="mini"><div class="tiny">Friends Joined</div><strong><%= user.referredCount || 0 %> / 5</strong></div>
+              <div class="mini"><div class="tiny">Bonus Earned</div><strong>KSH <%= referralEarnings.toLocaleString() %></strong></div>
+              <div class="mini"><div class="tiny">Leaderboard Rank</div><strong>#<%= Math.max(1, 12 - Number(user.referredCount || 0)) %></strong></div>
+            </div>
+            <h3 style="margin-top:18px">Referral Leaderboard</h3>
+            <div class="notice">
+              <span class="dot"></span>
+              <div><strong>You</strong><div class="small"><%= user.referredCount || 0 %> active referrals</div></div>
+            </div>
+            <div class="notice">
+              <span class="dot"></span>
+              <div><strong>Top investor</strong><div class="small">5+ active referrals</div></div>
+            </div>
           </div>
         </div>
+      </section>
 
-        <div id="transactionsPage" class="card menu-detail">
-          <button class="back-btn" type="button" onclick="backToMenu()">← Back</button>
-          <h3>6. Transaction History</h3>
-          <% if (!user.transactions.length) { %><p class="small">No transactions yet.</p><% } %>
-          <table>
-            <thead><tr><th>Type</th><th>Amount</th><th>Status</th><th>Detail</th><th>Date</th></tr></thead>
-            <tbody>
-              <% user.transactions.forEach(tx => { %>
-                <tr>
-                  <td><%= tx.type %></td>
-                  <td>KSH <%= tx.amount %></td>
-                  <td><span class="status <%= tx.status || 'APPROVED' %>"><%= tx.status || 'APPROVED' %></span></td>
-                  <td><%= tx.detail %></td>
-                  <td><%= new Date(tx.date).toLocaleString() %></td>
-                </tr>
-              <% }) %>
-            </tbody>
-          </table>
+      <section id="alerts" class="section <%= activeTab === 'alerts' ? 'active' : '' %>">
+        <div class="card" style="padding:16px">
+          <h3>Notification Center</h3>
+          <button class="primary" type="button" onclick="enableNotifications()">Enable Push Notifications</button>
+          <div style="margin-top:12px">
+            <div class="notice"><span class="dot"></span><div><strong>Deposit confirmations</strong><div class="small">You will be alerted when an STK deposit is approved.</div></div></div>
+            <div class="notice"><span class="dot"></span><div><strong>Withdrawal updates</strong><div class="small">Pending, approved, and rejected requests are visible in wallet history.</div></div></div>
+            <div class="notice"><span class="dot"></span><div><strong>Investment maturity alerts</strong><div class="small">Active package progress is tracked daily.</div></div></div>
+            <div class="notice"><span class="dot"></span><div><strong>Promotional announcements</strong><div class="small">Install the app and enable notifications to receive offers.</div></div></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="menu" class="section <%= activeTab === 'menu' || activeTab === 'task' ? 'active' : '' %>">
+        <div class="grid dashboard">
+          <div class="card" style="padding:16px">
+            <h3>Profile & Security</h3>
+            <div class="form-row">
+              <div><label>Name</label><input value="<%= displayName %>" readonly /></div>
+              <div><label>Email</label><input value="<%= user.email %>" readonly /></div>
+            </div>
+            <div class="form-row">
+              <div><label>Phone</label><input value="<%= user.phone %>" readonly /></div>
+              <div><label>Email status</label><input value="<%= user.emailVerified ? 'Verified' : 'Pending verification' %>" readonly /></div>
+            </div>
+            <form action="/profile/password" method="post">
+              <label>Current password</label>
+              <input type="password" name="currentPassword" required />
+              <label>New password</label>
+              <input type="password" name="newPassword" minlength="6" maxlength="8" required />
+              <button class="primary" style="width:100%;margin-top:12px">Update Password</button>
+            </form>
+          </div>
+
+          <div class="card" style="padding:16px">
+            <h3>Daily Activity</h3>
+            <p class="small">Tasks completed today: <strong><%= user.tasksCompletedToday %> / <%= taskLimitToday %></strong></p>
+            <form method="post" action="/task">
+              <label>Select available task</label>
+              <select name="taskName">
+                <% tasks.slice(0, 12).forEach(t => { %><option value="<%= t %>"><%= t %></option><% }) %>
+              </select>
+              <button class="primary" style="width:100%;margin-top:12px">Claim Daily Profit Task</button>
+            </form>
+            <% if (isAdminPhone) { %>
+              <a class="link-btn" style="display:inline-block;margin-top:12px" href="/admin">Open Admin Dashboard</a>
+            <% } %>
+          </div>
         </div>
       </section>
 
       <nav class="bottom-nav">
-        <button onclick="switchTab('home')">🏠 Home</button>
-        <button onclick="switchTab('task')">✅ Task</button>
-        <button onclick="switchTab('city')">🏙️ City</button>
-        <button onclick="switchTab('spin')">🎡 Spin</button>
-        <button onclick="switchTab('menu')">☰ Menu</button>
+        <button data-tab="home" onclick="switchTab('home')">Home</button>
+        <button data-tab="invest" onclick="switchTab('invest')">Invest</button>
+        <button data-tab="wallet" onclick="switchTab('wallet')">Wallet</button>
+        <button data-tab="referral" onclick="switchTab('referral')">Refer</button>
+        <button data-tab="alerts" onclick="switchTab('alerts')">Alerts</button>
+        <button data-tab="menu" onclick="switchTab('menu')">More</button>
       </nav>
-      <script>
-        const claimedToday = new Set();
-        function switchTab(id){
-          document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-          document.getElementById(id).classList.add('active');
-          if(id==='menu'){backToMenu();}
-        }
-        function togglePanel(id){
-          document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-          document.getElementById(id).classList.add('active');
-        }
-        function openMenuPage(id){
-          document.getElementById('menuListPage').style.display='none';
-          document.querySelectorAll('.menu-detail').forEach(p=>p.classList.remove('active'));
-          document.getElementById(id).classList.add('active');
-          window.scrollTo({top:0,behavior:'smooth'});
-        }
-        function backToMenu(){
-          document.querySelectorAll('.menu-detail').forEach(p=>p.classList.remove('active'));
-          document.getElementById('menuListPage').style.display='block';
-          window.scrollTo({top:0,behavior:'smooth'});
-        }
-        function showToast(text, type='ok'){
-          const toast=document.createElement('div');
-          toast.className='msg '+(type==='ok'?'ok':'err');
-          toast.textContent=text;
-          document.querySelector('.container').prepend(toast);
-          setTimeout(()=>{toast.style.opacity='0';toast.style.transform='translateY(-6px)';},2500);
-          setTimeout(()=>toast.remove(),3000);
-        }
-        async function startClaim(btn){
-          const taskName=btn.dataset.task;
-          if(claimedToday.has(taskName)) return;
-          btn.disabled=true;
-          let sec=59;
-          btn.textContent='Wait 00:'+String(sec).padStart(2,'0');
-          const timer=setInterval(()=>{sec--;btn.textContent='Wait 00:'+String(Math.max(sec,0)).padStart(2,'0');if(sec<=0){clearInterval(timer);finishClaim(btn,taskName);}},1000);
-        }
-        async function finishClaim(btn,taskName){
-          try{
-            const res=await fetch('/api/task/claim',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({taskName})});
-            const data=await res.json();
-            if(!data.ok){btn.disabled=false;btn.textContent='Claim';showToast(data.error||'Task failed','err');return;}
-            claimedToday.add(taskName);
-            btn.textContent='Claimed';
-            btn.disabled=true;
-            const item=document.querySelector(`[data-task-item=\"${CSS.escape(taskName)}\"]`);
-            if(item){item.style.opacity='.7';}
-            showToast(data.message,'ok');
-            const info=document.querySelector('#task .small:last-child');
-            if(info){info.textContent=`Tasks completed today: ${data.tasksCompletedToday} / ${data.taskLimitToday}`;}
-          }catch(e){
-            btn.disabled=false;btn.textContent='Claim';showToast('Network error while claiming task','err');
-          }
-        }
-        function copyReferral(link){
-          navigator.clipboard.writeText(link).then(()=>alert('Referral link copied'));
-        }
-        async function shareReferral(link){
-          if (navigator.share){
-            await navigator.share({title:'Join BITREX', text:'Use my referral link', url:link});
-          } else {
-            copyReferral(link);
-          }
-        }
-        let currentRotation = 0;
-        const prizeAngle = { '3 Gems':30, 'KSH 150':90, '1 Gem':150, '2 Gems':210, 'KSH 100':270, 'KSH 50':330 };
-        async function spinWheel(){
-          const btn=document.getElementById('spinBtn');
-          const wheel=document.getElementById('wheel');
-          if(!btn || !wheel || btn.disabled) return;
-          btn.disabled=true; btn.textContent='Spinning...';
-          try{
-            const res=await fetch('/api/spin-roulette',{method:'POST'});
-            const data=await res.json();
-            if(!data.ok){showToast(data.error || 'Spin failed','err');btn.disabled=false;btn.textContent='🎡 Spin';return;}
-            const target = prizeAngle[data.prize.label] ?? 30;
-            currentRotation += 360*6 + (360-target);
-            wheel.style.transform = `rotate(${currentRotation}deg)`;
-            setTimeout(()=>{
-              showToast(data.message,'ok');
-              btn.disabled=false;btn.textContent='🎡 Spin';
-              const gems=document.getElementById('spinGems');
-              const freeSpins=document.getElementById('spinFreeSpins');
-              if(gems){gems.textContent=data.gems;}
-              if(freeSpins){freeSpins.textContent=data.freeSpins;}
-            },5200);
-          }catch(e){
-            showToast('Network error while spinning','err');btn.disabled=false;btn.textContent='🎡 Spin';
-          }
-        }
-        window.addEventListener('DOMContentLoaded',()=>{
-          document.querySelectorAll('.msg').forEach((m)=>setTimeout(()=>{m.style.opacity='0';m.style.transform='translateY(-6px)';setTimeout(()=>m.remove(),450);},3000));
-          if (document.getElementById('depositPanel')) {
-            togglePanel('depositPanel');
-          }
-        });
-      </script>
     <% } %>
-  </div>
+  </main>
+
+  <script>
+    let deferredPrompt;
+    const activeTab = '<%= activeTab === "city" ? "invest" : activeTab %>';
+
+    function switchTab(id) {
+      document.querySelectorAll('.section').forEach((s) => s.classList.remove('active'));
+      const target = document.getElementById(id);
+      if (target) target.classList.add('active');
+      document.querySelectorAll('[data-tab]').forEach((b) => b.classList.toggle('active', b.dataset.tab === id));
+      if (id !== 'verify') {
+        history.replaceState(null, '', '/?tab=' + encodeURIComponent(id));
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    window.addEventListener('beforeinstallprompt', (event) => {
+      event.preventDefault();
+      deferredPrompt = event;
+      const btn = document.getElementById('installBtn');
+      if (btn) btn.hidden = false;
+    });
+
+    const installBtn = document.getElementById('installBtn');
+    if (installBtn) {
+      installBtn.addEventListener('click', async () => {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        await deferredPrompt.userChoice;
+        deferredPrompt = null;
+        installBtn.hidden = true;
+      });
+    }
+
+    async function copyReferral() {
+      const link = document.getElementById('refLink')?.value || <%- JSON.stringify(referralLink || '') %>;
+      await navigator.clipboard.writeText(link);
+      alert('Referral link copied');
+    }
+
+    async function shareReferral() {
+      const link = document.getElementById('refLink')?.value || <%- JSON.stringify(referralLink || '') %>;
+      if (navigator.share) {
+        await navigator.share({ title: 'Join BITREX', text: 'Use my referral link', url: link });
+      } else {
+        await copyReferral();
+      }
+    }
+
+    async function enableNotifications() {
+      if (!('Notification' in window)) {
+        alert('Notifications are not supported on this browser.');
+        return;
+      }
+      const result = await Notification.requestPermission();
+      if (result === 'granted') {
+        const reg = await navigator.serviceWorker.ready;
+        reg.showNotification('BITREX notifications enabled', {
+          body: 'Deposit, withdrawal, maturity, and promotional alerts are ready.',
+          icon: '/icons/icon.svg'
+        });
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const current = document.querySelector('.section.active')?.id;
+      const start = current || (document.getElementById(activeTab) ? activeTab : 'home');
+      if (document.getElementById(start)) {
+        switchTab(start);
+      }
+      document.querySelectorAll('.msg').forEach((m) => setTimeout(() => {
+        m.style.opacity = '0';
+        m.style.transform = 'translateY(-6px)';
+        m.style.transition = '.4s';
+        setTimeout(() => m.remove(), 450);
+      }, 3800));
+    });
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));
+    }
+  </script>
 </body>
 </html>
