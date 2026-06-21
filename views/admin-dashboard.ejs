@@ -3,117 +3,291 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Dashboard</title>
+  <meta name="theme-color" content="#fff4e6" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <title>BITREX Admin Dashboard</title>
   <style>
-    body{margin:0;background:linear-gradient(180deg,#060b19,#0d1a33);color:#e2e8f0;font-family:Inter,Arial,sans-serif}
-    .container{max-width:1200px;margin:0 auto;padding:20px}
-    .card{background:#111b31cc;border:1px solid #2a3d63;border-radius:16px;padding:16px;margin-bottom:14px}
-    .top{display:flex;justify-content:space-between;align-items:center;gap:10px}
-    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.pill{background:#0a1428;border:1px solid #32476f;border-radius:12px;padding:12px}
-    table{width:100%;border-collapse:collapse}th,td{border-bottom:1px solid #253654;padding:9px;text-align:left;font-size:.9rem}
-    th{color:#bfd3ff}
-    button{padding:8px 11px;border:none;border-radius:8px;cursor:pointer;color:#fff;font-weight:700}.ok{background:#16a34a}.no{background:#dc2626}.out{background:#475569}
-    .msg{margin:8px 0}.good{color:#86efac}.bad{color:#fda4af}
-    .status{padding:3px 8px;border-radius:999px;font-size:.74rem;font-weight:700}.APPROVED{background:#14532d;color:#bbf7d0}.REJECTED{background:#7f1d1d;color:#fecaca}
-    a{color:#93c5fd;text-decoration:none}
-    @media(max-width:860px){.stats{grid-template-columns:1fr}}
+    :root {
+      --bg: #fff7ea;
+      --panel: rgba(255, 255, 255, 0.9);
+      --line: rgba(22, 32, 45, 0.08);
+      --text: #16202d;
+      --muted: #647386;
+      --orange: #ff8b3d;
+      --pink: #ff5fa2;
+      --cyan: #28c7f7;
+      --green: #35d08a;
+      --red: #ff6f61;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: "Segoe UI", "Trebuchet MS", Arial, sans-serif;
+      background:
+        radial-gradient(circle at 15% 10%, rgba(255, 204, 77, 0.45), transparent 26%),
+        radial-gradient(circle at 82% 20%, rgba(255, 95, 162, 0.2), transparent 24%),
+        linear-gradient(135deg, var(--bg), #fff0f6);
+    }
+    a { color: #bc5c15; text-decoration: none; font-weight: 800; }
+    button, input, select { font: inherit; }
+
+    .shell { max-width: 1280px; margin: 0 auto; padding: 18px; }
+    .top {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      margin: -18px -18px 18px;
+      padding: 14px 18px;
+      background: rgba(255, 247, 234, 0.74);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--line);
+    }
+    .top-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 900;
+      letter-spacing: 0.06em;
+    }
+    .mark {
+      width: 38px;
+      height: 38px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      background: linear-gradient(135deg, var(--orange), var(--pink));
+      box-shadow: 0 14px 32px rgba(255, 111, 114, 0.3);
+    }
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background: var(--panel);
+      box-shadow: 0 24px 70px rgba(255, 143, 72, 0.16);
+      backdrop-filter: blur(18px);
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+    .grid { display: grid; gap: 14px; }
+    .stats { grid-template-columns: repeat(6, 1fr); }
+    .two { grid-template-columns: 1fr 1fr; }
+    .packages { grid-template-columns: repeat(3, 1fr); }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 1.7rem; }
+    h2 { font-size: 1.35rem; }
+    .small { color: var(--muted); line-height: 1.58; }
+    .msg { padding: 11px 13px; border-radius: 16px; margin-bottom: 14px; }
+    .good { background: rgba(53, 208, 138, 0.14); color: #126d44; }
+    .bad { background: rgba(255, 111, 97, 0.14); color: #a63b30; }
+    .kpi strong { display: block; margin-top: 8px; font-size: 1.7rem; }
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 900;
+      cursor: pointer;
+      color: #fff;
+    }
+    .ok { background: linear-gradient(135deg, #2fba6a, var(--green)); }
+    .no { background: linear-gradient(135deg, #d92d20, var(--red)); }
+    .out { background: #7a8898; }
+    .save {
+      background: linear-gradient(135deg, var(--orange), var(--pink));
+      width: 100%;
+      margin-top: 10px;
+      box-shadow: 0 16px 28px rgba(255, 111, 114, 0.22);
+    }
+    input {
+      width: 100%;
+      padding: 11px 12px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.95);
+      color: var(--text);
+      margin-top: 4px;
+    }
+    label {
+      display: block;
+      color: #445061;
+      font-size: 0.78rem;
+      font-weight: 800;
+      margin-top: 8px;
+    }
+    .table-wrap { overflow: auto; }
+    .table { width: 100%; border-collapse: collapse; min-width: 760px; }
+    .table th, .table td {
+      padding: 11px 9px;
+      border-bottom: 1px solid rgba(22, 32, 45, 0.08);
+      text-align: left;
+      font-size: 0.88rem;
+    }
+    .table th {
+      color: #6c7b8d;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 0.72rem;
+    }
+    .status {
+      display: inline-flex;
+      padding: 4px 9px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 900;
+    }
+    .APPROVED { background: rgba(53, 208, 138, 0.18); color: #126d44; }
+    .REJECTED { background: rgba(255, 111, 97, 0.18); color: #a63b30; }
+    .PENDING { background: rgba(255, 204, 77, 0.2); color: #9a6612; }
+    .actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .package { background: rgba(255, 255, 255, 0.72); }
+    .package .card { margin-bottom: 0; }
+
+    @media (max-width: 1040px) {
+      .stats, .packages, .two { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 680px) {
+      .shell { padding: 12px; }
+      .top { margin: -12px -12px 12px; }
+      .stats, .packages, .two { grid-template-columns: 1fr; }
+      .top-inner { align-items: flex-start; flex-direction: column; }
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="card top">
-      <div>
-        <h2 style="margin:0">Admin Transaction Dashboard</h2>
-        <p style="margin:4px 0 0;color:#94a3b8">Review and manage all user requests and accounts.</p>
+  <main class="shell">
+    <div class="top">
+      <div class="top-inner">
+        <div class="brand"><span class="mark">B</span><span>BITREX ADMIN</span></div>
+        <div class="actions">
+          <a href="/">Platform</a>
+          <form action="/admin/logout" method="post"><button class="out" type="submit">Logout</button></form>
+        </div>
       </div>
-      <form action="/admin/logout" method="post"><button class="out" type="submit">Logout</button></form>
     </div>
 
+    <section class="card">
+      <h1>Platform statistics dashboard</h1>
+      <p class="small">Review approvals, users, transaction flow, and package configuration from one bright control center.</p>
+    </section>
     <% if (error) { %><div class="msg bad"><%= error %></div><% } %>
     <% if (message) { %><div class="msg good"><%= message %></div><% } %>
 
-    <div class="card stats">
-      <div class="pill"><div>Pending Requests</div><h3><%= pending.length %></h3></div>
-      <div class="pill"><div>Registered Users (All Time)</div><h3><%= stats.totalUsersJoined %></h3></div>
-      <div class="pill"><div>Total Requests (All Time)</div><h3><%= stats.totalRequestsCreated %></h3></div>
-    </div>
-    <div class="card stats">
-      <div class="pill"><div>Approved Requests</div><h3><%= stats.totalApproved %></h3></div>
-      <div class="pill"><div>Rejected Requests</div><h3><%= stats.totalRejected %></h3></div>
-      <div class="pill"><div>Current Users in Storage</div><h3><%= users.size %></h3></div>
-    </div>
+    <section class="grid stats">
+      <div class="card kpi"><span class="small">Pending</span><strong><%= pending.length %></strong></div>
+      <div class="card kpi"><span class="small">Users joined</span><strong><%= stats.totalUsersJoined %></strong></div>
+      <div class="card kpi"><span class="small">Requests</span><strong><%= stats.totalRequestsCreated %></strong></div>
+      <div class="card kpi"><span class="small">Approved</span><strong><%= stats.totalApproved %></strong></div>
+      <div class="card kpi"><span class="small">Rejected</span><strong><%= stats.totalRejected %></strong></div>
+      <div class="card kpi"><span class="small">Stored users</span><strong><%= users.size %></strong></div>
+    </section>
 
-    <div class="card">
-      <h3>Pending Approvals</h3>
-      <% if (!pending.length) { %><p style="color:#94a3b8">No pending requests.</p><% } else { %>
-      <table>
-        <thead><tr><th>ID</th><th>User</th><th>Type</th><th>Amount</th><th>Detail</th><th>Evidence</th><th>Action</th></tr></thead>
-        <tbody>
-          <% pending.forEach(tx => { %>
-            <tr>
-              <td>#<%= tx.id %></td>
-              <td><%= tx.userId %></td>
-              <td><%= tx.type %></td>
-              <td>KSH <%= tx.amount %></td>
-              <td><%= tx.detail %></td>
-              <td><% if (tx.evidence) { %><a href="/uploads/<%= tx.evidence %>" target="_blank">view file</a><% } else { %>-<% } %></td>
-              <td style="display:flex;gap:8px">
-                <% if (tx.type === 'DEPOSIT' && tx.provider === 'INTASEND') { %>
-                  <span style="color:#94a3b8">Auto via IntaSend</span>
-                <% } else { %>
-                  <form action="/admin/transactions/<%= tx.id %>/approve" method="post"><button class="ok" type="submit">Approve</button></form>
-                <% } %>
-                <form action="/admin/transactions/<%= tx.id %>/reject" method="post"><button class="no" type="submit">Reject</button></form>
-              </td>
-            </tr>
-          <% }) %>
-        </tbody>
-      </table>
-      <% } %>
-    </div>
+    <section class="card">
+      <h2>Deposit and withdrawal approval</h2>
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr><th>ID</th><th>User</th><th>Type</th><th>Amount</th><th>Detail</th><th>Evidence</th><th>Action</th></tr>
+          </thead>
+          <tbody>
+            <% if (!pending.length) { %><tr><td colspan="7" class="small">No pending requests.</td></tr><% } %>
+            <% pending.forEach(tx => { %>
+              <tr>
+                <td>#<%= tx.id %></td>
+                <td><%= tx.userId %></td>
+                <td><%= tx.type %></td>
+                <td>KSH <%= Number(tx.amount || 0).toLocaleString() %></td>
+                <td><%= tx.detail %></td>
+                <td><% if (tx.evidence) { %><a href="/uploads/<%= tx.evidence %>" target="_blank">View file</a><% } else { %>-<% } %></td>
+                <td>
+                  <div class="actions">
+                    <% if (tx.type === 'DEPOSIT' && tx.provider === 'INTASEND') { %>
+                      <span class="small">Auto via IntaSend</span>
+                    <% } else { %>
+                      <form action="/admin/transactions/<%= tx.id %>/approve" method="post"><button class="ok">Approve</button></form>
+                    <% } %>
+                    <form action="/admin/transactions/<%= tx.id %>/reject" method="post"><button class="no">Reject</button></form>
+                  </div>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </section>
 
-    <div class="card">
-      <h3>Recently Resolved</h3>
-      <% if (!resolved.length) { %><p style="color:#94a3b8">No resolved requests yet.</p><% } else { %>
-      <table>
-        <thead><tr><th>ID</th><th>User</th><th>Type</th><th>Amount</th><th>Status</th><th>Resolved At</th></tr></thead>
-        <tbody>
-          <% resolved.forEach(tx => { %>
-            <tr>
-              <td>#<%= tx.id %></td><td><%= tx.userId %></td><td><%= tx.type %></td><td>KSH <%= tx.amount %></td>
-              <td><span class="status <%= tx.status %>"><%= tx.status %></span></td><td><%= new Date(tx.resolvedAt).toLocaleString() %></td>
-            </tr>
-          <% }) %>
-        </tbody>
-      </table>
-      <% } %>
-    </div>
+    <section class="card">
+      <h2>Investment package management</h2>
+      <div class="grid packages">
+        <% Object.keys(cityConfig).forEach(code => { const pkg = cityConfig[code]; %>
+          <form class="card package" method="post" action="/admin/packages/<%= code %>">
+            <h3><%= code %> - <%= pkg.city %></h3>
+            <label>Package name</label><input name="city" value="<%= pkg.city %>" required />
+            <label>Investment amount</label><input name="amount" type="number" min="0" value="<%= pkg.amount %>" required />
+            <label>Duration days</label><input name="durationDays" type="number" min="1" value="<%= pkg.durationDays || 365 %>" required />
+            <label>Expected daily return</label><input name="dailyIncome" type="number" min="0" value="<%= pkg.dailyIncome %>" required />
+            <label>Tasks per day</label><input name="tasksPerDay" type="number" min="0" value="<%= pkg.tasksPerDay %>" required />
+            <button class="save" type="submit">Save Package</button>
+          </form>
+        <% }) %>
+      </div>
+    </section>
 
-    <div class="card">
-      <h3>User Management (Permanent Storage View)</h3>
-      <% if (!usersList.length) { %><p style="color:#94a3b8">No users registered yet.</p><% } else { %>
-      <table>
-        <thead><tr><th>Phone</th><th>Email</th><th>Balance</th><th>Total Earnings</th><th>Status</th><th>Joined</th><th>Action</th></tr></thead>
-        <tbody>
-          <% usersList.forEach(u => { %>
-            <tr>
-              <td><%= u.phone %></td>
-              <td><%= u.email %></td>
-              <td>KSH <%= u.balance %></td>
-              <td>KSH <%= u.totalEarnings %></td>
-              <td><span class="status <%= u.active === false ? 'REJECTED' : 'APPROVED' %>"><%= u.active === false ? 'INACTIVE' : 'ACTIVE' %></span></td>
-              <td><%= u.createdAt ? new Date(u.createdAt).toLocaleString() : '-' %></td>
-              <td>
-                <form action="/admin/users/<%= u.id %>/toggle" method="post">
-                  <button class="<%= u.active === false ? 'ok' : 'no' %>" type="submit"><%= u.active === false ? 'Activate' : 'Suspend' %></button>
-                </form>
-              </td>
-            </tr>
-          <% }) %>
-        </tbody>
-      </table>
-      <% } %>
-    </div>
-  </div>
+    <section class="grid two">
+      <div class="card">
+        <h2>Recently resolved</h2>
+        <div class="table-wrap">
+          <table class="table">
+            <thead><tr><th>ID</th><th>User</th><th>Type</th><th>Amount</th><th>Status</th><th>Resolved</th></tr></thead>
+            <tbody>
+              <% if (!resolved.length) { %><tr><td colspan="6" class="small">No resolved requests yet.</td></tr><% } %>
+              <% resolved.forEach(tx => { %>
+                <tr>
+                  <td>#<%= tx.id %></td>
+                  <td><%= tx.userId %></td>
+                  <td><%= tx.type %></td>
+                  <td>KSH <%= Number(tx.amount || 0).toLocaleString() %></td>
+                  <td><span class="status <%= tx.status %>"><%= tx.status %></span></td>
+                  <td><%= tx.resolvedAt ? new Date(tx.resolvedAt).toLocaleString() : '-' %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <h2>User management</h2>
+        <div class="table-wrap">
+          <table class="table">
+            <thead><tr><th>Phone</th><th>Email</th><th>Balance</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody>
+              <% if (!usersList.length) { %><tr><td colspan="5" class="small">No users registered yet.</td></tr><% } %>
+              <% usersList.forEach(u => { %>
+                <tr>
+                  <td><%= u.phone %></td>
+                  <td><%= u.email %></td>
+                  <td>KSH <%= Number(u.balance || 0).toLocaleString() %></td>
+                  <td><span class="status <%= u.active === false ? 'REJECTED' : 'APPROVED' %>"><%= u.active === false ? 'INACTIVE' : 'ACTIVE' %></span></td>
+                  <td>
+                    <form action="/admin/users/<%= u.id %>/toggle" method="post">
+                      <button class="<%= u.active === false ? 'ok' : 'no' %>"><%= u.active === false ? 'Activate' : 'Suspend' %></button>
+                    </form>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
 </body>
 </html>
