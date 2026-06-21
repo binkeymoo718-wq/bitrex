@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#fff4e6" />
+  <meta name="theme-color" content="#fffdf5" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="BITREX" />
@@ -12,20 +12,20 @@
   <title>BITREX Investment Platform</title>
   <style>
     :root {
-      --bg: #fff7ea;
-      --bg2: #fff0f6;
-      --panel: rgba(255, 255, 255, 0.72);
-      --panel-strong: rgba(255, 255, 255, 0.92);
-      --line: rgba(22, 32, 45, 0.08);
-      --text: #16202d;
-      --muted: #5f6b7a;
-      --soft: #768395;
-      --orange: #ff8b3d;
-      --pink: #ff5fa2;
-      --cyan: #28c7f7;
-      --mint: #35d08a;
-      --gold: #ffcc4d;
-      --shadow: 0 24px 70px rgba(255, 143, 72, 0.18);
+      --bg: #fffdf5;
+      --bg2: #fff2eb;
+      --panel: rgba(255, 255, 255, 0.78);
+      --panel-strong: rgba(255, 255, 255, 0.96);
+      --line: rgba(24, 34, 49, 0.08);
+      --text: #182131;
+      --muted: #667483;
+      --soft: #8290a0;
+      --orange: #ff7a18;
+      --pink: #ff4fa3;
+      --cyan: #17bafc;
+      --mint: #29d27c;
+      --gold: #ffcb3d;
+      --shadow: 0 24px 70px rgba(255, 122, 24, 0.16);
     }
 
     * { box-sizing: border-box; }
@@ -36,9 +36,9 @@
       color: var(--text);
       font-family: "Segoe UI", "Trebuchet MS", Arial, sans-serif;
       background:
-        radial-gradient(circle at 15% 12%, rgba(255, 204, 77, 0.62), transparent 24%),
-        radial-gradient(circle at 82% 10%, rgba(255, 95, 162, 0.34), transparent 24%),
-        radial-gradient(circle at 74% 82%, rgba(40, 199, 247, 0.26), transparent 22%),
+        radial-gradient(circle at 15% 12%, rgba(255, 203, 61, 0.56), transparent 24%),
+        radial-gradient(circle at 82% 10%, rgba(255, 79, 163, 0.26), transparent 24%),
+        radial-gradient(circle at 74% 82%, rgba(23, 186, 252, 0.22), transparent 22%),
         linear-gradient(135deg, var(--bg), var(--bg2));
       overflow-x: hidden;
     }
@@ -54,8 +54,8 @@
       pointer-events: none;
       z-index: 0;
     }
-    body::before { top: -8rem; left: -8rem; background: #ffd98f; }
-    body::after { right: -7rem; bottom: -7rem; background: #8cdfff; }
+    body::before { top: -8rem; left: -8rem; background: #ffe19a; }
+    body::after { right: -7rem; bottom: -7rem; background: #93dfff; }
     a { color: inherit; text-decoration: none; }
     button, input, select { font: inherit; }
 
@@ -73,7 +73,7 @@
       z-index: 20;
       margin: -22px -18px 18px;
       padding: 14px 18px;
-      background: rgba(255, 247, 234, 0.7);
+      background: rgba(255, 253, 245, 0.78);
       backdrop-filter: blur(18px);
       border-bottom: 1px solid rgba(22, 32, 45, 0.08);
     }
@@ -100,7 +100,7 @@
       place-items: center;
       color: #fff;
       background: linear-gradient(135deg, var(--orange), var(--pink));
-      box-shadow: 0 14px 32px rgba(255, 111, 114, 0.3);
+      box-shadow: 0 14px 32px rgba(16, 24, 40, 0.22);
     }
     .top-actions {
       display: flex;
@@ -130,7 +130,7 @@
     .primary {
       padding: 12px 16px;
       background: linear-gradient(135deg, var(--orange), var(--pink));
-      box-shadow: 0 18px 30px rgba(255, 111, 114, 0.26);
+      box-shadow: 0 18px 30px rgba(16, 24, 40, 0.2);
     }
     .danger {
       padding: 12px 16px;
