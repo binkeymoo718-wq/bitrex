@@ -3,29 +3,114 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Login</title>
+  <meta name="theme-color" content="#fff4e6" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <title>BITREX Admin</title>
   <style>
-    body{margin:0;min-height:100vh;display:grid;place-items:center;background:radial-gradient(circle at 20% 10%,#3b82f655,transparent),linear-gradient(180deg,#090f1f,#0b1730);font-family:Inter,Arial,sans-serif;color:#e2e8f0}
-    .card{width:min(460px,92vw);padding:24px;border-radius:18px;background:#111b31cc;border:1px solid #2d3f63;box-shadow:0 12px 36px #00000055}
-    h2{margin:0 0 8px}.small{color:#9fb1d7}
-    input,button{width:100%;padding:12px;border-radius:12px;border:1px solid #314158;background:#0a1428;color:#fff;margin-top:10px}
-    button{border:none;background:linear-gradient(120deg,#4f8dff,#35d3ff);font-weight:700;cursor:pointer}
-    .msg{margin:8px 0}.good{color:#86efac}.bad{color:#fca5a5}a{color:#93c5fd;text-decoration:none}
+    :root {
+      --bg: #fff7ea;
+      --panel: rgba(255, 255, 255, 0.9);
+      --line: rgba(22, 32, 45, 0.08);
+      --text: #16202d;
+      --muted: #647386;
+      --orange: #ff8b3d;
+      --pink: #ff5fa2;
+      --cyan: #28c7f7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      background:
+        radial-gradient(circle at 15% 10%, rgba(255, 204, 77, 0.48), transparent 26%),
+        radial-gradient(circle at 82% 20%, rgba(255, 95, 162, 0.24), transparent 24%),
+        linear-gradient(135deg, var(--bg), #fff0f6);
+      font-family: "Segoe UI", "Trebuchet MS", Arial, sans-serif;
+      color: var(--text);
+    }
+    .card {
+      width: min(480px, 100%);
+      padding: 24px;
+      border-radius: 30px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      box-shadow: 0 24px 70px rgba(255, 143, 72, 0.16);
+      backdrop-filter: blur(18px);
+    }
+    .brand {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      font-weight: 900;
+      letter-spacing: 0.06em;
+    }
+    .mark {
+      width: 40px;
+      height: 40px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      background: linear-gradient(135deg, var(--orange), var(--pink));
+      box-shadow: 0 14px 32px rgba(255, 111, 114, 0.3);
+    }
+    h1 { margin: 20px 0 8px; font-size: 1.8rem; }
+    .small { color: var(--muted); line-height: 1.6; }
+    .msg {
+      padding: 10px 12px;
+      border-radius: 16px;
+      margin: 12px 0;
+    }
+    .good { background: rgba(53, 208, 138, 0.14); color: #126d44; }
+    .bad { background: rgba(255, 111, 97, 0.14); color: #a63b30; }
+    label {
+      display: block;
+      margin: 12px 0 5px;
+      color: #445061;
+      font-size: 0.84rem;
+      font-weight: 800;
+    }
+    input, button {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.95);
+      color: var(--text);
+      font: inherit;
+    }
+    button {
+      margin-top: 16px;
+      border: 0;
+      color: #fff;
+      background: linear-gradient(135deg, var(--orange), var(--pink));
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 18px 30px rgba(255, 111, 114, 0.24);
+    }
+    a { color: #bc5c15; text-decoration: none; font-weight: 800; }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h2>Admin Dashboard Login</h2>
-    <p class="small">Approve or reject user deposit and withdrawal requests.</p>
+  <main class="card">
+    <div class="brand"><span class="mark">B</span><span>BITREX ADMIN</span></div>
+    <h1>Operations dashboard</h1>
+    <p class="small">Manage users, approvals, investment packages, and platform statistics.</p>
     <% if (error) { %><div class="msg bad"><%= error %></div><% } %>
     <% if (message) { %><div class="msg good"><%= message %></div><% } %>
     <form method="post" action="/admin/login">
-      <input name="phone" placeholder="Admin Phone Number" value="<%= adminPhoneSuggestion || '' %>" required />
-      <input name="username" placeholder="Admin Username" required />
-      <input name="password" type="password" placeholder="Admin Password" required />
+      <label>Admin phone number</label>
+      <input name="phone" value="<%= adminPhoneSuggestion || '' %>" required />
+      <label>Admin username</label>
+      <input name="username" required />
+      <label>Password</label>
+      <input name="password" type="password" required />
       <button type="submit">Login</button>
     </form>
-    <p style="margin-top:12px"><a href="/">Back to platform</a></p>
-  </div>
+    <p class="small" style="margin-top:14px"><a href="/">Back to platform</a></p>
+  </main>
 </body>
 </html>
