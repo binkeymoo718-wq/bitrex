@@ -3,571 +3,993 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BITREX 722 Platform</title>
-  <meta name="theme-color" content="#0b1220" />
-  <link rel="manifest" href="/manifest.webmanifest" />
+  <title>Bitrex 722 Platform</title>
   <style>
     :root{
-      --bg:#060b19;
-      --bg2:#0d1a33;
-      --card:#111b31cc;
-      --line:#2a3d63;
-      --text:#e2e8f0;
-      --muted:#94a3b8;
-      --blue:#4f8dff;
-      --cyan:#35d3ff;
-      --green:#16a34a;
-      --red:#dc2626;
-      --amber:#f59e0b;
-      --dark:#0a1428;
+      --bg:#0b1020;
+      --panel:#131a2d;
+      --panel-2:#1a2340;
+      --text:#ffffff;
+      --muted:#b8c2d9;
+      --primary:#3b82f6;
+      --primary-2:#2563eb;
+      --success:#16a34a;
+      --danger:#dc2626;
+      --warning:#f59e0b;
+      --card:#0f172a;
+      --border:rgba(255,255,255,0.08);
+      --shadow:0 20px 45px rgba(0,0,0,0.35);
+      --radius:18px;
     }
+
     *{box-sizing:border-box}
-    html{scroll-behavior:smooth}
     body{
       margin:0;
+      font-family:Arial, Helvetica, sans-serif;
+      background:linear-gradient(180deg,#08101f 0%,#0f172a 100%);
       color:var(--text);
-      font-family:Inter,Arial,sans-serif;
-      background:
-        radial-gradient(circle at 15% 10%, rgba(79,141,255,.18), transparent 20%),
-        radial-gradient(circle at 85% 10%, rgba(53,211,255,.12), transparent 20%),
-        linear-gradient(180deg,var(--bg),var(--bg2));
       min-height:100vh;
     }
-    a{text-decoration:none;color:inherit}
-    .container{max-width:1250px;margin:0 auto;padding:20px}
-    .card{
-      background:var(--card);
-      border:1px solid var(--line);
-      border-radius:18px;
-      padding:18px;
-      box-shadow:0 12px 36px rgba(0,0,0,.25);
+
+    a{color:inherit;text-decoration:none}
+    button{cursor:pointer}
+    img{max-width:100%;display:block}
+
+    .container{
+      width:min(1200px, 94%);
+      margin:0 auto;
     }
+
     .topbar{
+      position:sticky;
+      top:0;
+      z-index:50;
+      backdrop-filter:blur(12px);
+      background:rgba(8,16,31,0.75);
+      border-bottom:1px solid var(--border);
+    }
+
+    .topbar-inner{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      padding:14px 0;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      font-weight:800;
+      font-size:1.15rem;
+      letter-spacing:.5px;
+    }
+
+    .brand-badge{
+      width:42px;height:42px;border-radius:14px;
+      background:linear-gradient(135deg,var(--primary),#7c3aed);
+      display:grid;place-items:center;
+      font-weight:900;
+      box-shadow:var(--shadow);
+    }
+
+    .nav{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .nav a{
+      padding:10px 14px;
+      border-radius:999px;
+      background:rgba(255,255,255,0.04);
+      color:var(--muted);
+      font-size:.95rem;
+      border:1px solid transparent;
+      transition:.2s ease;
+    }
+
+    .nav a:hover,
+    .nav a.active{
+      color:#fff;
+      border-color:rgba(59,130,246,.45);
+      background:rgba(59,130,246,.12);
+    }
+
+    .header-actions{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .btn{
+      border:none;
+      outline:none;
+      padding:12px 16px;
+      border-radius:12px;
+      font-weight:700;
+      transition:.2s ease;
+    }
+
+    .btn-primary{
+      background:linear-gradient(135deg,var(--primary),var(--primary-2));
+      color:#fff;
+      box-shadow:0 10px 25px rgba(37,99,235,.28);
+    }
+
+    .btn-primary:hover{transform:translateY(-1px)}
+    .btn-outline{
+      background:transparent;
+      color:#fff;
+      border:1px solid rgba(255,255,255,.15);
+    }
+
+    .btn-danger{
+      background:var(--danger);
+      color:#fff;
+    }
+
+    .hero{
+      padding:28px 0 20px;
+    }
+
+    .hero-grid{
+      display:grid;
+      grid-template-columns:1.25fr .95fr;
+      gap:20px;
+      align-items:stretch;
+    }
+
+    .hero-card,
+    .card{
+      background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.02));
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+    }
+
+    .hero-card{
+      padding:28px;
+      min-height:340px;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .hero-card::before{
+      content:"";
+      position:absolute;
+      inset:auto -80px -80px auto;
+      width:240px;height:240px;
+      border-radius:50%;
+      background:radial-gradient(circle, rgba(59,130,246,.32), transparent 70%);
+      pointer-events:none;
+    }
+
+    .hero h1{
+      margin:0 0 14px;
+      font-size:2.3rem;
+      line-height:1.1;
+    }
+
+    .hero p{
+      color:var(--muted);
+      max-width:760px;
+      line-height:1.6;
+      margin:0 0 18px;
+    }
+
+    .hero-pills{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin:18px 0 26px;
+    }
+
+    .pill{
+      padding:10px 14px;
+      border-radius:999px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.08);
+      color:#dbe7ff;
+      font-size:.92rem;
+    }
+
+    .stats-grid{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:14px;
+      padding:22px;
+    }
+
+    .stat{
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:16px;
+      padding:16px;
+    }
+
+    .stat h3{
+      margin:0;
+      font-size:1.4rem;
+    }
+
+    .stat p{
+      margin:6px 0 0;
+      color:var(--muted);
+      font-size:.92rem;
+    }
+
+    .alerts{
+      margin:18px 0 0;
+      display:grid;
+      gap:10px;
+    }
+
+    .alert{
+      padding:14px 16px;
+      border-radius:14px;
+      font-weight:600;
+      border:1px solid transparent;
+    }
+
+    .alert.success{
+      background:rgba(22,163,74,.12);
+      color:#d6ffe3;
+      border-color:rgba(22,163,74,.3);
+    }
+
+    .alert.error{
+      background:rgba(220,38,38,.12);
+      color:#ffd9d9;
+      border-color:rgba(220,38,38,.3);
+    }
+
+    .section{
+      padding:18px 0 26px;
+    }
+
+    .grid{
+      display:grid;
+      gap:20px;
+    }
+
+    .grid-3{
+      grid-template-columns:repeat(3,1fr);
+    }
+
+    .grid-2{
+      grid-template-columns:repeat(2,1fr);
+    }
+
+    .card{
+      padding:22px;
+    }
+
+    .card h2,
+    .card h3{
+      margin:0 0 12px;
+    }
+
+    .muted{
+      color:var(--muted);
+    }
+
+    .kpi-grid{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:14px;
+      margin-top:14px;
+    }
+
+    .kpi{
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:16px;
+      padding:18px;
+    }
+
+    .kpi span{
+      display:block;
+      color:var(--muted);
+      font-size:.92rem;
+      margin-bottom:8px;
+    }
+
+    .kpi strong{
+      font-size:1.35rem;
+    }
+
+    .city-grid{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:18px;
+      margin-top:14px;
+    }
+
+    .city-card{
+      background:rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:18px;
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+    }
+
+    .city-card img{
+      height:190px;
+      width:100%;
+      object-fit:cover;
+    }
+
+    .city-content{
+      padding:18px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      flex:1;
+    }
+
+    .city-price{
+      font-size:1.3rem;
+      font-weight:800;
+      color:#93c5fd;
+    }
+
+    .city-meta{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:10px;
+      font-size:.95rem;
+    }
+
+    .meta-box{
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:12px;
+      padding:12px;
+    }
+
+    .input,
+    .select,
+    textarea{
+      width:100%;
+      background:#0b1326;
+      color:#fff;
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:12px;
+      padding:14px 14px;
+      outline:none;
+      font-size:.96rem;
+    }
+
+    .input:focus,
+    .select:focus,
+    textarea:focus{
+      border-color:rgba(59,130,246,.55);
+      box-shadow:0 0 0 3px rgba(59,130,246,.14);
+    }
+
+    .form-grid{
+      display:grid;
+      gap:14px;
+    }
+
+    .form-grid.two{
+      grid-template-columns:repeat(2,1fr);
+    }
+
+    .form-actions{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-top:8px;
+    }
+
+    .task-list{
+      display:grid;
+      gap:12px;
+      margin-top:14px;
+      max-height:460px;
+      overflow:auto;
+      padding-right:4px;
+    }
+
+    .task-item{
       display:flex;
       justify-content:space-between;
       align-items:center;
-      gap:16px;
-      margin-bottom:18px;
-      flex-wrap:wrap;
+      gap:12px;
+      padding:14px 16px;
+      background:rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:14px;
     }
-    .brand{display:flex;align-items:center;gap:14px}
-    .logo{
-      width:56px;height:56px;border-radius:16px;
-      display:grid;place-items:center;
-      background:linear-gradient(120deg,var(--blue),var(--cyan));
-      font-size:1.4rem;font-weight:900;color:white;
-      box-shadow:0 10px 24px rgba(79,141,255,.35);
-    }
-    .brand h1{margin:0;font-size:1.25rem}
-    .brand p{margin:4px 0 0;color:var(--muted);font-size:.92rem}
-    .nav-actions{display:flex;gap:10px;flex-wrap:wrap}
-    .btn{
-      display:inline-flex;align-items:center;justify-content:center;
-      gap:8px;
-      border:none;border-radius:12px;
-      padding:11px 16px;
-      font-weight:800;
-      cursor:pointer;
-      color:#fff;
-      background:#22324d;
-      text-decoration:none;
-    }
-    .btn.primary{background:linear-gradient(120deg,var(--blue),var(--cyan))}
-    .btn.success{background:var(--green)}
-    .btn.danger{background:var(--red)}
-    .btn.outline{
-      background:transparent;
-      border:1px solid #38517c;
-      color:#cfe0ff;
-    }
-    .btn.small{padding:9px 12px;border-radius:10px;font-size:.9rem}
-    .msg{
-      padding:12px 14px;
-      border-radius:12px;
-      margin-bottom:14px;
+
+    .task-name{
       font-weight:700;
     }
-    .msg.good{background:#0f2f1b;border:1px solid #205b35;color:#9ff3ba}
-    .msg.bad{background:#3a1218;border:1px solid #6d222e;color:#ffc0c8}
-    .tabs{
-      display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px
+
+    .task-badge{
+      font-size:.85rem;
+      color:#c7d2fe;
+      background:rgba(99,102,241,.15);
+      border:1px solid rgba(99,102,241,.22);
+      padding:8px 12px;
+      border-radius:999px;
     }
-    .tab{
-      padding:10px 14px;border-radius:999px;
-      background:#0a1428;border:1px solid #31486f;
-      color:#cfe0ff;font-weight:800;font-size:.92rem;
+
+    .table-wrap{
+      overflow:auto;
+      margin-top:12px;
     }
-    .tab.active{background:linear-gradient(120deg,#1d4ed8,#2563eb)}
-    .hero{
-      display:grid;
-      grid-template-columns:1.25fr .95fr;
-      gap:18px;
-      margin-bottom:18px;
-    }
-    .hero h2{margin:0 0 12px;font-size:2rem;line-height:1.12}
-    .hero p{margin:0;color:var(--muted);line-height:1.7}
-    .hero-badges{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
-    .badge{
-      background:#0a1428;border:1px solid #32476f;
-      border-radius:999px;padding:8px 12px;
-      color:#bfd3ff;font-size:.88rem;font-weight:800;
-    }
-    .stats{
-      display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:18px
-    }
-    .pill{
-      background:#0a1428;border:1px solid #32476f;
-      border-radius:14px;padding:14px;
-    }
-    .pill .label{color:var(--muted);font-size:.9rem}
-    .pill h3{margin:8px 0 0;font-size:1.45rem}
-    .walletBox{
-      display:flex;flex-direction:column;gap:14px;justify-content:space-between;
-      min-height:100%;
-    }
-    .balance{
-      background:#0a1428;border:1px solid #32476f;border-radius:16px;padding:16px;
-    }
-    .balance .small{color:var(--muted);font-size:.92rem}
-    .balance .big{font-size:2rem;font-weight:900;margin-top:8px}
-    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-    .section-title{margin:0 0 12px;font-size:1.1rem}
-    .section-sub{margin:-4px 0 14px;color:var(--muted);font-size:.92rem}
-    .auth-grid{
-      display:grid;grid-template-columns:1fr 1fr;gap:18px
-    }
-    .auth-tabs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
-    .auth-pill{
-      padding:9px 12px;border-radius:999px;
-      border:1px solid #36507b;background:#0a1428;
-      color:#dbeafe;font-weight:800;font-size:.9rem
-    }
-    .auth-pill.active{background:linear-gradient(120deg,var(--blue),var(--cyan))}
-    input,select,textarea{
+
+    table{
       width:100%;
+      border-collapse:collapse;
+      min-width:780px;
+    }
+
+    th,td{
+      padding:14px 12px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      text-align:left;
+      font-size:.95rem;
+    }
+
+    th{
+      color:#d7e3ff;
+      background:rgba(255,255,255,.03);
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:8px 12px;
+      border-radius:999px;
+      font-size:.82rem;
+      font-weight:800;
+      letter-spacing:.2px;
+    }
+
+    .badge.ok{background:rgba(22,163,74,.16);color:#b9ffd0}
+    .badge.pending{background:rgba(245,158,11,.16);color:#ffe4aa}
+    .badge.no{background:rgba(220,38,38,.16);color:#ffc9c9}
+    .badge.info{background:rgba(59,130,246,.16);color:#cfe0ff}
+
+    .auth-wrap{
+      min-height:100vh;
+      display:grid;
+      place-items:center;
+      padding:30px 16px;
+      background:
+        radial-gradient(circle at top right, rgba(59,130,246,.2), transparent 30%),
+        radial-gradient(circle at bottom left, rgba(124,58,237,.18), transparent 35%),
+        linear-gradient(180deg,#07101d,#10192f);
+    }
+
+    .auth-card{
+      width:min(520px,100%);
+      background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.03));
+      border:1px solid var(--border);
+      border-radius:24px;
+      padding:28px;
+      box-shadow:var(--shadow);
+    }
+
+    .auth-card h1{
+      margin:0 0 10px;
+      font-size:2rem;
+    }
+
+    .auth-tabs{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:8px;
+      margin:18px 0 20px;
+    }
+
+    .auth-tabs a{
+      text-align:center;
       padding:12px;
       border-radius:12px;
-      border:1px solid #314158;
-      background:#0a1428;
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.08);
+      color:var(--muted);
+      font-weight:700;
+    }
+
+    .auth-tabs a.active{
+      background:rgba(59,130,246,.14);
+      border-color:rgba(59,130,246,.3);
       color:#fff;
-      outline:none;
+    }
+
+    .auth-note{
+      color:var(--muted);
+      margin-bottom:18px;
+      line-height:1.6;
+    }
+
+    .small{
+      font-size:.9rem;
+      color:var(--muted);
+    }
+
+    .joined-cities{
+      display:grid;
+      gap:12px;
+      margin-top:12px;
+    }
+
+    .joined-city{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      padding:14px;
+      border-radius:14px;
+      background:rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.08);
+    }
+
+    .copy-box{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
       margin-top:10px;
     }
-    textarea{min-height:110px;resize:vertical}
-    input::placeholder, textarea::placeholder{color:#7f93b8}
-    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .city-grid{
-      display:grid;grid-template-columns:repeat(3,1fr);gap:14px
-    }
-    .city-card{
-      overflow:hidden;padding:0
-    }
-    .city-banner{
-      min-height:150px;
-      background-size:cover;
-      background-position:center;
-      position:relative;
-    }
-    .city-banner::after{
-      content:'';
-      position:absolute;inset:0;
-      background:linear-gradient(180deg,transparent,rgba(5,10,25,.9));
-    }
-    .city-code{
-      position:absolute;top:12px;left:12px;z-index:1;
-      background:rgba(0,0,0,.45);
-      border:1px solid rgba(255,255,255,.18);
-      padding:6px 10px;border-radius:999px;font-weight:800
-    }
-    .city-content{padding:16px}
-    .city-meta{
-      display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0
-    }
-    .mini{
-      background:#0a1428;border:1px solid #32476f;
-      border-radius:12px;padding:10px
-    }
-    .mini b{display:block;font-size:1rem;margin-top:4px}
-    .joined{
-      display:inline-block;padding:6px 10px;border-radius:999px;
-      background:#14532d;color:#bbf7d0;font-size:.8rem;font-weight:800;margin-top:10px
-    }
-    .expired{
-      display:inline-block;padding:6px 10px;border-radius:999px;
-      background:#7f1d1d;color:#fecaca;font-size:.8rem;font-weight:800;margin-top:10px
-    }
-    .task-grid{
-      display:grid;grid-template-columns:repeat(2,1fr);gap:12px
-    }
-    .task-item{
-      background:#0a1428;border:1px solid #32476f;
-      border-radius:14px;padding:14px;
-      display:flex;flex-direction:column;gap:10px
-    }
-    .task-top{
-      display:flex;justify-content:space-between;gap:10px;align-items:flex-start
-    }
-    .status{
-      display:inline-block;
-      padding:5px 10px;border-radius:999px;
-      font-size:.76rem;font-weight:800
-    }
-    .APPROVED{background:#14532d;color:#bbf7d0}
-    .REJECTED{background:#7f1d1d;color:#fecaca}
-    .PENDING{background:#3b2a08;color:#fde68a}
-    table{width:100%;border-collapse:collapse}
-    th,td{
-      border-bottom:1px solid #253654;
-      padding:10px 8px;text-align:left;font-size:.92rem;vertical-align:top
-    }
-    th{color:#bfd3ff}
-    .menu-grid{
-      display:grid;grid-template-columns:1fr 1fr;gap:18px
-    }
-    .roulette{
-      text-align:center
-    }
-    .roulette-wheel{
-      width:180px;height:180px;border-radius:50%;
-      margin:10px auto 18px;
-      background:conic-gradient(
-        #2563eb 0deg 60deg,
-        #16a34a 60deg 120deg,
-        #f59e0b 120deg 180deg,
-        #dc2626 180deg 240deg,
-        #8b5cf6 240deg 300deg,
-        #06b6d4 300deg 360deg
-      );
-      border:8px solid #0a1428;
-      box-shadow:0 0 0 3px #32476f inset, 0 14px 32px rgba(0,0,0,.28);
-      position:relative;
-    }
-    .roulette-wheel::before{
-      content:'';
-      position:absolute;
-      top:-18px;left:50%;transform:translateX(-50%);
-      width:0;height:0;
-      border-left:14px solid transparent;
-      border-right:14px solid transparent;
-      border-bottom:24px solid #fff;
-    }
-    .copy-box{
-      display:flex;gap:10px;flex-wrap:wrap;margin-top:12px
-    }
+
     .copy-input{
-      flex:1;min-width:220px;
-      padding:12px;border-radius:12px;
-      border:1px solid #314158;background:#0a1428;color:#fff
+      flex:1;
+      min-width:240px;
+      background:#0b1326;
+      border:1px solid rgba(255,255,255,.12);
+      color:#fff;
+      border-radius:12px;
+      padding:12px;
     }
-    .footer-note{
-      margin-top:20px;
-      color:var(--muted);
-      text-align:center;
-      font-size:.92rem
+
+    .footer-space{
+      height:30px;
     }
-    .muted{color:var(--muted)}
-    @media(max-width:1100px){
-      .city-grid{grid-template-columns:1fr 1fr}
-      .stats{grid-template-columns:repeat(2,1fr)}
-      .auth-grid,.menu-grid,.grid-2,.hero{grid-template-columns:1fr}
+
+    @media (max-width: 1100px){
+      .hero-grid,
+      .grid-3,
+      .grid-2,
+      .city-grid,
+      .kpi-grid{
+        grid-template-columns:1fr 1fr;
+      }
     }
-    @media(max-width:720px){
-      .city-grid,.task-grid{grid-template-columns:1fr}
-      .form-row{grid-template-columns:1fr}
-      .stats{grid-template-columns:1fr}
-      .topbar{align-items:flex-start}
-      .hero h2{font-size:1.55rem}
+
+    @media (max-width: 760px){
+      .topbar-inner{flex-direction:column;align-items:flex-start}
+      .hero-grid,
+      .grid-3,
+      .grid-2,
+      .city-grid,
+      .kpi-grid,
+      .form-grid.two{
+        grid-template-columns:1fr;
+      }
+      .hero h1{font-size:1.8rem}
+      .task-item,
+      .joined-city{
+        flex-direction:column;
+        align-items:flex-start;
+      }
+      .nav{
+        width:100%;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <!-- TOP BAR -->
-    <div class="card topbar">
-      <div class="brand">
-        <div class="logo">B</div>
-        <div>
-          <h1>BITREX 722 Platform</h1>
-          <p>Task & city investment dashboard with IntaSend M-Pesa deposits.</p>
-        </div>
+
+<% if (!user) { %>
+  <!-- AUTH PAGE -->
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="brand" style="margin-bottom:8px;">
+        <div class="brand-badge">B</div>
+        <div>Bitrex 722 Platform</div>
       </div>
 
-      <div class="nav-actions">
-        <% if (user) { %>
-          <% if (isAdminPhone) { %>
-            <a class="btn outline" href="/admin">Admin</a>
-          <% } %>
-          <a class="btn outline" href="/?tab=wallet">Wallet</a>
-          <a class="btn outline" href="/?tab=menu">Menu</a>
-          <form action="/logout" method="post" style="margin:0">
-            <button class="btn danger" type="submit">Logout</button>
+      <h1>Welcome Back</h1>
+      <div class="auth-note">
+        Sign in to access your dashboard, city investments, daily tasks, deposits, withdrawals, and referral rewards.
+      </div>
+
+      <% if (message) { %>
+        <div class="alert success"><%= message %></div>
+      <% } %>
+      <% if (error) { %>
+        <div class="alert error"><%= error %></div>
+      <% } %>
+
+      <div class="auth-tabs">
+        <a href="/?auth=login" class="<%= authMode === 'login' ? 'active' : '' %>">Login</a>
+        <a href="/?auth=signup" class="<%= authMode === 'signup' ? 'active' : '' %>">Sign Up</a>
+        <a href="/?auth=forgot" class="<%= authMode === 'forgot' ? 'active' : '' %>">Forgot</a>
+      </div>
+
+      <% if (authMode === 'signup') { %>
+        <form action="/signup" method="POST" class="form-grid">
+          <input class="input" type="text" name="name" placeholder="Full name" />
+          <input class="input" type="text" name="phone" placeholder="Phone number" required />
+          <input class="input" type="email" name="email" placeholder="Email address" required />
+          <input class="input" type="password" name="password" placeholder="Password (6-8 characters)" required minlength="6" maxlength="8" />
+          <input class="input" type="text" name="referralCode" placeholder="Referral code (optional)" value="<%= referralFromQuery || '' %>" />
+          <button class="btn btn-primary" type="submit">Create Account</button>
+        </form>
+      <% } else if (authMode === 'forgot') { %>
+        <form action="/forgot-password" method="POST" class="form-grid">
+          <input class="input" type="email" name="email" placeholder="Registered email" required />
+          <input class="input" type="password" name="newPassword" placeholder="New password (6-8 chars)" required minlength="6" maxlength="8" />
+          <input class="input" type="password" name="confirmNewPassword" placeholder="Confirm new password" required minlength="6" maxlength="8" />
+          <button class="btn btn-primary" type="submit">Reset Password</button>
+        </form>
+      <% } else if (authMode === 'verify') { %>
+        <div class="card" style="padding:18px;background:rgba(59,130,246,.08);border-color:rgba(59,130,246,.25)">
+          <h3 style="margin-top:0;">Verify your email</h3>
+          <p class="muted" style="margin-top:0;">Click the button below to confirm email verification and continue using your account.</p>
+          <form action="/verify-email" method="POST">
+            <button class="btn btn-primary" type="submit">Verify Email</button>
           </form>
-        <% } else { %>
-          <a class="btn outline" href="/admin">Admin</a>
-          <a class="btn primary" href="/?auth=login">Login</a>
-          <a class="btn success" href="/?auth=signup">Create Account</a>
-        <% } %>
+        </div>
+      <% } else { %>
+        <form action="/login" method="POST" class="form-grid">
+          <input class="input" type="text" name="phone" placeholder="Phone number" required />
+          <input class="input" type="password" name="password" placeholder="Password" required />
+          <button class="btn btn-primary" type="submit">Login to Dashboard</button>
+        </form>
+      <% } %>
+
+      <div style="margin-top:18px;" class="small">
+        Admin portal: <a href="/admin" style="color:#93c5fd;">Open admin login</a>
       </div>
     </div>
+  </div>
 
-    <% if (message) { %>
-      <div class="msg good"><%= message %></div>
-    <% } %>
-    <% if (error) { %>
-      <div class="msg bad"><%= error %></div>
-    <% } %>
+<% } else { %>
 
-    <% if (!user) { %>
-      <!-- GUEST VIEW -->
-      <div class="hero">
-        <div class="card">
-          <h2>Earn from tasks, join city packages, deposit with M-Pesa and manage your BITREX wallet.</h2>
-          <p>
-            Sign up to unlock city investment packages, daily task rewards, withdrawals,
-            referral bonuses and roulette spins. Your account dashboard also tracks every
-            transaction and pending request.
-          </p>
-
-          <div class="hero-badges">
-            <span class="badge">M-Pesa STK Push</span>
-            <span class="badge">Daily Task Earnings</span>
-            <span class="badge">Referral Rewards</span>
-            <span class="badge">City Investment Packages</span>
-          </div>
-
-          <div style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap">
-            <a class="btn primary" href="/?auth=signup">Create Account</a>
-            <a class="btn outline" href="/?auth=login">Login</a>
-          </div>
-        </div>
-
-        <div class="card">
-          <h3 class="section-title">Why join BITREX?</h3>
-          <div class="stats" style="grid-template-columns:1fr 1fr">
-            <div class="pill">
-              <div class="label">Starter Access</div>
-              <h3>INTERN</h3>
-            </div>
-            <div class="pill">
-              <div class="label">Daily Tasks</div>
-              <h3>Up to 10/day</h3>
-            </div>
-            <div class="pill">
-              <div class="label">Deposit</div>
-              <h3>M-Pesa</h3>
-            </div>
-            <div class="pill">
-              <div class="label">Referral Bonus</div>
-              <h3>KSH 300</h3>
-            </div>
-          </div>
-          <p class="muted" style="margin-top:12px">
-            Join, verify your email, activate a city package, then start completing tasks to earn.
-          </p>
-        </div>
+  <!-- DASHBOARD -->
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <div class="brand">
+        <div class="brand-badge">B</div>
+        <div>Bitrex 722 Platform</div>
       </div>
 
-      <div class="auth-grid">
-        <!-- AUTH FORM -->
-        <div class="card">
-          <div class="auth-tabs">
-            <a href="/?auth=login" class="auth-pill <%= authMode === 'login' ? 'active' : '' %>">Login</a>
-            <a href="/?auth=signup" class="auth-pill <%= authMode === 'signup' ? 'active' : '' %>">Sign Up</a>
-            <a href="/?auth=forgot" class="auth-pill <%= authMode === 'forgot' ? 'active' : '' %>">Forgot Password</a>
+      <nav class="nav">
+        <a href="/?tab=home" class="<%= activeTab === 'home' ? 'active' : '' %>">Home</a>
+        <a href="/?tab=city" class="<%= activeTab === 'city' ? 'active' : '' %>">City Investment</a>
+        <a href="/?tab=task" class="<%= activeTab === 'task' ? 'active' : '' %>">Tasks</a>
+        <a href="/?tab=wallet" class="<%= activeTab === 'wallet' ? 'active' : '' %>">Wallet</a>
+        <a href="/?tab=menu" class="<%= activeTab === 'menu' ? 'active' : '' %>">Menu</a>
+      </nav>
+
+      <div class="header-actions">
+        <% if (isAdminPhone) { %>
+          <a href="/admin/dashboard" class="btn btn-outline">Admin Dashboard</a>
+        <% } %>
+        <form action="/logout" method="POST">
+          <button class="btn btn-danger" type="submit">Logout</button>
+        </form>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <% if (message || error) { %>
+      <div class="alerts">
+        <% if (message) { %>
+          <div class="alert success"><%= message %></div>
+        <% } %>
+        <% if (error) { %>
+          <div class="alert error"><%= error %></div>
+        <% } %>
+      </div>
+    <% } %>
+
+    <!-- HERO / SUMMARY -->
+    <section class="hero">
+      <div class="hero-grid">
+        <div class="hero-card">
+          <h1>Hello, <%= user.name || 'Investor' %> 👋</h1>
+          <p>
+            Welcome to your investment dashboard. Manage your city packages, complete daily tasks, make deposits,
+            request withdrawals, track transactions, and grow your referral rewards from one place.
+          </p>
+
+          <div class="hero-pills">
+            <div class="pill">Phone: <strong><%= user.phone %></strong></div>
+            <div class="pill">Referral Code: <strong><%= user.referralCode %></strong></div>
+            <div class="pill">Gems: <strong><%= user.gems || 0 %></strong></div>
+            <div class="pill">Free Spins: <strong><%= user.freeSpins || 0 %></strong></div>
           </div>
 
-          <% if (authMode === 'signup') { %>
-            <h3 class="section-title">Create your account</h3>
-            <p class="section-sub">Password must be 6 to 8 characters.</p>
-            <form action="/signup" method="post">
-              <input type="text" name="name" placeholder="Full name" />
-              <input type="text" name="phone" placeholder="Phone number e.g. 0722..." required />
-              <input type="email" name="email" placeholder="Email address" required />
-              <input type="password" name="password" placeholder="Password (6-8 chars)" minlength="6" maxlength="8" required />
-              <input
-                type="text"
-                name="referralCode"
-                placeholder="Referral code (optional)"
-                value="<%= referralFromQuery || '' %>"
-              />
-              <button class="btn primary" type="submit" style="margin-top:12px;width:100%">Create Account</button>
-            </form>
-
-          <% } else if (authMode === 'forgot') { %>
-            <h3 class="section-title">Reset your password</h3>
-            <p class="section-sub">Use your registered email to reset your password.</p>
-            <form action="/forgot-password" method="post">
-              <input type="email" name="email" placeholder="Registered email" required />
-              <input type="password" name="newPassword" placeholder="New password (6-8 chars)" minlength="6" maxlength="8" required />
-              <input type="password" name="confirmNewPassword" placeholder="Confirm new password" minlength="6" maxlength="8" required />
-              <button class="btn primary" type="submit" style="margin-top:12px;width:100%">Reset Password</button>
-            </form>
-
-          <% } else { %>
-            <h3 class="section-title">Login to your account</h3>
-            <p class="section-sub">Enter your phone number and password to continue.</p>
-            <form action="/login" method="post">
-              <input type="text" name="phone" placeholder="Phone number" required />
-              <input type="password" name="password" placeholder="Password" required />
-              <button class="btn primary" type="submit" style="margin-top:12px;width:100%">Login</button>
-            </form>
-          <% } %>
+          <div class="kpi-grid">
+            <div class="kpi">
+              <span>Wallet Balance</span>
+              <strong>KSH <%= Number(user.balance || 0).toLocaleString() %></strong>
+            </div>
+            <div class="kpi">
+              <span>Today Income</span>
+              <strong>KSH <%= Number(user.todayIncome || 0).toLocaleString() %></strong>
+            </div>
+            <div class="kpi">
+              <span>Total Earnings</span>
+              <strong>KSH <%= Number(user.totalEarnings || 0).toLocaleString() %></strong>
+            </div>
+            <div class="kpi">
+              <span>Tasks Today</span>
+              <strong><%= user.tasksCompletedToday || 0 %>/<%= taskLimitToday || 0 %></strong>
+            </div>
+          </div>
         </div>
 
-        <!-- PACKAGE PREVIEW -->
-        <div class="card">
-          <h3 class="section-title">Available investment packages</h3>
-          <p class="section-sub">Preview the city packages before you create an account.</p>
+        <div class="hero-card" style="padding:0;">
+          <div class="stats-grid">
+            <div class="stat">
+              <h3><%= user.activeCities?.length || 0 %></h3>
+              <p>Active Cities</p>
+            </div>
+            <div class="stat">
+              <h3><%= user.referredCount || 0 %></h3>
+              <p>Referrals Joined</p>
+            </div>
+            <div class="stat">
+              <h3><%= user.referralBonusEarned ? 'Yes' : 'No' %></h3>
+              <p>Referral Bonus</p>
+            </div>
+            <div class="stat">
+              <h3><%= taskLimitToday || 0 %></h3>
+              <p>Task Limit Today</p>
+            </div>
+          </div>
 
-          <div style="display:grid;gap:12px">
-            <% Object.entries(cityConfig).forEach(([code, city]) => { %>
-              <div class="pill">
-                <div style="display:flex;justify-content:space-between;gap:12px;align-items:center">
-                  <div>
-                    <div style="font-weight:800"><%= code %> — <%= city.city %></div>
-                    <div class="muted" style="margin-top:4px">
-                      KSH <%= city.amount %> • <%= city.tasksPerDay %> task(s)/day • KSH <%= city.dailyIncome %>/day
+          <div style="padding:0 22px 22px;">
+            <div class="card" style="background:rgba(255,255,255,.03);">
+              <h3 style="margin-top:0;">Referral Link</h3>
+              <div class="muted">Share your referral link and invite others to join.</div>
+              <div class="copy-box">
+                <input id="refLink" class="copy-input" readonly value="<%= referralLink %>">
+                <button class="btn btn-primary" type="button" onclick="copyReferral()">Copy Link</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOME TAB -->
+    <% if (activeTab === 'home') { %>
+      <section class="section">
+        <div class="grid grid-2">
+          <div class="card">
+            <h2>Account Overview</h2>
+            <p class="muted">Your current account status, income progress, and joined cities.</p>
+
+            <div class="joined-cities">
+              <% if (user.activeCities && user.activeCities.length) { %>
+                <% user.activeCities.forEach(code => { 
+                    const city = cityConfig[code];
+                    const joinedAt = user.cityJoinDates && user.cityJoinDates[code];
+                %>
+                  <div class="joined-city">
+                    <div>
+                      <strong><%= city ? city.city : code %></strong>
+                      <div class="muted">
+                        Joined: <%= joinedAt ? new Date(joinedAt).toLocaleDateString() : 'N/A' %>
+                      </div>
+                    </div>
+                    <div>
+                      <% if (code === 'INTERN' && internExpired) { %>
+                        <span class="badge no">Expired</span>
+                      <% } else { %>
+                        <span class="badge ok">Active</span>
+                      <% } %>
                     </div>
                   </div>
-                  <span class="status APPROVED"><%= city.durationDays %> days</span>
+                <% }) %>
+              <% } else { %>
+                <div class="joined-city">
+                  <div>
+                    <strong>No city joined yet</strong>
+                    <div class="muted">Go to City Investment tab and activate a package to unlock tasks.</div>
+                  </div>
+                </div>
+              <% } %>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>Quick Actions</h2>
+            <p class="muted">Use the shortcuts below to manage your account faster.</p>
+            <div class="form-actions">
+              <a href="/?tab=city" class="btn btn-primary">Join City</a>
+              <a href="/?tab=task" class="btn btn-outline">Start Task</a>
+              <a href="/?tab=wallet" class="btn btn-outline">Deposit / Withdraw</a>
+              <a href="/?tab=menu" class="btn btn-outline">Spin Roulette</a>
+            </div>
+
+            <div style="margin-top:22px;">
+              <h3>Change Password</h3>
+              <form action="/profile/password" method="POST" class="form-grid">
+                <input class="input" type="password" name="currentPassword" placeholder="Current password" required />
+                <input class="input" type="password" name="newPassword" placeholder="New password (6-8 chars)" required minlength="6" maxlength="8" />
+                <button class="btn btn-primary" type="submit">Update Password</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
+    <% } %>
+
+    <!-- CITY TAB -->
+    <% if (activeTab === 'city') { %>
+      <section class="section">
+        <div class="card">
+          <h2>City Investment Packages</h2>
+          <p class="muted">
+            Join a city package to unlock daily tasks and income. Sign the contract before joining.
+          </p>
+
+          <div class="city-grid">
+            <% Object.keys(cityConfig).forEach(code => {
+              const city = cityConfig[code];
+              const joined = user.activeCities && user.activeCities.includes(code);
+            %>
+              <div class="city-card">
+                <img src="<%= city.image %>" alt="<%= city.city %>">
+                <div class="city-content">
+                  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+                    <h3 style="margin:0;"><%= city.city %></h3>
+                    <% if (joined) { %>
+                      <span class="badge ok">Joined</span>
+                    <% } else { %>
+                      <span class="badge info"><%= code %></span>
+                    <% } %>
+                  </div>
+
+                  <div class="city-price">
+                    <% if (city.free) { %>
+                      FREE
+                    <% } else { %>
+                      KSH <%= Number(city.amount || 0).toLocaleString() %>
+                    <% } %>
+                  </div>
+
+                  <div class="city-meta">
+                    <div class="meta-box">
+                      <strong><%= city.tasksPerDay %></strong>
+                      <div class="muted">Tasks / Day</div>
+                    </div>
+                    <div class="meta-box">
+                      <strong>KSH <%= Number(city.dailyIncome || 0).toLocaleString() %></strong>
+                      <div class="muted">Daily Income</div>
+                    </div>
+                    <div class="meta-box">
+                      <strong><%= city.durationDays || 365 %></strong>
+                      <div class="muted">Duration Days</div>
+                    </div>
+                    <div class="meta-box">
+                      <strong><%= code %></strong>
+                      <div class="muted">Package Code</div>
+                    </div>
+                  </div>
+
+                  <% if (joined) { %>
+                    <button class="btn btn-outline" type="button" disabled>Already Joined</button>
+                  <% } else { %>
+                    <form action="/invest/<%= code %>" method="POST" class="form-grid">
+                      <input class="input" type="text" name="signature" placeholder="Type your signature to accept contract" required />
+                      <button class="btn btn-primary" type="submit">Join <%= city.city %></button>
+                    </form>
+                  <% } %>
                 </div>
               </div>
             <% }) %>
           </div>
         </div>
-      </div>
+      </section>
+    <% } %>
 
-    <% } else { %>
-      <!-- LOGGED IN VIEW -->
-
-      <!-- TAB BAR -->
-      <div class="tabs">
-        <a class="tab <%= activeTab === 'home' ? 'active' : '' %>" href="/?tab=home">Home</a>
-        <a class="tab <%= activeTab === 'city' ? 'active' : '' %>" href="/?tab=city">City Packages</a>
-        <a class="tab <%= activeTab === 'task' ? 'active' : '' %>" href="/?tab=task">Tasks</a>
-        <a class="tab <%= activeTab === 'wallet' ? 'active' : '' %>" href="/?tab=wallet">Wallet</a>
-        <a class="tab <%= activeTab === 'menu' ? 'active' : '' %>" href="/?tab=menu">Menu</a>
-      </div>
-
-      <!-- HERO / DASHBOARD -->
-      <div class="hero">
-        <div class="card">
-          <h2>Welcome back, <%= user.name || 'Investor' %></h2>
-          <p>
-            Manage your city investments, claim daily tasks, fund your account using IntaSend M-Pesa STK Push,
-            request withdrawals and track all activity from one dashboard.
-          </p>
-
-          <div class="stats">
-            <div class="pill">
-              <div class="label">Wallet Balance</div>
-              <h3>KSH <%= Number(user.balance || 0).toLocaleString() %></h3>
-            </div>
-            <div class="pill">
-              <div class="label">Today Income</div>
-              <h3>KSH <%= Number(user.todayIncome || 0).toLocaleString() %></h3>
-            </div>
-            <div class="pill">
-              <div class="label">Total Earnings</div>
-              <h3>KSH <%= Number(user.totalEarnings || 0).toLocaleString() %></h3>
-            </div>
-            <div class="pill">
-              <div class="label">Task Progress</div>
-              <h3><%= user.tasksCompletedToday || 0 %>/<%= taskLimitToday || 0 %></h3>
-            </div>
-          </div>
-        </div>
-
-        <div class="card walletBox">
-          <div class="balance">
-            <div class="small">Referral code</div>
-            <div class="big" style="font-size:1.35rem"><%= user.referralCode || '-' %></div>
-            <div class="small" style="margin-top:10px">
-              Referred users: <b><%= user.referredCount || 0 %></b> &nbsp;•&nbsp;
-              Gems: <b><%= user.gems || 0 %></b> &nbsp;•&nbsp;
-              Free spins: <b><%= user.freeSpins || 0 %></b>
-            </div>
-          </div>
-
-          <div style="display:grid;gap:10px">
-            <a href="/?tab=city" class="btn primary">Join City Package</a>
-            <a href="/?tab=task" class="btn outline">Claim Task</a>
-            <a href="/?tab=wallet" class="btn success">Deposit / Withdraw</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- HOME TAB -->
-      <% if (activeTab === 'home') { %>
-        <div class="grid-2">
+    <!-- TASK TAB -->
+    <% if (activeTab === 'task') { %>
+      <section class="section">
+        <div class="grid grid-2">
           <div class="card">
-            <h3 class="section-title">Account summary</h3>
-            <table>
-              <tbody>
-                <tr><th>Full name</th><td><%= user.name || '-' %></td></tr>
-                <tr><th>Phone</th><td><%= user.phone || '-' %></td></tr>
-                <tr><th>Email</th><td><%= user.email || '-' %></td></tr>
-                <tr>
-                  <th>Email verified</th>
-                  <td>
-                    <% if (user.emailVerified) { %>
-                      <span class="status APPROVED">VERIFIED</span>
-                    <% } else { %>
-                      <span class="status PENDING">NOT VERIFIED</span>
-                    <% } %>
-                  </td>
-                </tr>
-                <tr><th>Created</th><td><%= user.createdAt ? new Date(user.createdAt).toLocaleString() : '-' %></td></tr>
-                <tr><th>Last login</th><td><%= user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleString() : '-' %></td></tr>
-                <tr><th>Referral bonus earned</th><td><%= user.referralBonusEarned ? 'Yes' : 'No' %></td></tr>
-              </tbody>
-            </table>
+            <h2>Task Center</h2>
+            <p class="muted">
+              Complete available tasks to earn KSH 50 per task. Daily limit depends on your active city packages.
+            </p>
 
-            <% if (!user.emailVerified) { %>
-              <form action="/verify-email" method="post" style="margin-top:14px">
-                <button class="btn primary" type="submit">Verify Email</button>
-              </form>
-            <% } %>
-          </div>
-
-          <div class="card">
-            <h3 class="section-title">Active city investments</h3>
-            <% if (user.activeCities && user.activeCities.length) { %>
-              <div style="display:grid;gap:12px">
-                <% user.activeCities.forEach(code => { 
-                  const city = cityConfig[code];
-                  const expired = !city || (code === 'INTERN' ? internExpired : false) || false;
-                %>
-                  <div class="pill">
-                    <div style="display:flex;justify-content:space-between;gap:10px;align-items:center">
-                      <div>
-                        <div style="font-weight:800"><%= code %> — <%= city ? city.city : code %></div>
-                        <div class="muted" style="margin-top:4px">
-                          Joined: <%= user.cityJoinDates && user.cityJoinDates[code] ? new Date(user.cityJoinDates[code]).toLocaleDateString() : '-' %>
-                        </div>
-                        <div class="muted" style="margin-top:4px">
-                          Tasks/day: <%= city ? city.tasksPerDay : 0 %> • Daily income: KSH <%= city ? city.dailyIncome : 0 %>
-                        </div>
-                      </div>
-                      <% if (code === 'INTERN' && internExpired) { %>
-                        <span class="status REJECTED">EXPIRED</span>
-                      <% } else { %>
-                        <span class="status APPROVED">ACTIVE</span>
-                      <% } %>
-                    </div>
-                  </div>
-                <% }) %>
+            <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr);">
+              <div class="kpi">
+                <span>Completed</span>
+                <strong><%= user.tasksCompletedToday || 0 %></strong>
               </div>
-            <% } else { %>
-              <p class="muted">You have not joined any city package yet.</p>
-              <a href="/?tab=city" class="btn primary">Browse Packages</a>
-            <% } %>
+              <div class="kpi">
+                <span>Limit Today</span>
+                <strong><%= taskLimitToday || 0 %></strong>
+              </div>
+              <div class="kpi">
+                <span>Reward / Task</span>
+                <strong>KSH 50</strong>
+              </div>
+            </div>
+
+            <div style="margin-top:20px;">
+              <h3>Claim Task</h3>
+              <form action="/task" method="POST" class="form-grid">
+                <select class="select" name="taskName" required>
+                  <option value="">Select task</option>
+                  <% tasks.forEach(task => { %>
+                    <option value="<%= task %>"><%= task %></option>
+                  <% }) %>
+                </select>
+                <button class="btn btn-primary" type="submit">Complete Task</button>
+              </form>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>Available Task List</h2>
+            <p class="muted">You can only claim a task once per day.</p>
+            <div class="task-list">
+              <% tasks.forEach(task => { %>
+                <div class="task-item">
+                  <div>
+                    <div class="task-name"><%= task %></div>
+                    <div class="muted">Reward: KSH 50</div>
+                  </div>
+                  <div class="task-badge">
+                    <%= user.claimedTasksToday && user.claimedTasksToday.includes(task) ? 'Claimed Today' : 'Available' %>
+                  </div>
+                </div>
+              <% }) %>
+            </div>
+          </div>
+        </div>
+      </section>
+    <% } %>
+
+    <!-- WALLET TAB -->
+    <% if (activeTab === 'wallet') { %>
+      <section class="section">
+        <div class="grid grid-2">
+          <div class="card">
+            <h2>Deposit via M-Pesa</h2>
+            <p class="muted">Minimum deposit is KSH 200. Enter the phone number that will receive the STK Push.</p>
+            <form action="/deposit" method="POST" class="form-grid">
+              <input class="input" type="number" name="amount" placeholder="Deposit amount" min="200" required />
+              <input class="input" type="text" name="phone" placeholder="M-Pesa phone number" required />
+              <button class="btn btn-primary" type="submit">Deposit Now</button>
+            </form>
+          </div>
+
+          <div class="card">
+            <h2>Withdraw Funds</h2>
+            <p class="muted">Minimum withdrawal is KSH 300. Withdrawal requires your withdrawal password.</p>
+            <form action="/withdraw" method="POST" class="form-grid">
+              <input class="input" type="number" name="amount" placeholder="Withdrawal amount" min="300" required />
+              <input class="input" type="text" name="phone" placeholder="Withdrawal phone number" required />
+              <input class="input" type="password" name="withdrawalPassword" placeholder="Withdrawal password" required />
+              <button class="btn btn-primary" type="submit">Request Withdrawal</button>
+            </form>
           </div>
         </div>
 
-        <div class="card" style="margin-top:18px">
-          <h3 class="section-title">Recent transactions</h3>
-          <% if (user.transactions && user.transactions.length) { %>
+        <div class="card" style="margin-top:20px;">
+          <h2>Transaction History</h2>
+          <p class="muted">Latest account activity, deposits, withdrawals, tasks, bonuses and profile updates.</p>
+
+          <div class="table-wrap">
             <table>
               <thead>
                 <tr>
@@ -579,331 +1001,123 @@
                 </tr>
               </thead>
               <tbody>
-                <% user.transactions.slice(0, 20).forEach(tx => { %>
+                <% if (user.transactions && user.transactions.length) { %>
+                  <% user.transactions.forEach(tx => { %>
+                    <tr>
+                      <td><%= tx.type %></td>
+                      <td>KSH <%= Number(tx.amount || 0).toLocaleString() %></td>
+                      <td><%= tx.detail || '-' %></td>
+                      <td>
+                        <% if (tx.status === 'APPROVED') { %>
+                          <span class="badge ok">APPROVED</span>
+                        <% } else if (tx.status === 'PENDING') { %>
+                          <span class="badge pending">PENDING</span>
+                        <% } else if (tx.status === 'REJECTED') { %>
+                          <span class="badge no">REJECTED</span>
+                        <% } else { %>
+                          <span class="badge info"><%= tx.status || 'N/A' %></span>
+                        <% } %>
+                      </td>
+                      <td><%= tx.date ? new Date(tx.date).toLocaleString() : '-' %></td>
+                    </tr>
+                  <% }) %>
+                <% } else { %>
                   <tr>
-                    <td><%= tx.type || '-' %></td>
-                    <td>KSH <%= Number(tx.amount || 0).toLocaleString() %></td>
-                    <td><%= tx.detail || '-' %></td>
-                    <td><span class="status <%= tx.status || 'APPROVED' %>"><%= tx.status || 'APPROVED' %></span></td>
-                    <td><%= tx.date ? new Date(tx.date).toLocaleString() : '-' %></td>
+                    <td colspan="5" class="muted">No transactions yet.</td>
                   </tr>
-                <% }) %>
+                <% } %>
               </tbody>
             </table>
-          <% } else { %>
-            <p class="muted">No transactions yet.</p>
-          <% } %>
-        </div>
-      <% } %>
-
-      <!-- CITY TAB -->
-      <% if (activeTab === 'city') { %>
-        <div class="card">
-          <h3 class="section-title">City investment packages</h3>
-          <p class="section-sub">
-            Sign the city contract before joining. If a package requires payment, it will be deducted from your wallet balance.
-          </p>
-
-          <div class="city-grid">
-            <% Object.entries(cityConfig).forEach(([code, city]) => { 
-              const alreadyJoined = user.activeCities && user.activeCities.includes(code);
-              const expiredInternPackage = code === 'INTERN' && internExpired;
-            %>
-              <div class="card city-card">
-                <div class="city-banner" style="background-image:url('<%= city.image %>')">
-                  <div class="city-code"><%= code %></div>
-                </div>
-                <div class="city-content">
-                  <h3 style="margin:0"><%= city.city %></h3>
-                  <div class="muted" style="margin-top:6px">
-                    Package amount: <b>KSH <%= Number(city.amount || 0).toLocaleString() %></b>
-                  </div>
-
-                  <div class="city-meta">
-                    <div class="mini">
-                      Tasks / Day
-                      <b><%= city.tasksPerDay %></b>
-                    </div>
-                    <div class="mini">
-                      Daily Income
-                      <b>KSH <%= Number(city.dailyIncome || 0).toLocaleString() %></b>
-                    </div>
-                    <div class="mini">
-                      Duration
-                      <b><%= city.durationDays %> day(s)</b>
-                    </div>
-                    <div class="mini">
-                      Status
-                      <b><%= alreadyJoined ? 'Joined' : 'Open' %></b>
-                    </div>
-                  </div>
-
-                  <% if (alreadyJoined) { %>
-                    <% if (expiredInternPackage) { %>
-                      <div class="expired">INTERN EXPIRED</div>
-                    <% } else { %>
-                      <div class="joined">ALREADY JOINED</div>
-                    <% } %>
-                  <% } else { %>
-                    <form action="/invest/<%= code %>" method="post" style="margin-top:12px">
-                      <textarea
-                        name="signature"
-                        placeholder="Type your contract signature here to join <%= city.city %>"
-                        required
-                      ></textarea>
-                      <button class="btn primary" type="submit" style="margin-top:10px;width:100%">
-                        Join <%= city.city %>
-                      </button>
-                    </form>
-                  <% } %>
-                </div>
-              </div>
-            <% }) %>
           </div>
         </div>
-      <% } %>
-
-      <!-- TASK TAB -->
-      <% if (activeTab === 'task') { %>
-        <div class="grid-2">
-          <div class="card">
-            <h3 class="section-title">Task dashboard</h3>
-            <div class="stats" style="grid-template-columns:1fr 1fr">
-              <div class="pill">
-                <div class="label">Completed Today</div>
-                <h3><%= user.tasksCompletedToday || 0 %></h3>
-              </div>
-              <div class="pill">
-                <div class="label">Daily Limit</div>
-                <h3><%= taskLimitToday || 0 %></h3>
-              </div>
-              <div class="pill">
-                <div class="label">Today Income</div>
-                <h3>KSH <%= Number(user.todayIncome || 0).toLocaleString() %></h3>
-              </div>
-              <div class="pill">
-                <div class="label">Claimed Today</div>
-                <h3><%= user.claimedTasksToday ? user.claimedTasksToday.length : 0 %></h3>
-              </div>
-            </div>
-
-            <% if (!user.activeCities || !user.activeCities.length) { %>
-              <div class="msg bad" style="margin-top:14px">No task allowed without city investments.</div>
-              <a href="/?tab=city" class="btn primary">Join a city package first</a>
-            <% } else { %>
-              <p class="muted" style="margin-top:14px">
-                Each completed task rewards <b>KSH 50</b>. You cannot claim the same task twice in one day.
-              </p>
-            <% } %>
-          </div>
-
-          <div class="card">
-            <h3 class="section-title">Claim a task</h3>
-            <p class="section-sub">Choose any available task from the list below and submit it.</p>
-
-            <form action="/task" method="post">
-              <select name="taskName" required>
-                <option value="">Select task</option>
-                <% tasks.forEach(task => { %>
-                  <option value="<%= task %>"><%= task %></option>
-                <% }) %>
-              </select>
-              <button class="btn primary" type="submit" style="margin-top:12px;width:100%">
-                Claim Task Reward
-              </button>
-            </form>
-          </div>
-        </div>
-
-        <div class="card" style="margin-top:18px">
-          <h3 class="section-title">Task catalogue</h3>
-          <div class="task-grid">
-            <% tasks.forEach(task => { 
-              const claimed = user.claimedTasksToday && user.claimedTasksToday.includes(task);
-            %>
-              <div class="task-item">
-                <div class="task-top">
-                  <div style="font-weight:800"><%= task %></div>
-                  <span class="status <%= claimed ? 'APPROVED' : 'PENDING' %>">
-                    <%= claimed ? 'CLAIMED' : 'AVAILABLE' %>
-                  </span>
-                </div>
-                <div class="muted">Reward: KSH 50</div>
-              </div>
-            <% }) %>
-          </div>
-        </div>
-      <% } %>
-
-      <!-- WALLET TAB -->
-      <% if (activeTab === 'wallet') { %>
-        <div class="grid-2">
-          <div style="display:grid;gap:18px">
-            <div class="card">
-              <h3 class="section-title">Deposit with M-Pesa</h3>
-              <p class="section-sub">Minimum deposit is KSH 200. An STK push will be sent to your phone.</p>
-              <form action="/deposit" method="post">
-                <input
-                  type="text"
-                  name="phone"
-                  placeholder="M-Pesa number e.g. 07XXXXXXXX"
-                  value="<%= user.phone || '' %>"
-                  required
-                />
-                <input
-                  type="number"
-                  name="amount"
-                  min="200"
-                  placeholder="Deposit amount"
-                  required
-                />
-                <button class="btn primary" type="submit" style="margin-top:12px;width:100%">
-                  Send STK Push
-                </button>
-              </form>
-            </div>
-
-            <div class="card">
-              <h3 class="section-title">Change account password</h3>
-              <p class="section-sub">Password must be 6 to 8 characters.</p>
-              <form action="/profile/password" method="post">
-                <input type="password" name="currentPassword" placeholder="Current password" required />
-                <input type="password" name="newPassword" placeholder="New password (6-8 chars)" minlength="6" maxlength="8" required />
-                <button class="btn outline" type="submit" style="margin-top:12px;width:100%">
-                  Update Password
-                </button>
-              </form>
-            </div>
-          </div>
-
-          <div style="display:grid;gap:18px">
-            <div class="card">
-              <h3 class="section-title">Withdraw funds</h3>
-              <p class="section-sub">Minimum withdrawal is KSH 300. Enter your withdrawal password to continue.</p>
-              <form action="/withdraw" method="post">
-                <input
-                  type="text"
-                  name="phone"
-                  placeholder="Withdrawal phone number"
-                  value="<%= user.phone || '' %>"
-                  required
-                />
-                <input
-                  type="number"
-                  name="amount"
-                  min="300"
-                  placeholder="Withdrawal amount"
-                  required
-                />
-                <input
-                  type="password"
-                  name="withdrawalPassword"
-                  placeholder="Withdrawal password"
-                  required
-                />
-                <button class="btn success" type="submit" style="margin-top:12px;width:100%">
-                  Submit Withdrawal Request
-                </button>
-              </form>
-            </div>
-
-            <div class="card">
-              <h3 class="section-title">Wallet summary</h3>
-              <table>
-                <tbody>
-                  <tr><th>Balance</th><td>KSH <%= Number(user.balance || 0).toLocaleString() %></td></tr>
-                  <tr><th>Total earnings</th><td>KSH <%= Number(user.totalEarnings || 0).toLocaleString() %></td></tr>
-                  <tr><th>Today income</th><td>KSH <%= Number(user.todayIncome || 0).toLocaleString() %></td></tr>
-                  <tr><th>Tasks completed today</th><td><%= user.tasksCompletedToday || 0 %></td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      <% } %>
-
-      <!-- MENU TAB -->
-      <% if (activeTab === 'menu') { %>
-        <div class="menu-grid">
-          <div class="card roulette">
-            <h3 class="section-title">Roulette Spin</h3>
-            <p class="section-sub">Use 1 free spin or 2 gems per spin.</p>
-            <div class="roulette-wheel"></div>
-            <div class="stats" style="grid-template-columns:1fr 1fr">
-              <div class="pill">
-                <div class="label">Gems</div>
-                <h3><%= user.gems || 0 %></h3>
-              </div>
-              <div class="pill">
-                <div class="label">Free Spins</div>
-                <h3><%= user.freeSpins || 0 %></h3>
-              </div>
-            </div>
-            <form action="/spin-roulette" method="post" style="margin-top:14px">
-              <button class="btn primary" type="submit">Spin Roulette</button>
-            </form>
-          </div>
-
-          <div style="display:grid;gap:18px">
-            <div class="card">
-              <h3 class="section-title">Referral link</h3>
-              <p class="section-sub">
-                Invite friends using your referral link. Bonus rules still depend on them joining a paid city package.
-              </p>
-
-              <div class="copy-box">
-                <input
-                  class="copy-input"
-                  id="refLink"
-                  value="<%= referralLink || '' %>"
-                  readonly
-                />
-                <button class="btn outline" type="button" onclick="copyReferral()">Copy</button>
-              </div>
-
-              <div style="margin-top:12px" class="muted">
-                Referral code: <b><%= user.referralCode || '-' %></b><br />
-                Referred users: <b><%= user.referredCount || 0 %></b><br />
-                Bonus earned: <b><%= user.referralBonusEarned ? 'Yes' : 'No' %></b>
-              </div>
-            </div>
-
-            <div class="card">
-              <h3 class="section-title">Quick account actions</h3>
-              <div style="display:grid;gap:10px">
-                <% if (!user.emailVerified) { %>
-                  <form action="/verify-email" method="post">
-                    <button class="btn primary" type="submit" style="width:100%">Verify Email</button>
-                  </form>
-                <% } %>
-                <a href="/?tab=wallet" class="btn outline">Open Wallet</a>
-                <a href="/?tab=task" class="btn outline">Go to Tasks</a>
-                <a href="/?tab=city" class="btn outline">View City Packages</a>
-              </div>
-            </div>
-          </div>
-        </div>
-      <% } %>
+      </section>
     <% } %>
 
-    <div class="footer-note">
-      BITREX 722 Platform &copy; <%= new Date().getFullYear() %>
-    </div>
-  </div>
+    <!-- MENU TAB -->
+    <% if (activeTab === 'menu') { %>
+      <section class="section">
+        <div class="grid grid-2">
+          <div class="card">
+            <h2>Roulette Spin</h2>
+            <p class="muted">
+              Use your free spins first. After that, each spin costs 2 Gems. Possible rewards include Gems and cash.
+            </p>
 
-  <script>
-    function copyReferral() {
-      const input = document.getElementById('refLink');
-      if (!input) return;
-      input.select();
-      input.setSelectionRange(0, 99999);
-      navigator.clipboard.writeText(input.value).then(() => {
-        alert('Referral link copied');
-      }).catch(() => {
-        document.execCommand('copy');
-        alert('Referral link copied');
-      });
-    }
-  </script>
+            <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr);">
+              <div class="kpi">
+                <span>Current Gems</span>
+                <strong><%= user.gems || 0 %></strong>
+              </div>
+              <div class="kpi">
+                <span>Free Spins</span>
+                <strong><%= user.freeSpins || 0 %></strong>
+              </div>
+              <div class="kpi">
+                <span>Spin Cost</span>
+                <strong>2 Gems</strong>
+              </div>
+            </div>
+
+            <form action="/spin-roulette" method="POST" style="margin-top:18px;">
+              <button class="btn btn-primary" type="submit">Spin Roulette</button>
+            </form>
+          </div>
+
+          <div class="card">
+            <h2>Referral Rewards</h2>
+            <p class="muted">
+              Earn Gems when your referrals join a paid city. Reach 5 successful referral joins to unlock the KSH 300 referral bonus.
+            </p>
+
+            <div class="joined-cities">
+              <div class="joined-city">
+                <div>
+                  <strong>Referral Code</strong>
+                  <div class="muted"><%= user.referralCode %></div>
+                </div>
+                <span class="badge info">CODE</span>
+              </div>
+
+              <div class="joined-city">
+                <div>
+                  <strong>Referred Count</strong>
+                  <div class="muted">Users who joined through your code</div>
+                </div>
+                <span class="badge ok"><%= user.referredCount || 0 %></span>
+              </div>
+
+              <div class="joined-city">
+                <div>
+                  <strong>Bonus Status</strong>
+                  <div class="muted">One-time KSH 300 bonus after 5 successful city joins</div>
+                </div>
+                <% if (user.referralBonusEarned) { %>
+                  <span class="badge ok">EARNED</span>
+                <% } else { %>
+                  <span class="badge pending">PENDING</span>
+                <% } %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    <% } %>
+
+    <div class="footer-space"></div>
+  </main>
+
+<% } %>
+
+<script>
+  function copyReferral() {
+    const input = document.getElementById('refLink');
+    if (!input) return;
+    input.select();
+    input.setSelectionRange(0, 99999);
+    document.execCommand('copy');
+    alert('Referral link copied.');
+  }
+</script>
+
 </body>
 </html>
