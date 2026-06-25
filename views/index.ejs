@@ -3,1602 +3,1271 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BITREX-722</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
-
+  <title>BITREX Platform</title>
   <style>
     :root{
-      --bg-1:#0b1020;
-      --bg-2:#121a33;
-      --panel:#11182d;
-      --panel-2:#16213e;
-      --card:#182544;
-      --card-2:#1d2c53;
+      --bg:#0b1220;
+      --bg-soft:#101a2f;
+      --card:#111c34;
+      --card-2:#162544;
+      --text:#eef4ff;
+      --muted:#9fb0d1;
       --line:rgba(255,255,255,.08);
-      --text:#f5f7ff;
-      --muted:#a8b0c8;
       --primary:#4f8cff;
-      --primary-2:#6ea8ff;
-      --success:#1fce7a;
-      --danger:#ff5c7a;
-      --warning:#ffb84d;
-      --shadow:0 18px 50px rgba(0,0,0,.35);
-      --radius:22px;
-      --radius-sm:16px;
+      --primary-2:#7b5cff;
+      --success:#22c55e;
+      --warning:#f59e0b;
+      --danger:#ef4444;
+      --cyan:#22d3ee;
+      --shadow:0 20px 50px rgba(0,0,0,.28);
+      --radius:20px;
     }
 
     *{box-sizing:border-box}
-    html,body{margin:0;padding:0;font-family:'Inter',system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:
-      radial-gradient(circle at top right, rgba(79,140,255,.18), transparent 28%),
-      radial-gradient(circle at bottom left, rgba(31,206,122,.14), transparent 30%),
-      linear-gradient(160deg,var(--bg-1),var(--bg-2));
-      color:var(--text);min-height:100%;
+    html,body{margin:0;padding:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:
+      radial-gradient(circle at top left, rgba(79,140,255,.18), transparent 24%),
+      radial-gradient(circle at top right, rgba(123,92,255,.16), transparent 24%),
+      linear-gradient(180deg,#08101d 0%, #0b1220 100%);
+      color:var(--text);
+      min-height:100%;
     }
-
     a{text-decoration:none;color:inherit}
     button,input,textarea,select{font:inherit}
+    img{max-width:100%;display:block}
 
-    .app-shell{
-      max-width: 1180px;
-      margin: 0 auto;
-      padding: 20px 18px 110px;
+    .shell{
+      max-width:1200px;
+      margin:0 auto;
+      padding:20px 16px 120px;
     }
 
     .glass{
-      background: rgba(17,24,45,.88);
-      border: 1px solid var(--line);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(16px);
-    }
-
-    .top-banner{
-      margin-bottom:18px;
-      border-radius: 24px;
-      padding: 18px 20px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:16px;
-      background:
-        linear-gradient(135deg, rgba(79,140,255,.22), rgba(31,206,122,.12)),
-        rgba(17,24,45,.88);
-      border:1px solid rgba(255,255,255,.08);
-      box-shadow: var(--shadow);
-    }
-
-    .brand-wrap{
-      display:flex;
-      align-items:center;
-      gap:14px;
-    }
-
-    .brand-logo{
-      width:54px;height:54px;border-radius:18px;
-      display:grid;place-items:center;
-      background: linear-gradient(135deg, #4f8cff, #7c5cff);
-      color:#fff;font-size:24px;box-shadow:0 10px 24px rgba(79,140,255,.35);
-      flex-shrink:0;
-    }
-
-    .brand-title{
-      font-size:22px;
-      font-weight:800;
-      letter-spacing:.4px;
-      margin:0;
-    }
-
-    .brand-sub{
-      margin:4px 0 0;
-      color:var(--muted);
-      font-size:13px;
-    }
-
-    .phone-chip{
-      display:inline-flex;
-      align-items:center;
-      gap:10px;
-      background: rgba(255,255,255,.08);
-      border:1px solid rgba(255,255,255,.08);
-      padding: 10px 14px;
-      border-radius: 999px;
-      font-size:14px;
-      color:#fff;
-      white-space:nowrap;
-    }
-
-    .phone-chip i{
-      color: var(--primary-2);
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--line);
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius:var(--radius);
     }
 
     .alert-stack{
       display:grid;
-      gap:12px;
-      margin-bottom:18px;
+      gap:10px;
+      margin-bottom:16px;
     }
-
     .alert{
-      border-radius:18px;
       padding:14px 16px;
-      font-size:14px;
-      display:flex;
-      gap:12px;
-      align-items:flex-start;
+      border-radius:16px;
+      font-size:.95rem;
       border:1px solid transparent;
-      box-shadow: var(--shadow);
+    }
+    .alert.success{
+      background:rgba(34,197,94,.12);
+      border-color:rgba(34,197,94,.3);
+      color:#d9ffe7;
+    }
+    .alert.error{
+      background:rgba(239,68,68,.12);
+      border-color:rgba(239,68,68,.3);
+      color:#ffe1e1;
     }
 
-    .alert i{margin-top:2px}
-    .alert-success{
-      background: rgba(31,206,122,.12);
-      border-color: rgba(31,206,122,.28);
-      color:#e9fff3;
+    .brand-row{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:12px;
+      margin-bottom:24px;
     }
-    .alert-error{
-      background: rgba(255,92,122,.12);
-      border-color: rgba(255,92,122,.28);
-      color:#fff1f4;
+    .brand-badge{
+      width:48px;height:48px;border-radius:16px;
+      background:linear-gradient(135deg,var(--primary),var(--primary-2));
+      display:grid;place-items:center;
+      font-weight:900;font-size:1.2rem;
+      box-shadow:0 14px 30px rgba(79,140,255,.35);
+    }
+    .brand-title{
+      font-size:1.4rem;
+      font-weight:800;
+      letter-spacing:.4px;
+    }
+    .brand-sub{
+      color:var(--muted);
+      font-size:.92rem;
+      margin-top:2px;
     }
 
-    /* ================= LOGIN PAGE ================= */
-    .auth-page{
+    /* =========================
+       AUTH (LOGGED OUT)
+       ========================= */
+    .auth-shell{
       min-height:100vh;
       display:flex;
       align-items:center;
       justify-content:center;
-      padding: 24px;
+      padding:24px 16px;
     }
-
     .auth-card{
       width:100%;
       max-width:460px;
-      border-radius:28px;
-      padding:32px 28px;
-      background:
-        linear-gradient(180deg, rgba(79,140,255,.12), rgba(255,255,255,.02)),
-        rgba(17,24,45,.95);
-      border:1px solid rgba(255,255,255,.08);
-      box-shadow: var(--shadow);
+      padding:28px;
       position:relative;
       overflow:hidden;
     }
-
     .auth-card::before{
-      content:'';
+      content:"";
       position:absolute;
-      width:180px;height:180px;
-      border-radius:50%;
-      background: radial-gradient(circle, rgba(79,140,255,.35), transparent 65%);
-      top:-50px;right:-50px;
+      inset:-100px auto auto -100px;
+      width:220px;height:220px;border-radius:50%;
+      background:radial-gradient(circle, rgba(79,140,255,.25), transparent 70%);
       pointer-events:none;
     }
-
     .auth-card::after{
-      content:'';
+      content:"";
       position:absolute;
-      width:160px;height:160px;
-      border-radius:50%;
-      background: radial-gradient(circle, rgba(31,206,122,.22), transparent 65%);
-      bottom:-60px;left:-60px;
+      inset:auto -120px -120px auto;
+      width:260px;height:260px;border-radius:50%;
+      background:radial-gradient(circle, rgba(123,92,255,.22), transparent 70%);
       pointer-events:none;
     }
-
-    .auth-header{
+    .auth-head{
       position:relative;
-      z-index:2;
+      z-index:1;
       text-align:center;
-      margin-bottom:26px;
+      margin-bottom:24px;
     }
-
-    .auth-logo{
-      width:74px;height:74px;
-      margin:0 auto 16px;
-      border-radius:22px;
-      display:grid;place-items:center;
-      font-size:30px;
-      background: linear-gradient(135deg, #4f8cff, #7c5cff);
-      box-shadow: 0 18px 40px rgba(79,140,255,.35);
-    }
-
-    .auth-title{
-      margin:0;
-      font-size:28px;
-      font-weight:800;
+    .auth-head h1{
+      margin:0 0 8px;
+      font-size:1.8rem;
+      font-weight:900;
       letter-spacing:.3px;
     }
-
-    .auth-sub{
-      margin:8px 0 0;
+    .auth-head p{
+      margin:0;
       color:var(--muted);
-      font-size:14px;
       line-height:1.6;
+      font-size:.95rem;
     }
 
-    .auth-tabs{
-      display:flex;
-      gap:10px;
-      margin-bottom:22px;
-      position:relative;
-      z-index:2;
-    }
+    .auth-panel{display:none; position:relative; z-index:1;}
+    .auth-panel.active{display:block;}
 
-    .auth-tab-btn{
-      flex:1;
-      padding:12px 14px;
-      border-radius:14px;
-      border:1px solid rgba(255,255,255,.08);
-      background: rgba(255,255,255,.04);
-      color:var(--muted);
-      font-weight:700;
-      text-align:center;
-      cursor:pointer;
-      transition:.2s ease;
-    }
-
-    .auth-tab-btn.active{
-      background: linear-gradient(135deg, rgba(79,140,255,.24), rgba(124,92,255,.2));
-      color:#fff;
-      border-color: rgba(79,140,255,.35);
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,.04);
-    }
-
-    .auth-panel{
-      display:none;
-      position:relative;
-      z-index:2;
-    }
-    .auth-panel.active{display:block}
-
-    .form-group{
+    .field{
+      display:grid;
+      gap:8px;
       margin-bottom:16px;
     }
-
-    .form-label{
-      display:block;
-      font-size:13px;
+    .field label{
+      color:#d9e6ff;
       font-weight:700;
-      color:#dce4ff;
-      margin-bottom:8px;
+      font-size:.92rem;
     }
-
-    .input-wrap{
-      position:relative;
-    }
-
-    .form-control{
+    .field input,
+    .field textarea{
       width:100%;
-      border:none;
-      outline:none;
-      border-radius:16px;
-      background: rgba(255,255,255,.06);
-      color:#fff;
       border:1px solid rgba(255,255,255,.08);
+      background:rgba(8,16,29,.8);
+      color:var(--text);
+      border-radius:16px;
       padding:14px 16px;
-      font-size:15px;
+      outline:none;
       transition:.2s ease;
     }
-
-    .form-control::placeholder{color:#8f9aba}
-    .form-control:focus{
-      border-color: rgba(79,140,255,.55);
-      box-shadow: 0 0 0 4px rgba(79,140,255,.14);
-      background: rgba(255,255,255,.08);
+    .field input::placeholder,
+    .field textarea::placeholder{
+      color:#6f83aa;
+    }
+    .field input:focus,
+    .field textarea:focus{
+      border-color:rgba(79,140,255,.55);
+      box-shadow:0 0 0 4px rgba(79,140,255,.14);
     }
 
-    .password-toggle{
+    .password-wrap{
+      position:relative;
+    }
+    .password-wrap input{
+      padding-right:56px;
+    }
+    .eye-btn{
       position:absolute;
       top:50%;
-      right:14px;
+      right:12px;
       transform:translateY(-50%);
-      background:none;
       border:none;
-      color:#aab6d6;
+      background:transparent;
+      color:#b7c8ea;
       cursor:pointer;
-      font-size:16px;
-      padding:0;
+      font-size:1.05rem;
+      padding:8px;
+      border-radius:10px;
     }
+    .eye-btn:hover{background:rgba(255,255,255,.06)}
 
     .btn{
       border:none;
-      outline:none;
       cursor:pointer;
       border-radius:16px;
-      padding:14px 16px;
+      padding:14px 18px;
       font-weight:800;
       transition:.2s ease;
       display:inline-flex;
       align-items:center;
       justify-content:center;
-      gap:10px;
+      gap:8px;
+      text-align:center;
     }
-
+    .btn:disabled{
+      opacity:.65;
+      cursor:not-allowed;
+    }
     .btn-primary{
       width:100%;
-      background: linear-gradient(135deg, #4f8cff, #6a7bff);
-      color:#fff;
-      box-shadow: 0 18px 35px rgba(79,140,255,.25);
+      color:white;
+      background:linear-gradient(135deg,var(--primary),var(--primary-2));
+      box-shadow:0 14px 28px rgba(79,140,255,.28);
     }
-
     .btn-primary:hover{transform:translateY(-1px)}
-    .btn-ghost{
-      background: rgba(255,255,255,.05);
-      color:#fff;
+    .btn-secondary{
+      background:rgba(255,255,255,.06);
+      color:#dce8ff;
       border:1px solid rgba(255,255,255,.08);
     }
     .btn-success{
-      background: linear-gradient(135deg, #19c96d, #15a85b);
+      background:linear-gradient(135deg,#16a34a,#22c55e);
+      color:#fff;
+    }
+    .btn-danger{
+      background:linear-gradient(135deg,#dc2626,#ef4444);
       color:#fff;
     }
     .btn-warning{
-      background: linear-gradient(135deg, #ffb84d, #ff9f1a);
-      color:#1b1405;
-    }
-    .btn-danger{
-      background: linear-gradient(135deg, #ff4f73, #ff2f5c);
+      background:linear-gradient(135deg,#d97706,#f59e0b);
       color:#fff;
-    }
-    .btn-dark{
-      background: rgba(255,255,255,.08);
-      color:#fff;
-      border:1px solid rgba(255,255,255,.08);
     }
 
-    .auth-actions{
-      display:flex;
-      justify-content:space-between;
-      gap:14px;
-      flex-wrap:wrap;
-      margin-top:10px;
-      font-size:14px;
+    .auth-links{
+      margin-top:16px;
+      display:grid;
+      gap:10px;
+      text-align:center;
       color:var(--muted);
+      font-size:.95rem;
     }
-
-    .auth-link{
-      color:#9ec0ff;
+    .auth-links a{
+      color:#dce8ff;
       font-weight:700;
       cursor:pointer;
     }
-
     .auth-note{
-      margin-top:18px;
-      padding:12px 14px;
-      border-radius:14px;
-      background: rgba(255,255,255,.04);
-      color:var(--muted);
-      font-size:13px;
+      margin-top:14px;
+      color:#9db2d9;
+      font-size:.88rem;
+      text-align:center;
       line-height:1.6;
     }
 
-    /* ================= DASHBOARD ================= */
-    .dashboard-grid{
-      display:grid;
-      gap:18px;
-    }
-
-    .stats-grid{
-      display:grid;
-      grid-template-columns: repeat(3, minmax(0,1fr));
-      gap:16px;
-    }
-
-    .stat-card{
-      border-radius:22px;
-      padding:18px;
-      background:
-        linear-gradient(160deg, rgba(255,255,255,.04), rgba(255,255,255,.02)),
-        rgba(24,37,68,.88);
-      border:1px solid rgba(255,255,255,.08);
-      box-shadow: var(--shadow);
-      position:relative;
-      overflow:hidden;
-    }
-
-    .stat-card::after{
-      content:'';
-      position:absolute;
-      width:120px;height:120px;
-      border-radius:50%;
-      background: radial-gradient(circle, rgba(255,255,255,.08), transparent 65%);
-      right:-30px;top:-30px;
-      pointer-events:none;
-    }
-
-    .stat-top{
+    /* =========================
+       APP (LOGGED IN)
+       ========================= */
+    .topbar{
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:12px;
-      margin-bottom:14px;
+      gap:16px;
+      margin-bottom:18px;
+      padding:18px 20px;
     }
-
-    .stat-icon{
+    .topbar-left{
+      display:flex;align-items:center;gap:14px;
+    }
+    .topbar-logo{
       width:48px;height:48px;border-radius:16px;
       display:grid;place-items:center;
-      font-size:18px;
-      background: rgba(255,255,255,.08);
-      color:#fff;
+      font-weight:900;
+      background:linear-gradient(135deg,var(--primary),var(--primary-2));
+      box-shadow:0 12px 28px rgba(79,140,255,.28);
     }
-
-    .stat-label{
-      color:var(--muted);
-      font-size:13px;
-      font-weight:600;
-      margin-bottom:8px;
-    }
-
-    .stat-value{
-      font-size:28px;
-      font-weight:800;
-      letter-spacing:.3px;
+    .topbar h1{
       margin:0;
+      font-size:1.2rem;
+      font-weight:900;
     }
-
-    .stat-card.balance .stat-icon{background: rgba(79,140,255,.18); color:#8bb4ff}
-    .stat-card.income .stat-icon{background: rgba(31,206,122,.18); color:#7ff0b1}
-    .stat-card.earnings .stat-icon{background: rgba(255,184,77,.18); color:#ffd38a}
-
-    .section-grid{
-      display:grid;
-      grid-template-columns: 1.2fr .8fr;
-      gap:18px;
+    .topbar p{
+      margin:4px 0 0;
+      color:var(--muted);
+      font-size:.9rem;
     }
-
-    .panel{
-      border-radius:24px;
-      padding:20px;
-      background: rgba(17,24,45,.9);
+    .phone-pill{
+      padding:12px 16px;
+      border-radius:999px;
+      background:rgba(255,255,255,.06);
       border:1px solid rgba(255,255,255,.08);
-      box-shadow: var(--shadow);
+      font-weight:800;
+      white-space:nowrap;
     }
 
-    .panel-title{
-      margin:0 0 16px;
+    .page{
+      display:none;
+      animation:fadeUp .22s ease;
+    }
+    .page.active{display:block;}
+
+    @keyframes fadeUp{
+      from{opacity:0;transform:translateY(8px)}
+      to{opacity:1;transform:translateY(0)}
+    }
+
+    .grid{
+      display:grid;
+      gap:16px;
+    }
+    .grid-3{
+      grid-template-columns:repeat(3,minmax(0,1fr));
+    }
+    .grid-2{
+      grid-template-columns:repeat(2,minmax(0,1fr));
+    }
+    .stack{display:grid;gap:16px}
+
+    .card{
+      padding:20px;
+      border-radius:22px;
+      background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.03));
+      border:1px solid var(--line);
+      box-shadow:var(--shadow);
+    }
+    .card h3,.card h4,.card h2{
+      margin:0 0 8px;
+    }
+    .card-title{
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap:12px;
+      margin-bottom:12px;
     }
-
-    .panel-title h3{
-      margin:0;
-      font-size:18px;
-      font-weight:800;
-      letter-spacing:.2px;
+    .card-title h2{
+      font-size:1.05rem;
+      font-weight:900;
     }
-
-    .panel-title p{
-      margin:4px 0 0;
+    .muted{
       color:var(--muted);
-      font-size:13px;
+    }
+    .tiny{font-size:.86rem}
+
+    .wallet-card{
+      position:relative;
+      overflow:hidden;
+      min-height:150px;
+    }
+    .wallet-card::after{
+      content:"";
+      position:absolute;
+      inset:auto -30px -30px auto;
+      width:120px;height:120px;border-radius:50%;
+      background:radial-gradient(circle, rgba(255,255,255,.15), transparent 70%);
+      pointer-events:none;
+    }
+    .wallet-card.balance{
+      background:linear-gradient(135deg, rgba(79,140,255,.26), rgba(123,92,255,.22));
+    }
+    .wallet-card.today{
+      background:linear-gradient(135deg, rgba(34,197,94,.24), rgba(22,163,74,.16));
+    }
+    .wallet-card.total{
+      background:linear-gradient(135deg, rgba(245,158,11,.24), rgba(217,119,6,.16));
+    }
+    .wallet-label{
+      color:#dce8ff;
+      font-weight:700;
+      font-size:.95rem;
+      margin-bottom:14px;
+    }
+    .wallet-value{
+      font-size:1.9rem;
+      font-weight:900;
+      letter-spacing:.2px;
+      margin-bottom:8px;
+    }
+    .wallet-sub{
+      color:#d9e4ff;
+      opacity:.92;
+      font-size:.9rem;
     }
 
-    .card-grid-2{
+    .actions-grid{
       display:grid;
       grid-template-columns:repeat(2,minmax(0,1fr));
       gap:16px;
     }
-
     .action-card{
-      border-radius:20px;
-      padding:18px;
-      background:
-        linear-gradient(160deg, rgba(255,255,255,.04), rgba(255,255,255,.015)),
-        rgba(24,37,68,.85);
+      padding:20px;
+      border-radius:22px;
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--line);
+      box-shadow:var(--shadow);
+    }
+    .action-card h3{margin:0 0 8px;font-size:1.08rem}
+    .action-card p{margin:0 0 14px;color:var(--muted);line-height:1.6}
+    .action-card form{display:grid;gap:12px}
+    .action-card input{
+      width:100%;
       border:1px solid rgba(255,255,255,.08);
-      display:flex;
-      flex-direction:column;
-      gap:14px;
-    }
-
-    .action-head{
-      display:flex;
-      align-items:center;
-      gap:12px;
-    }
-
-    .action-icon{
-      width:44px;height:44px;border-radius:14px;
-      display:grid;place-items:center;
-      background: rgba(255,255,255,.08);
-      font-size:18px;
-    }
-
-    .action-title{
-      margin:0;
-      font-size:16px;
-      font-weight:800;
-    }
-
-    .action-sub{
-      margin:3px 0 0;
-      color:var(--muted);
-      font-size:13px;
-    }
-
-    .mini-inputs{
-      display:grid;
-      gap:12px;
+      background:rgba(8,16,29,.8);
+      color:var(--text);
+      border-radius:14px;
+      padding:13px 14px;
+      outline:none;
     }
 
     .investments-list{
       display:grid;
       gap:14px;
     }
-
     .investment-item{
-      border-radius:18px;
       padding:16px;
-      background: rgba(255,255,255,.04);
-      border:1px solid rgba(255,255,255,.08);
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:14px;
-    }
-
-    .investment-left h4{
-      margin:0 0 8px;
-      font-size:16px;
-      font-weight:800;
-    }
-
-    .meta-list{
+      border-radius:18px;
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.07);
       display:grid;
-      gap:6px;
-      color:var(--muted);
-      font-size:13px;
-    }
-
-    .badge{
-      display:inline-flex;
-      align-items:center;
       gap:8px;
-      padding:8px 12px;
-      border-radius:999px;
-      font-size:12px;
-      font-weight:800;
-      white-space:nowrap;
     }
-
-    .badge.active{
-      background: rgba(31,206,122,.15);
-      color:#a7ffd0;
-      border:1px solid rgba(31,206,122,.25);
+    .investment-head{
+      display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;
     }
-
-    .badge.pending{
-      background: rgba(255,184,77,.12);
-      color:#ffd38a;
-      border:1px solid rgba(255,184,77,.22);
+    .pill{
+      padding:8px 12px;border-radius:999px;font-size:.85rem;font-weight:800;
+      display:inline-flex;align-items:center;gap:6px;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.08);
     }
+    .pill.green{background:rgba(34,197,94,.16);border-color:rgba(34,197,94,.25);color:#ddffe9}
+    .pill.orange{background:rgba(245,158,11,.14);border-color:rgba(245,158,11,.22);color:#fff0d0}
+    .pill.red{background:rgba(239,68,68,.14);border-color:rgba(239,68,68,.22);color:#ffe1e1}
 
-    .badge.claimed{
-      background: rgba(79,140,255,.14);
-      color:#b8d0ff;
-      border:1px solid rgba(79,140,255,.22);
-    }
-
-    /* tabs */
-    .tab-view{
-      display:none;
-      animation: fadeIn .22s ease;
-    }
-    .tab-view.active{display:block}
-
-    @keyframes fadeIn{
-      from{opacity:0;transform:translateY(6px)}
-      to{opacity:1;transform:none}
-    }
-
-    .task-grid,
-    .cities-grid,
-    .menu-list{
+    .tasks-grid{
       display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
       gap:16px;
     }
-
-    .task-grid{
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    }
-
     .task-card{
-      border-radius:22px;
       padding:18px;
-      background:
-        linear-gradient(160deg, rgba(255,255,255,.04), rgba(255,255,255,.02)),
-        rgba(24,37,68,.88);
-      border:1px solid rgba(255,255,255,.08);
-      box-shadow: var(--shadow);
-      display:flex;
-      flex-direction:column;
-      gap:14px;
-      min-height: 240px;
-    }
-
-    .task-top{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:12px;
-    }
-
-    .task-name{
-      margin:0;
-      font-size:16px;
-      font-weight:800;
-      line-height:1.5;
-    }
-
-    .task-price{
-      margin:0;
-      color:var(--muted);
-      font-size:13px;
-    }
-
-    .reward-pill{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding:8px 12px;
-      border-radius:999px;
-      background: rgba(31,206,122,.14);
-      color:#9ef0c3;
-      border:1px solid rgba(31,206,122,.22);
-      font-size:12px;
-      font-weight:800;
-      width:fit-content;
-    }
-
-    .task-progress{
-      margin-top:auto;
+      border-radius:22px;
+      background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.03));
+      border:1px solid var(--line);
+      box-shadow:var(--shadow);
       display:grid;
-      gap:12px;
+      gap:14px;
     }
-
-    .countdown-box{
-      border-radius:14px;
-      padding:12px 14px;
-      background: rgba(255,255,255,.04);
-      border:1px solid rgba(255,255,255,.08);
-      font-size:13px;
+    .task-card h3{
+      margin:0;
+      font-size:1.02rem;
+      line-height:1.45;
+    }
+    .task-meta{
+      display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;
       color:var(--muted);
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
+      font-size:.92rem;
+    }
+    .task-actions{
+      display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;
+    }
+    .countdown{
+      font-weight:800;
+      color:#dce8ff;
     }
 
+    .cities-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:18px;
+    }
     .city-card{
-      border-radius:24px;
       overflow:hidden;
-      background: rgba(17,24,45,.92);
-      border:1px solid rgba(255,255,255,.08);
-      box-shadow: var(--shadow);
+      padding:0;
     }
-
-    .city-cover{
+    .city-banner{
       position:relative;
-      height:190px;
+      min-height:180px;
       background-size:cover;
       background-position:center;
     }
-
-    .city-cover::after{
-      content:'';
+    .city-banner::after{
+      content:"";
       position:absolute;inset:0;
-      background: linear-gradient(180deg, rgba(0,0,0,.05), rgba(8,12,22,.82));
+      background:linear-gradient(180deg, rgba(8,16,29,.1), rgba(8,16,29,.82));
     }
-
-    .city-chip{
+    .city-top{
       position:absolute;
-      top:16px;left:16px;
+      inset:auto 18px 18px 18px;
       z-index:2;
-      background: rgba(0,0,0,.45);
-      border:1px solid rgba(255,255,255,.12);
-      color:#fff;
-      padding:8px 12px;
-      border-radius:999px;
-      font-size:12px;
-      font-weight:800;
-      backdrop-filter: blur(10px);
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:14px;
     }
-
+    .city-top h3{
+      margin:0 0 6px;
+      font-size:1.28rem;
+      font-weight:900;
+    }
+    .city-top p{
+      margin:0;
+      color:#d9e6ff;
+      opacity:.92;
+    }
     .city-body{
       padding:18px;
-      position:relative;
-      margin-top:-50px;
-      z-index:2;
+      display:grid;
+      gap:14px;
     }
-
-    .city-title{
-      margin:0 0 12px;
-      font-size:22px;
-      font-weight:800;
-    }
-
-    .city-metrics{
+    .city-stats{
       display:grid;
       grid-template-columns:repeat(2,minmax(0,1fr));
       gap:12px;
-      margin-bottom:14px;
     }
-
-    .city-metric{
-      border-radius:16px;
+    .mini-stat{
       padding:14px;
-      background: rgba(255,255,255,.05);
+      border-radius:16px;
+      background:rgba(255,255,255,.04);
       border:1px solid rgba(255,255,255,.08);
     }
-
-    .city-metric small{
-      display:block;
+    .mini-stat .label{
       color:var(--muted);
+      font-size:.86rem;
       margin-bottom:6px;
-      font-size:12px;
     }
-
-    .city-metric strong{
-      font-size:16px;
+    .mini-stat .value{
+      font-weight:900;
+      font-size:1rem;
     }
-
     .city-form{
-      display:grid;
-      gap:12px;
-      margin-top:10px;
+      display:grid;gap:12px;
+    }
+    .city-form input{
+      width:100%;
+      border:1px solid rgba(255,255,255,.08);
+      background:rgba(8,16,29,.8);
+      color:var(--text);
+      border-radius:14px;
+      padding:13px 14px;
+      outline:none;
     }
 
-    /* spin */
     .spin-wrap{
       display:grid;
-      grid-template-columns: 1fr .9fr;
-      gap:18px;
-      align-items:start;
-    }
-
-    .wheel-card{
-      border-radius:24px;
-      padding:24px;
-      background: rgba(17,24,45,.92);
-      border:1px solid rgba(255,255,255,.08);
-      box-shadow: var(--shadow);
+      gap:20px;
+      justify-items:center;
       text-align:center;
     }
-
-    .wheel-circle{
-      width: 280px;
-      height: 280px;
-      margin: 0 auto 20px;
+    .wheel{
+      width:min(360px, 84vw);
+      height:min(360px, 84vw);
       border-radius:50%;
-      border:12px solid rgba(255,255,255,.08);
       position:relative;
+      border:12px solid rgba(255,255,255,.1);
+      box-shadow:0 22px 50px rgba(0,0,0,.35);
       background:
         conic-gradient(
           #4f8cff 0deg 60deg,
-          #19c96d 60deg 120deg,
-          #ffb84d 120deg 180deg,
-          #7c5cff 180deg 240deg,
-          #00c2ff 240deg 300deg,
-          #ff5c7a 300deg 360deg
+          #22c55e 60deg 120deg,
+          #f59e0b 120deg 180deg,
+          #7b5cff 180deg 240deg,
+          #ef4444 240deg 300deg,
+          #06b6d4 300deg 360deg
         );
-      box-shadow: inset 0 0 0 10px rgba(0,0,0,.18), 0 18px 40px rgba(0,0,0,.3);
-      display:grid;
-      place-items:center;
-      transition: transform 4s cubic-bezier(.17,.67,.12,.99);
+      transition:transform 5s cubic-bezier(.17,.67,.18,1);
     }
-
+    .wheel::before{
+      content:"";
+      position:absolute;inset:22px;
+      border-radius:50%;
+      background:rgba(8,16,29,.92);
+      border:2px solid rgba(255,255,255,.08);
+    }
     .wheel-center{
-      width:100px;height:100px;border-radius:50%;
-      background: rgba(10,14,26,.9);
-      border:6px solid rgba(255,255,255,.12);
+      position:absolute;
+      inset:50%;
+      transform:translate(-50%,-50%);
+      width:92px;height:92px;border-radius:50%;
       display:grid;place-items:center;
-      font-size:24px;
-      color:#fff;
-      box-shadow: inset 0 0 0 2px rgba(255,255,255,.04);
+      font-weight:900;
+      background:linear-gradient(135deg,var(--primary),var(--primary-2));
+      z-index:2;
+      box-shadow:0 10px 30px rgba(79,140,255,.35);
+      text-align:center;
+      padding:10px;
     }
-
     .wheel-pointer{
       width:0;height:0;
       border-left:16px solid transparent;
       border-right:16px solid transparent;
       border-top:28px solid #fff;
-      margin:0 auto 14px;
-      filter: drop-shadow(0 10px 18px rgba(0,0,0,.35));
+      filter:drop-shadow(0 8px 16px rgba(0,0,0,.3));
+      margin-bottom:-8px;
+      z-index:2;
     }
-
+    .wheel-label{
+      position:absolute;
+      top:50%;left:50%;
+      transform-origin:0 0;
+      font-size:.82rem;
+      font-weight:900;
+      color:white;
+      z-index:1;
+      text-shadow:0 2px 8px rgba(0,0,0,.45);
+      pointer-events:none;
+    }
     .spin-result{
-      border-radius:18px;
-      padding:16px;
-      background: rgba(255,255,255,.04);
-      border:1px solid rgba(255,255,255,.08);
-      color:#dfe6ff;
-      line-height:1.7;
+      min-height:26px;
+      font-size:1rem;
+      font-weight:800;
+      color:#dce8ff;
     }
 
-    .spin-side{
-      display:grid;
-      gap:16px;
-    }
-
-    .spin-info{
-      border-radius:24px;
-      padding:20px;
-      background: rgba(17,24,45,.92);
-      border:1px solid rgba(255,255,255,.08);
-      box-shadow: var(--shadow);
-    }
-
-    .spin-metrics{
-      display:grid;
-      gap:12px;
-      margin-top:12px;
-    }
-
-    .spin-metric{
-      border-radius:16px;
-      padding:14px 16px;
-      background: rgba(255,255,255,.04);
-      border:1px solid rgba(255,255,255,.08);
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:12px;
-    }
-
-    .spin-metric strong{font-size:16px}
-
-    /* menu */
     .menu-list{
-      grid-template-columns:repeat(2,minmax(0,1fr));
+      display:grid;
+      gap:14px;
     }
-
     .menu-item{
-      border-radius:22px;
-      padding:18px;
-      background:
-        linear-gradient(160deg, rgba(255,255,255,.04), rgba(255,255,255,.02)),
-        rgba(24,37,68,.88);
+      width:100%;
+      text-align:left;
+      padding:18px 18px;
+      border-radius:18px;
+      background:rgba(255,255,255,.04);
       border:1px solid rgba(255,255,255,.08);
-      box-shadow: var(--shadow);
+      color:var(--text);
       display:flex;
-      align-items:center;
       justify-content:space-between;
-      gap:16px;
+      align-items:center;
+      gap:12px;
       cursor:pointer;
       transition:.2s ease;
     }
-
-    .menu-item:hover{transform:translateY(-2px)}
-    .menu-item-left{
-      display:flex;
-      align-items:center;
-      gap:14px;
+    .menu-item:hover{transform:translateY(-1px);background:rgba(255,255,255,.06)}
+    .menu-item .left{
+      display:flex;align-items:center;gap:14px;
     }
-
     .menu-icon{
-      width:48px;height:48px;border-radius:16px;
+      width:46px;height:46px;border-radius:14px;
       display:grid;place-items:center;
-      background: rgba(255,255,255,.08);
-      color:#fff;
-      font-size:18px;
-      flex-shrink:0;
-    }
-
-    .menu-item h4{
-      margin:0 0 4px;
-      font-size:16px;
-      font-weight:800;
-    }
-
-    .menu-item p{
-      margin:0;
-      color:var(--muted);
-      font-size:13px;
-    }
-
-    .menu-page{
-      display:none;
-      border-radius:24px;
-      padding:20px;
-      background: rgba(17,24,45,.92);
+      background:linear-gradient(135deg, rgba(79,140,255,.24), rgba(123,92,255,.24));
       border:1px solid rgba(255,255,255,.08);
-      box-shadow: var(--shadow);
-      animation: fadeIn .22s ease;
+      font-size:1.2rem;
     }
-    .menu-page.active{display:block}
 
-    .menu-page-head{
+    .subpage{
+      display:none;
+    }
+    .subpage.active{
+      display:block;
+      animation:fadeUp .2s ease;
+    }
+    .back-row{
       display:flex;
       align-items:center;
-      gap:12px;
-      margin-bottom:18px;
+      gap:10px;
+      margin-bottom:16px;
     }
-
     .back-btn{
-      width:44px;height:44px;border-radius:14px;
-      border:none;
-      background: rgba(255,255,255,.06);
-      color:#fff;
+      width:44px;height:44px;border-radius:14px;border:none;cursor:pointer;
+      background:rgba(255,255,255,.06);color:var(--text);
       border:1px solid rgba(255,255,255,.08);
-      cursor:pointer;
+      font-size:1.15rem;
     }
-
-    .page-title{
+    .section-title{
+      font-size:1.2rem;
+      font-weight:900;
       margin:0;
-      font-size:20px;
-      font-weight:800;
     }
 
-    .detail-grid{
+    .profile-grid{
       display:grid;
       gap:14px;
     }
-
-    .detail-card{
-      border-radius:18px;
-      padding:16px;
-      background: rgba(255,255,255,.04);
-      border:1px solid rgba(255,255,255,.08);
-    }
-
-    .detail-card h4{
-      margin:0 0 12px;
-      font-size:15px;
-      font-weight:800;
-    }
-
-    .detail-card p{
-      margin:0;
-      color:var(--muted);
-      line-height:1.7;
-      font-size:14px;
-    }
-
-    .profile-list{
-      display:grid;
-      gap:10px;
-      margin-bottom:14px;
-    }
-
-    .profile-row{
+    .detail-row{
       display:flex;
       justify-content:space-between;
-      gap:14px;
-      padding:12px 14px;
-      border-radius:14px;
-      background: rgba(255,255,255,.04);
-      border:1px solid rgba(255,255,255,.08);
-      font-size:14px;
-    }
-
-    .profile-row span:first-child{color:var(--muted)}
-
-    .referral-box{
-      display:grid;
-      gap:14px;
-    }
-
-    .ref-link-wrap{
-      display:flex;
-      gap:10px;
+      gap:12px;
+      padding:14px 0;
+      border-bottom:1px solid rgba(255,255,255,.06);
       flex-wrap:wrap;
     }
+    .detail-row:last-child{border-bottom:none}
+    .detail-row .label{color:var(--muted);font-weight:700}
+    .detail-row .value{font-weight:800}
 
-    .ref-link-wrap .form-control{
-      flex:1;
-      min-width: 240px;
+    .support-links{
+      display:grid;gap:14px;
+    }
+    .support-link{
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
+      padding:18px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+      word-break:break-word;
     }
 
-    .terms-box{
-      border-radius:18px;
+    .referral-box{
+      display:grid;gap:16px;
+    }
+    .copy-wrap{
+      display:flex;gap:10px;flex-wrap:wrap;
+    }
+    .copy-wrap input{
+      flex:1 1 240px;
+      border:1px solid rgba(255,255,255,.08);
+      background:rgba(8,16,29,.8);
+      color:var(--text);
+      border-radius:14px;
+      padding:13px 14px;
+      outline:none;
+    }
+
+    .terms{
+      display:grid;
+      gap:14px;
+      line-height:1.75;
+      color:#e4eeff;
+    }
+    .terms h4{
+      margin:6px 0 2px;
+      font-size:1rem;
+      font-weight:900;
+    }
+
+    .tx-list{
+      display:grid;
+      gap:12px;
+    }
+    .tx-item{
       padding:16px;
-      background: rgba(255,255,255,.04);
-      border:1px solid rgba(255,255,255,.08);
-      color:#dfe6ff;
-      line-height:1.8;
-      max-height: 70vh;
-      overflow:auto;
-      white-space:pre-line;
-    }
-
-    .tx-table-wrap{
-      overflow:auto;
       border-radius:18px;
+      background:rgba(255,255,255,.04);
       border:1px solid rgba(255,255,255,.08);
-      background: rgba(255,255,255,.03);
+      display:grid;
+      gap:8px;
+    }
+    .tx-head{
+      display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;
+    }
+    .tx-title{
+      font-weight:900;
+      letter-spacing:.2px;
+    }
+    .tx-detail{color:var(--muted);line-height:1.6}
+
+    .download-card{
+      display:grid;gap:16px;
+      text-align:center;
+      justify-items:center;
+    }
+    .download-icon{
+      width:78px;height:78px;border-radius:24px;
+      display:grid;place-items:center;
+      font-size:2rem;
+      background:linear-gradient(135deg,var(--primary),var(--primary-2));
+      box-shadow:0 18px 34px rgba(79,140,255,.28);
     }
 
-    table{
-      width:100%;
-      border-collapse:collapse;
-      min-width:760px;
-    }
-
-    th,td{
-      padding:14px 16px;
-      text-align:left;
-      border-bottom:1px solid rgba(255,255,255,.06);
-      font-size:14px;
-    }
-
-    th{
-      color:#dfe6ff;
-      background: rgba(255,255,255,.04);
-      font-size:13px;
-      letter-spacing:.3px;
-      white-space:nowrap;
-    }
-
-    td{
-      color:var(--muted);
-      vertical-align:top;
-    }
-
-    .logout-wrap{
-      margin-top:18px;
-      display:flex;
-      justify-content:flex-end;
-    }
-
-    /* bottom nav */
-    .bottom-nav{
+    .nav{
       position:fixed;
       left:0;right:0;bottom:0;
       z-index:50;
-      padding:14px 16px calc(14px + env(safe-area-inset-bottom));
-      background:
-        linear-gradient(180deg, rgba(11,16,32,.05), rgba(11,16,32,.88) 25%),
-        rgba(11,16,32,.95);
-      backdrop-filter: blur(16px);
-      border-top:1px solid rgba(255,255,255,.08);
+      padding:12px 14px calc(12px + env(safe-area-inset-bottom));
+      background:linear-gradient(180deg, rgba(11,18,32,.15), rgba(11,18,32,.92));
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
     }
-
-    .bottom-nav-inner{
-      max-width:1180px;
+    .nav-inner{
+      max-width:920px;
       margin:0 auto;
       display:grid;
-      grid-template-columns:repeat(5,1fr);
+      grid-template-columns:repeat(5,minmax(0,1fr));
       gap:10px;
+      padding:10px;
+      border-radius:24px;
+      background:rgba(8,16,29,.9);
+      border:1px solid rgba(255,255,255,.08);
+      box-shadow:0 18px 40px rgba(0,0,0,.32);
     }
-
     .nav-btn{
       border:none;
-      background: transparent;
-      color:#97a3c5;
+      cursor:pointer;
       border-radius:18px;
-      padding:10px 8px;
+      background:transparent;
+      color:#c9d8f5;
+      padding:12px 8px;
       display:grid;
       justify-items:center;
-      gap:8px;
-      cursor:pointer;
+      gap:6px;
       transition:.2s ease;
-      font-size:12px;
-      font-weight:700;
+      font-weight:800;
     }
-
-    .nav-btn i{
+    .nav-btn .icon{
       width:42px;height:42px;border-radius:14px;
       display:grid;place-items:center;
-      background: rgba(255,255,255,.05);
+      background:rgba(255,255,255,.05);
       border:1px solid rgba(255,255,255,.06);
-      font-size:18px;
+      font-size:1.18rem;
       transition:.2s ease;
     }
-
     .nav-btn.active{
-      color:#fff;
+      color:white;
+    }
+    .nav-btn.active .icon{
+      background:linear-gradient(135deg,var(--primary),var(--primary-2));
+      box-shadow:0 10px 24px rgba(79,140,255,.25);
+      border-color:transparent;
     }
 
-    .nav-btn.active i{
-      background: linear-gradient(135deg, rgba(79,140,255,.3), rgba(124,92,255,.26));
-      border-color: rgba(79,140,255,.28);
-      box-shadow: 0 14px 28px rgba(79,140,255,.18);
-    }
-
-    .empty-state{
-      border-radius:20px;
-      padding:22px;
-      text-align:center;
-      background: rgba(255,255,255,.04);
+    .empty{
+      padding:20px;
+      border-radius:18px;
+      background:rgba(255,255,255,.04);
       border:1px dashed rgba(255,255,255,.12);
       color:var(--muted);
+      text-align:center;
       line-height:1.7;
     }
 
-    .muted{
-      color:var(--muted);
-      font-size:13px;
-    }
-
-    .inline-actions{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-    }
-
-    .small-btn{
-      padding:11px 14px;
+    .admin-link{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:12px 16px;
       border-radius:14px;
-      font-size:13px;
+      background:rgba(245,158,11,.12);
+      border:1px solid rgba(245,158,11,.22);
+      color:#ffe9bf;
       font-weight:800;
+      margin-top:10px;
     }
-
-    .hidden{display:none !important}
 
     @media (max-width: 980px){
-      .stats-grid{grid-template-columns:1fr}
-      .section-grid{grid-template-columns:1fr}
-      .spin-wrap{grid-template-columns:1fr}
-      .menu-list{grid-template-columns:1fr}
-      .card-grid-2{grid-template-columns:1fr}
-      .top-banner{
+      .grid-3{grid-template-columns:1fr}
+      .grid-2{grid-template-columns:1fr}
+      .tasks-grid,
+      .cities-grid{grid-template-columns:1fr}
+    }
+
+    @media (max-width: 760px){
+      .shell{padding:16px 12px 120px}
+      .topbar{
         flex-direction:column;
         align-items:flex-start;
       }
+      .phone-pill{
+        width:100%;
+        text-align:center;
+      }
+      .actions-grid{grid-template-columns:1fr}
+      .wallet-value{font-size:1.65rem}
+      .auth-card{padding:24px 18px}
     }
 
-    @media (max-width: 640px){
-      .app-shell{padding:16px 14px 110px}
-      .auth-card{padding:26px 18px}
-      .brand-title{font-size:18px}
-      .brand-sub{font-size:12px}
-      .top-banner{padding:16px}
-      .panel{padding:16px}
-      .task-card{min-height:auto}
-      .wheel-circle{width:240px;height:240px}
-      .bottom-nav-inner{gap:6px}
-      .nav-btn i{width:38px;height:38px}
-      .city-metrics{grid-template-columns:1fr}
-      .ref-link-wrap{flex-direction:column}
-      .phone-chip{width:100%;justify-content:center}
+    @media (max-width: 520px){
+      .nav-btn span.label{font-size:.78rem}
+      .nav-btn .icon{width:38px;height:38px}
+      .wallet-card{min-height:135px}
+      .task-actions{align-items:flex-start}
     }
   </style>
 </head>
 <body>
+  <% function formatMoney(value){ return Number(value || 0).toLocaleString('en-KE', { minimumFractionDigits: 0, maximumFractionDigits: 0 }); } %>
+  <% function cityStatus(code){ return internExpired && code === 'INTERN' ? 'Expired' : 'Active'; } %>
 
-<% const loggedIn = !!user; %>
+  <% if (!user) { %>
+    <!-- =========================
+         LOGGED OUT / AUTH PAGE
+         ========================= -->
+    <div class="auth-shell">
+      <div class="auth-card glass">
+        <div class="brand-row">
+          <div class="brand-badge">B</div>
+          <div>
+            <div class="brand-title">BITREX</div>
+            <div class="brand-sub">Investment & task rewards platform</div>
+          </div>
+        </div>
 
-<% if (!loggedIn) { %>
-  <!-- ================= LOGIN / AUTH PAGE ================= -->
-  <div class="auth-page">
-    <div class="auth-card">
-      <div class="auth-header">
-        <div class="auth-logo"><i class="fa-solid fa-chart-line"></i></div>
-        <h1 class="auth-title">BITREX-722</h1>
-        <p class="auth-sub">Secure access to your investment dashboard, tasks, cities, withdrawals and rewards.</p>
-      </div>
-
-      <% if (message || error) { %>
         <div class="alert-stack">
           <% if (message) { %>
-            <div class="alert alert-success">
-              <i class="fa-solid fa-circle-check"></i>
-              <div><%= message %></div>
-            </div>
+            <div class="alert success"><%= message %></div>
           <% } %>
           <% if (error) { %>
-            <div class="alert alert-error">
-              <i class="fa-solid fa-triangle-exclamation"></i>
-              <div><%= error %></div>
-            </div>
+            <div class="alert error"><%= error %></div>
           <% } %>
         </div>
-      <% } %>
 
-      <div class="auth-tabs">
-        <button class="auth-tab-btn <%= authMode === 'login' ? 'active' : '' %>" type="button" data-auth-tab="login">Login</button>
-        <button class="auth-tab-btn <%= authMode === 'signup' ? 'active' : '' %>" type="button" data-auth-tab="signup">Sign Up</button>
-        <button class="auth-tab-btn <%= authMode === 'forgot' ? 'active' : '' %>" type="button" data-auth-tab="forgot">Forgot</button>
-      </div>
-
-      <!-- LOGIN -->
-      <div class="auth-panel <%= authMode === 'login' ? 'active' : '' %>" id="auth-login">
-        <form method="POST" action="/login">
-          <div class="form-group">
-            <label class="form-label">Phone Number</label>
-            <input class="form-control" type="tel" name="phone" placeholder="0712345678" required />
+        <!-- LOGIN PANEL -->
+        <section class="auth-panel <%= authMode === 'signup' || authMode === 'forgot' ? '' : 'active' %>" id="auth-login">
+          <div class="auth-head">
+            <h1>Welcome back</h1>
+            <p>Login to continue to your BITREX dashboard.</p>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">Password</label>
-            <div class="input-wrap">
-              <input class="form-control password-input" type="password" name="password" placeholder="Enter your password" required />
-              <button type="button" class="password-toggle"><i class="fa-regular fa-eye"></i></button>
+          <form action="/login" method="POST">
+            <div class="field">
+              <label for="loginPhone">Phone Number</label>
+              <input id="loginPhone" type="tel" name="phone" placeholder="0712345678" required />
             </div>
-          </div>
 
-          <button class="btn btn-primary" type="submit">
-            <i class="fa-solid fa-right-to-bracket"></i> Login
-          </button>
-        </form>
-
-        <div class="auth-actions">
-          <span>Don't have account? <span class="auth-link" data-auth-tab-link="signup">Sign up</span></span>
-          <span class="auth-link" data-auth-tab-link="forgot">Forgot password?</span>
-        </div>
-      </div>
-
-      <!-- SIGNUP -->
-      <div class="auth-panel <%= authMode === 'signup' ? 'active' : '' %>" id="auth-signup">
-        <form method="POST" action="/signup">
-          <div class="form-group">
-            <label class="form-label">Full Name</label>
-            <input class="form-control" type="text" name="name" placeholder="Enter your name" />
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Phone Number</label>
-            <input class="form-control" type="tel" name="phone" placeholder="0712345678" required />
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Email Address</label>
-            <input class="form-control" type="email" name="email" placeholder="you@example.com" required />
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Password (6 - 8 characters)</label>
-            <div class="input-wrap">
-              <input class="form-control password-input" type="password" name="password" placeholder="Create password" minlength="6" maxlength="8" required />
-              <button type="button" class="password-toggle"><i class="fa-regular fa-eye"></i></button>
+            <div class="field">
+              <label for="loginPassword">Password</label>
+              <div class="password-wrap">
+                <input id="loginPassword" type="password" name="password" placeholder="Enter password" required />
+                <button type="button" class="eye-btn" data-toggle-password="loginPassword" aria-label="Show password">👁️</button>
+              </div>
             </div>
+
+            <button class="btn btn-primary" type="submit">Login</button>
+          </form>
+
+          <div class="auth-links">
+            <div>Don’t have account? <a href="#" data-open-auth="signup">Sign up</a></div>
+            <div><a href="#" data-open-auth="forgot">Forgot password?</a></div>
+          </div>
+        </section>
+
+        <!-- SIGNUP PANEL -->
+        <section class="auth-panel <%= authMode === 'signup' ? 'active' : '' %>" id="auth-signup">
+          <div class="auth-head">
+            <h1>Create account</h1>
+            <p>Open your BITREX account to start city investments and task rewards.</p>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">Referral Code (Optional)</label>
-            <input class="form-control" type="text" name="referralCode" value="<%= referralFromQuery || '' %>" placeholder="Enter referral code if any" />
-          </div>
-
-          <button class="btn btn-primary" type="submit">
-            <i class="fa-solid fa-user-plus"></i> Create Account
-          </button>
-        </form>
-
-        <div class="auth-actions">
-          <span>Already have account? <span class="auth-link" data-auth-tab-link="login">Login</span></span>
-        </div>
-      </div>
-
-      <!-- FORGOT -->
-      <div class="auth-panel <%= authMode === 'forgot' ? 'active' : '' %>" id="auth-forgot">
-        <form method="POST" action="/forgot-password">
-          <div class="form-group">
-            <label class="form-label">Registered Email Address</label>
-            <input class="form-control" type="email" name="email" placeholder="Enter your registered email" required />
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">New Password</label>
-            <div class="input-wrap">
-              <input class="form-control password-input" type="password" name="newPassword" minlength="6" maxlength="8" placeholder="New password" required />
-              <button type="button" class="password-toggle"><i class="fa-regular fa-eye"></i></button>
+          <form action="/signup" method="POST">
+            <div class="field">
+              <label for="signupName">Full Name</label>
+              <input id="signupName" type="text" name="name" placeholder="Enter your name" />
             </div>
-          </div>
 
-          <div class="form-group">
-            <label class="form-label">Confirm New Password</label>
-            <div class="input-wrap">
-              <input class="form-control password-input" type="password" name="confirmNewPassword" minlength="6" maxlength="8" placeholder="Confirm new password" required />
-              <button type="button" class="password-toggle"><i class="fa-regular fa-eye"></i></button>
+            <div class="field">
+              <label for="signupPhone">Phone Number</label>
+              <input id="signupPhone" type="tel" name="phone" placeholder="0712345678" required />
             </div>
+
+            <div class="field">
+              <label for="signupEmail">Email Address</label>
+              <input id="signupEmail" type="email" name="email" placeholder="you@example.com" required />
+            </div>
+
+            <div class="field">
+              <label for="signupPassword">Password</label>
+              <div class="password-wrap">
+                <input id="signupPassword" type="password" name="password" minlength="6" maxlength="8" placeholder="6-8 characters" required />
+                <button type="button" class="eye-btn" data-toggle-password="signupPassword" aria-label="Show password">👁️</button>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="signupReferral">Referral Code (optional)</label>
+              <input id="signupReferral" type="text" name="referralCode" value="<%= referralFromQuery || '' %>" placeholder="Enter referral code if any" />
+            </div>
+
+            <button class="btn btn-primary" type="submit">Create account</button>
+          </form>
+
+          <div class="auth-links">
+            <div>Already have an account? <a href="#" data-open-auth="login">Login</a></div>
+          </div>
+          <div class="auth-note">
+            Password must be between 6 and 8 characters.
+          </div>
+        </section>
+
+        <!-- FORGOT PANEL -->
+        <section class="auth-panel <%= authMode === 'forgot' ? 'active' : '' %>" id="auth-forgot">
+          <div class="auth-head">
+            <h1>Reset password</h1>
+            <p>Use your registered email address to set a new password.</p>
           </div>
 
-          <button class="btn btn-primary" type="submit">
-            <i class="fa-solid fa-key"></i> Reset Password
-          </button>
-        </form>
+          <form action="/forgot-password" method="POST">
+            <div class="field">
+              <label for="forgotEmail">Registered Email</label>
+              <input id="forgotEmail" type="email" name="email" placeholder="you@example.com" required />
+            </div>
 
-        <div class="auth-actions">
-          <span>Remembered password? <span class="auth-link" data-auth-tab-link="login">Login</span></span>
-          <span>Need an account? <span class="auth-link" data-auth-tab-link="signup">Sign up</span></span>
-        </div>
-      </div>
+            <div class="field">
+              <label for="forgotNewPassword">New Password</label>
+              <div class="password-wrap">
+                <input id="forgotNewPassword" type="password" name="newPassword" minlength="6" maxlength="8" placeholder="6-8 characters" required />
+                <button type="button" class="eye-btn" data-toggle-password="forgotNewPassword" aria-label="Show password">👁️</button>
+              </div>
+            </div>
 
-      <div class="auth-note">
-        Use your registered phone number and password to access the dashboard. Admin access only appears for approved admin phone numbers after successful login.
-      </div>
-    </div>
-  </div>
+            <div class="field">
+              <label for="forgotConfirmPassword">Confirm New Password</label>
+              <div class="password-wrap">
+                <input id="forgotConfirmPassword" type="password" name="confirmNewPassword" minlength="6" maxlength="8" placeholder="Repeat new password" required />
+                <button type="button" class="eye-btn" data-toggle-password="forgotConfirmPassword" aria-label="Show password">👁️</button>
+              </div>
+            </div>
 
-<% } else { %>
+            <button class="btn btn-primary" type="submit">Reset password</button>
+          </form>
 
-  <!-- ================= DASHBOARD ================= -->
-  <div class="app-shell">
-    <div class="top-banner">
-      <div class="brand-wrap">
-        <div class="brand-logo"><i class="fa-solid fa-chart-line"></i></div>
-        <div>
-          <h1 class="brand-title">BITREX-722 Dashboard</h1>
-          <p class="brand-sub">Manage your cities, tasks, deposits, withdrawals, rewards and account activity in one place.</p>
-        </div>
-      </div>
-
-      <div class="phone-chip">
-        <i class="fa-solid fa-phone"></i>
-        <span><%= user.phone %></span>
+          <div class="auth-links">
+            <div>Remembered your password? <a href="#" data-open-auth="login">Back to login</a></div>
+          </div>
+        </section>
       </div>
     </div>
 
-    <% if (message || error) { %>
+  <% } else { %>
+    <!-- =========================
+         LOGGED IN APP
+         ========================= -->
+    <div class="shell">
       <div class="alert-stack">
         <% if (message) { %>
-          <div class="alert alert-success">
-            <i class="fa-solid fa-circle-check"></i>
-            <div><%= message %></div>
-          </div>
+          <div class="alert success"><%= message %></div>
         <% } %>
         <% if (error) { %>
-          <div class="alert alert-error">
-            <i class="fa-solid fa-triangle-exclamation"></i>
-            <div><%= error %></div>
-          </div>
+          <div class="alert error"><%= error %></div>
         <% } %>
       </div>
-    <% } %>
 
-    <!-- HOME TAB -->
-    <section class="tab-view <%= activeTab === 'home' ? 'active' : '' %>" id="tab-home">
-      <div class="dashboard-grid">
-        <div class="stats-grid">
-          <div class="stat-card balance">
-            <div class="stat-top">
-              <div>
-                <div class="stat-label">Wallet Balance</div>
-                <h2 class="stat-value">KSH <%= Number(user.balance || 0).toLocaleString() %></h2>
-              </div>
-              <div class="stat-icon"><i class="fa-solid fa-wallet"></i></div>
-            </div>
-            <div class="muted">Available balance for investments, withdrawals and rewards.</div>
-          </div>
-
-          <div class="stat-card income">
-            <div class="stat-top">
-              <div>
-                <div class="stat-label">Today's Income</div>
-                <h2 class="stat-value">KSH <%= Number(user.todayIncome || 0).toLocaleString() %></h2>
-              </div>
-              <div class="stat-icon"><i class="fa-solid fa-coins"></i></div>
-            </div>
-            <div class="muted">Income earned from today's completed tasks and rewards.</div>
-          </div>
-
-          <div class="stat-card earnings">
-            <div class="stat-top">
-              <div>
-                <div class="stat-label">Total Earnings</div>
-                <h2 class="stat-value">KSH <%= Number(user.totalEarnings || 0).toLocaleString() %></h2>
-              </div>
-              <div class="stat-icon"><i class="fa-solid fa-sack-dollar"></i></div>
-            </div>
-            <div class="muted">Total accumulated earnings across all activities on the platform.</div>
+      <header class="topbar glass">
+        <div class="topbar-left">
+          <div class="topbar-logo">B</div>
+          <div>
+            <h1>BITREX Dashboard</h1>
+            <p>Manage tasks, investments, deposits and rewards.</p>
           </div>
         </div>
+        <div class="phone-pill">📱 <%= user.phone %></div>
+      </header>
 
-        <div class="section-grid">
-          <div class="panel">
-            <div class="panel-title">
-              <div>
-                <h3>Wallet Actions</h3>
-                <p>Deposit to your wallet or request a withdrawal to your number.</p>
-              </div>
+      <!-- HOME PAGE -->
+      <section class="page <%= activeTab === 'home' || !activeTab ? 'active' : '' %>" id="page-home">
+        <div class="stack">
+          <div class="grid grid-3">
+            <div class="wallet-card card balance">
+              <div class="wallet-label">Wallet Balance</div>
+              <div class="wallet-value">KSH <%= formatMoney(user.balance) %></div>
+              <div class="wallet-sub">Available balance for investments and withdrawals</div>
             </div>
 
-            <div class="card-grid-2">
-              <!-- Deposit -->
-              <div class="action-card">
-                <div class="action-head">
-                  <div class="action-icon"><i class="fa-solid fa-arrow-down"></i></div>
-                  <div>
-                    <h4 class="action-title">Deposit</h4>
-                    <p class="action-sub">Minimum deposit is KSH 200 via M-Pesa / IntaSend.</p>
-                  </div>
-                </div>
+            <div class="wallet-card card today">
+              <div class="wallet-label">Today’s Income</div>
+              <div class="wallet-value">KSH <%= formatMoney(user.todayIncome) %></div>
+              <div class="wallet-sub"><%= user.tasksCompletedToday || 0 %> task(s) completed today</div>
+            </div>
 
-                <form method="POST" action="/deposit" class="mini-inputs">
-                  <input class="form-control" type="number" min="200" name="amount" placeholder="Amount (e.g 500)" required />
-                  <input class="form-control" type="tel" name="phone" value="<%= user.phone %>" placeholder="Phone number" required />
-                  <button class="btn btn-success" type="submit">
-                    <i class="fa-solid fa-mobile-screen-button"></i> Deposit Now
-                  </button>
-                </form>
-              </div>
-
-              <!-- Withdrawal -->
-              <div class="action-card">
-                <div class="action-head">
-                  <div class="action-icon"><i class="fa-solid fa-arrow-up"></i></div>
-                  <div>
-                    <h4 class="action-title">Withdraw</h4>
-                    <p class="action-sub">Minimum withdrawal is KSH 300. Admin approval required.</p>
-                  </div>
-                </div>
-
-                <form method="POST" action="/withdraw" class="mini-inputs">
-                  <input class="form-control" type="number" min="300" name="amount" placeholder="Amount (e.g 1000)" required />
-                  <input class="form-control" type="tel" name="phone" value="<%= user.phone %>" placeholder="Phone number" required />
-                  <input class="form-control" type="password" name="withdrawalPassword" placeholder="Withdrawal password" required />
-                  <button class="btn btn-warning" type="submit">
-                    <i class="fa-solid fa-paper-plane"></i> Request Withdrawal
-                  </button>
-                </form>
-              </div>
+            <div class="wallet-card card total">
+              <div class="wallet-label">Total Earnings</div>
+              <div class="wallet-value">KSH <%= formatMoney(user.totalEarnings) %></div>
+              <div class="wallet-sub">Lifetime earnings from tasks, bonuses and rewards</div>
             </div>
           </div>
 
-          <div class="panel">
-            <div class="panel-title">
-              <div>
-                <h3>Active Investments</h3>
-                <p>Your currently joined city packages and their daily limits.</p>
+          <div class="actions-grid">
+            <div class="action-card">
+              <div class="card-title">
+                <h3>Deposit</h3>
+                <span class="pill green">Minimum KSH 200</span>
               </div>
+              <p>Fund your wallet instantly through IntaSend M-Pesa STK Push.</p>
+              <form action="/deposit" method="POST">
+                <input type="number" name="amount" min="200" step="1" placeholder="Enter amount" required />
+                <input type="tel" name="phone" value="<%= user.phone %>" placeholder="Phone number" required />
+                <button class="btn btn-success" type="submit">Deposit Now</button>
+              </form>
             </div>
 
-            <% if (user.activeCities && user.activeCities.length) { %>
+            <div class="action-card">
+              <div class="card-title">
+                <h3>Withdraw</h3>
+                <span class="pill orange">Minimum KSH 300</span>
+              </div>
+              <p>Submit a withdrawal request to your registered M-Pesa number.</p>
+              <form action="/withdraw" method="POST">
+                <input type="number" name="amount" min="300" step="1" placeholder="Enter amount" required />
+                <input type="tel" name="phone" value="<%= user.phone %>" placeholder="Phone number" required />
+                <input type="password" name="withdrawalPassword" placeholder="Withdrawal password" required />
+                <button class="btn btn-warning" type="submit">Request Withdrawal</button>
+              </form>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">
+              <h2>Active Investments</h2>
+              <span class="pill"><%= user.activeCities.length %> active city(ies)</span>
+            </div>
+
+            <% if (!user.activeCities.length) { %>
+              <div class="empty">
+                You have not joined any city yet. Open the <strong>Cities</strong> tab to activate your first investment package.
+              </div>
+            <% } else { %>
               <div class="investments-list">
                 <% user.activeCities.forEach(function(code){ 
-                     const city = cityConfig[code];
-                     const joinedAt = user.cityJoinDates && user.cityJoinDates[code];
-                     const days = joinedAt ? Math.floor((Date.now() - new Date(joinedAt).getTime()) / (1000*60*60*24)) + 1 : 0;
+                    const city = cityConfig[code];
+                    if (!city) return;
                 %>
                   <div class="investment-item">
-                    <div class="investment-left">
-                      <h4><%= city.city %> <small style="color:var(--muted);font-weight:700;">(<%= code %>)</small></h4>
-                      <div class="meta-list">
-                        <div>Investment: KSH <%= Number(city.amount || 0).toLocaleString() %></div>
-                        <div>Tasks per day: <%= city.tasksPerDay %></div>
-                        <div>Daily income: KSH <%= Number(city.dailyIncome || 0).toLocaleString() %></div>
-                        <div>Days active: <%= days %> / <%= city.durationDays || 365 %></div>
+                    <div class="investment-head">
+                      <div>
+                        <strong><%= city.city %></strong>
+                        <div class="muted tiny">Package code: <%= code %></div>
+                      </div>
+                      <% if (code === 'INTERN' && internExpired) { %>
+                        <span class="pill red">Expired</span>
+                      <% } else { %>
+                        <span class="pill green">Active</span>
+                      <% } %>
+                    </div>
+
+                    <div class="grid grid-2">
+                      <div class="mini-stat">
+                        <div class="label">Investment Amount</div>
+                        <div class="value">KSH <%= formatMoney(city.amount) %></div>
+                      </div>
+                      <div class="mini-stat">
+                        <div class="label">Tasks Per Day</div>
+                        <div class="value"><%= city.tasksPerDay %></div>
+                      </div>
+                      <div class="mini-stat">
+                        <div class="label">Daily Income</div>
+                        <div class="value">KSH <%= formatMoney(city.dailyIncome) %></div>
+                      </div>
+                      <div class="mini-stat">
+                        <div class="label">Duration</div>
+                        <div class="value"><%= city.durationDays %> day(s)</div>
                       </div>
                     </div>
-                    <span class="badge active"><i class="fa-solid fa-circle-check"></i> Active</span>
                   </div>
                 <% }) %>
               </div>
-            <% } else { %>
-              <div class="empty-state">
-                You do not have any active city investments yet. Open the <strong>Cities</strong> tab and join a city package to unlock tasks and daily rewards.
-              </div>
+            <% } %>
+
+            <% if (isAdminPhone) { %>
+              <a class="admin-link" href="/admin">🛡️ Open Admin Portal</a>
             <% } %>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- TASK TAB -->
-    <section class="tab-view <%= activeTab === 'task' ? 'active' : '' %>" id="tab-task">
-      <div class="panel" style="margin-bottom:18px;">
-        <div class="panel-title">
-          <div>
-            <h3>Daily Tasks</h3>
-            <p>Tap claim on any available task. A 1-minute countdown will run, then the task becomes claimed automatically and cannot be claimed again.</p>
+      <!-- TASK PAGE -->
+      <section class="page <%= activeTab === 'task' ? 'active' : '' %>" id="page-task">
+        <div class="card" style="margin-bottom:16px;">
+          <div class="card-title">
+            <h2>Task Center</h2>
+            <span class="pill">
+              Completed <strong style="margin-left:6px;"><%= user.tasksCompletedToday || 0 %>/<%= taskLimitToday || 0 %></strong>
+            </span>
           </div>
-          <span class="badge pending">
-            <i class="fa-solid fa-list-check"></i>
-            <%= user.tasksCompletedToday || 0 %> / <%= taskLimitToday || 0 %> Claimed Today
-          </span>
+          <p class="muted" style="margin:0;">
+            Click <strong>Claim</strong> on a task. A 1 minute countdown starts. When it finishes, the task is submitted automatically and changes to <strong>Claimed</strong>.
+          </p>
         </div>
 
-        <% if (!user.activeCities || !user.activeCities.length) { %>
-          <div class="empty-state">
-            No task allowed without city investments. Join a city package first from the <strong>Cities</strong> tab.
+        <% if (!user.activeCities.length) { %>
+          <div class="empty">
+            You need at least one active city investment before you can claim tasks.
           </div>
         <% } else if ((taskLimitToday || 0) <= 0) { %>
-          <div class="empty-state">
-            No available tasks right now. Your active package may have expired or the daily task limit is unavailable.
+          <div class="empty">
+            No tasks are available right now. Your INTERN package may have expired.
           </div>
         <% } else { %>
-          <div class="task-grid">
-            <% tasks.forEach(function(taskName, idx){ 
-                const alreadyClaimed = (user.claimedTasksToday || []).includes(taskName);
+          <div class="tasks-grid" id="tasksGrid">
+            <% tasks.forEach(function(taskName, index){ 
+                const claimed = Array.isArray(user.claimedTasksToday) && user.claimedTasksToday.includes(taskName);
                 const limitReached = (user.tasksCompletedToday || 0) >= (taskLimitToday || 0);
             %>
-              <div class="task-card" data-task-card data-task-name="<%= taskName %>" data-claimed="<%= alreadyClaimed ? 'true' : 'false' %>">
-                <div class="task-top">
-                  <div>
-                    <h4 class="task-name"><%= taskName %></h4>
-                    <p class="task-price">Task #<%= idx + 1 %></p>
+              <div class="task-card"
+                   data-task-card
+                   data-task-name="<%= taskName %>"
+                   data-claimed="<%= claimed ? 'true' : 'false' %>"
+                   data-disabled="<%= (claimed || limitReached) ? 'true' : 'false' %>">
+                <div class="task-meta">
+                  <span class="pill">Task #<%= index + 1 %></span>
+                  <span class="pill green">Reward KSH 50</span>
+                </div>
+                <h3><%= taskName %></h3>
+                <div class="task-actions">
+                  <div class="countdown" data-countdown>
+                    <%= claimed ? 'Claimed' : 'Ready to claim' %>
                   </div>
-                  <% if (alreadyClaimed) { %>
-                    <span class="badge claimed"><i class="fa-solid fa-check"></i> Claimed</span>
-                  <% } else { %>
-                    <span class="badge pending"><i class="fa-solid fa-bolt"></i> Ready</span>
-                  <% } %>
-                </div>
-
-                <div class="reward-pill">
-                  <i class="fa-solid fa-gift"></i> Reward: KSH 50
-                </div>
-
-                <div class="muted">
-                  Complete the 1-minute order countdown to receive your reward directly to your wallet balance.
-                </div>
-
-                <div class="task-progress">
-                  <div class="countdown-box">
-                    <span><i class="fa-regular fa-clock"></i> Countdown</span>
-                    <strong class="countdown-text"><%= alreadyClaimed ? 'Completed' : '01:00' %></strong>
-                  </div>
-
-                  <% if (alreadyClaimed) { %>
-                    <button class="btn btn-dark" type="button" disabled>
-                      <i class="fa-solid fa-check"></i> Claimed
-                    </button>
-                  <% } else { %>
-                    <button
-                      class="btn btn-primary task-claim-btn"
-                      type="button"
-                      data-task="<%= taskName %>"
-                      <%= limitReached ? 'disabled' : '' %>>
-                      <i class="fa-solid fa-hand-holding-dollar"></i> Claim
-                    </button>
-                  <% } %>
+                  <button
+                    class="btn <%= claimed ? 'btn-secondary' : 'btn-primary' %>"
+                    type="button"
+                    data-claim-btn
+                    <%= (claimed || limitReached) ? 'disabled' : '' %>>
+                    <%= claimed ? 'Claimed' : 'Claim' %>
+                  </button>
                 </div>
               </div>
             <% }) %>
           </div>
         <% } %>
-      </div>
-    </section>
+      </section>
 
-    <!-- CITIES TAB -->
-    <section class="tab-view <%= activeTab === 'city' ? 'active' : '' %>" id="tab-city">
-      <div class="panel" style="margin-bottom:18px;">
-        <div class="panel-title">
-          <div>
-            <h3>City Packages</h3>
-            <p>Join a city to unlock daily tasks and income. Sign the city contract before activating a package.</p>
-          </div>
-        </div>
-
+      <!-- CITIES PAGE -->
+      <section class="page <%= activeTab === 'city' ? 'active' : '' %>" id="page-cities">
         <div class="cities-grid">
           <% Object.keys(cityConfig).forEach(function(code){ 
-               const city = cityConfig[code];
-               const joined = user.activeCities && user.activeCities.includes(code);
+              const city = cityConfig[code];
+              const joined = user.activeCities.includes(code);
+              const expired = code === 'INTERN' && internExpired;
           %>
-            <div class="city-card">
-              <div class="city-cover" style="background-image:url('<%= city.image %>');">
-                <span class="city-chip"><%= code %></span>
+            <div class="city-card card">
+              <div class="city-banner" style="background-image:url('<%= city.image %>')">
+                <div class="city-top">
+                  <div>
+                    <h3><%= city.city %></h3>
+                    <p>Package <strong><%= code %></strong></p>
+                  </div>
+                  <% if (joined) { %>
+                    <% if (expired) { %>
+                      <span class="pill red">Expired</span>
+                    <% } else { %>
+                      <span class="pill green">Joined</span>
+                    <% } %>
+                  <% } else { %>
+                    <span class="pill">Available</span>
+                  <% } %>
+                </div>
               </div>
 
               <div class="city-body">
-                <h3 class="city-title"><%= city.city %></h3>
-
-                <div class="city-metrics">
-                  <div class="city-metric">
-                    <small>Investment</small>
-                    <strong>KSH <%= Number(city.amount || 0).toLocaleString() %></strong>
+                <div class="city-stats">
+                  <div class="mini-stat">
+                    <div class="label">Amount</div>
+                    <div class="value">KSH <%= formatMoney(city.amount) %></div>
                   </div>
-                  <div class="city-metric">
-                    <small>Tasks / Day</small>
-                    <strong><%= city.tasksPerDay %></strong>
+                  <div class="mini-stat">
+                    <div class="label">Tasks / Day</div>
+                    <div class="value"><%= city.tasksPerDay %></div>
                   </div>
-                  <div class="city-metric">
-                    <small>Daily Income</small>
-                    <strong>KSH <%= Number(city.dailyIncome || 0).toLocaleString() %></strong>
+                  <div class="mini-stat">
+                    <div class="label">Daily Income</div>
+                    <div class="value">KSH <%= formatMoney(city.dailyIncome) %></div>
                   </div>
-                  <div class="city-metric">
-                    <small>Duration</small>
-                    <strong><%= city.durationDays || 365 %> days</strong>
+                  <div class="mini-stat">
+                    <div class="label">Duration</div>
+                    <div class="value"><%= city.durationDays %> days</div>
                   </div>
                 </div>
 
-                <% if (joined) { %>
-                  <div class="badge active">
-                    <i class="fa-solid fa-circle-check"></i> Already Joined
+                <% if (joined && !expired) { %>
+                  <div class="empty" style="padding:16px;">
+                    You have already joined this city.
+                  </div>
+                <% } else if (joined && expired) { %>
+                  <div class="empty" style="padding:16px;">
+                    This INTERN package has expired and cannot be rejoined from the same active slot.
                   </div>
                 <% } else { %>
-                  <form class="city-form" method="POST" action="/invest/<%= code %>">
-                    <input
-                      class="form-control"
-                      type="text"
-                      name="signature"
-                      placeholder="Type your full name as contract signature"
-                      required
-                    />
+                  <form class="city-form" action="/invest/<%= code %>" method="POST">
+                    <input type="text" name="signature" placeholder="Type your signature to accept city contract" required />
                     <button class="btn btn-primary" type="submit">
-                      <i class="fa-solid fa-building"></i>
-                      Join <%= city.city %>
+                      <%= city.amount > 0 ? `Invest KSH ${formatMoney(city.amount)}` : 'Join for Free' %>
                     </button>
                   </form>
                 <% } %>
@@ -1606,758 +1275,678 @@
             </div>
           <% }) %>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- SPIN TAB -->
-    <section class="tab-view <%= activeTab === 'spin' ? 'active' : '' %>" id="tab-spin">
-      <div class="spin-wrap">
-        <div class="wheel-card">
-          <div class="panel-title" style="justify-content:center;margin-bottom:18px;">
-            <div>
-              <h3 style="text-align:center;">Lucky Spin Wheel</h3>
-              <p style="text-align:center;">Every spin wins a reward. Use your free spin first, then 2 gems per spin.</p>
+      <!-- SPIN PAGE -->
+      <section class="page <%= activeTab === 'spin' ? 'active' : '' %>" id="page-spin">
+        <div class="card">
+          <div class="spin-wrap">
+            <div class="wheel-pointer"></div>
+            <div class="wheel" id="spinWheel">
+              <div class="wheel-center">SPIN</div>
+
+              <div class="wheel-label" style="transform: rotate(30deg) translate(108px) rotate(60deg);">3 Gems</div>
+              <div class="wheel-label" style="transform: rotate(90deg) translate(108px) rotate(0deg);">1 Gem</div>
+              <div class="wheel-label" style="transform: rotate(150deg) translate(108px) rotate(-60deg);">2 Gems</div>
+              <div class="wheel-label" style="transform: rotate(210deg) translate(108px) rotate(-120deg);">KSH 50</div>
+              <div class="wheel-label" style="transform: rotate(270deg) translate(108px) rotate(-180deg);">KSH 100</div>
+              <div class="wheel-label" style="transform: rotate(330deg) translate(108px) rotate(-240deg);">KSH 150</div>
             </div>
-          </div>
 
-          <div class="wheel-pointer"></div>
-          <div class="wheel-circle" id="wheelCircle">
-            <div class="wheel-center"><i class="fa-solid fa-star"></i></div>
-          </div>
-
-          <div class="inline-actions" style="justify-content:center;">
-            <button class="btn btn-primary" id="spinWheelBtn" type="button">
-              <i class="fa-solid fa-dharmachakra"></i> Spin Now
-            </button>
-          </div>
-
-          <div class="spin-result" id="spinResultBox" style="margin-top:18px;">
-            Tap <strong>Spin Now</strong> to win a reward. Possible rewards include Gems and cash prizes.
-          </div>
-        </div>
-
-        <div class="spin-side">
-          <div class="spin-info">
-            <div class="panel-title">
-              <div>
-                <h3>Spin Wallet</h3>
-                <p>Your current roulette resources and reward balance state.</p>
+            <div class="grid grid-2" style="width:100%;max-width:620px;">
+              <div class="mini-stat">
+                <div class="label">Gems</div>
+                <div class="value" id="spinGems"><%= Number(user.gems || 0) %></div>
+              </div>
+              <div class="mini-stat">
+                <div class="label">Free Spins</div>
+                <div class="value" id="spinFree"><%= Number(user.freeSpins || 0) %></div>
               </div>
             </div>
 
-            <div class="spin-metrics">
-              <div class="spin-metric">
-                <span>Free Spins</span>
-                <strong id="spinFreeSpins"><%= Number(user.freeSpins || 0) %></strong>
-              </div>
-              <div class="spin-metric">
-                <span>Gems</span>
-                <strong id="spinGems"><%= Number(user.gems || 0) %></strong>
-              </div>
-              <div class="spin-metric">
-                <span>Wallet Balance</span>
-                <strong id="spinWalletBalance">KSH <%= Number(user.balance || 0).toLocaleString() %></strong>
-              </div>
-            </div>
-          </div>
-
-          <div class="spin-info">
-            <div class="panel-title">
-              <div>
-                <h3>How it works</h3>
-                <p>Spin the wheel and win immediately.</p>
-              </div>
+            <div class="muted" style="max-width:720px;line-height:1.7;">
+              Every spin gives a reward. If you have a free spin it is used first. Otherwise 2 Gems are used automatically.
             </div>
 
-            <div class="detail-grid">
-              <div class="detail-card">
-                <h4>100% Reward Chance</h4>
-                <p>Every valid spin gives a reward. The system may award Gems or cash such as KSH 50, KSH 100 or KSH 150 depending on the spin result.</p>
-              </div>
-              <div class="detail-card">
-                <h4>Spin Cost</h4>
-                <p>Your first available free spin is used automatically. After that, each spin uses 2 Gems.</p>
-              </div>
-            </div>
+            <div class="spin-result" id="spinResult">Tap the button below to spin and win a reward.</div>
+            <button class="btn btn-primary" id="spinBtn" type="button">Spin the Wheel</button>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- MENU TAB -->
-    <section class="tab-view <%= activeTab === 'menu' ? 'active' : '' %>" id="tab-menu">
-      <!-- Main menu list -->
-      <div class="menu-page active" id="menu-main">
-        <div class="panel-title" style="margin-bottom:18px;">
-          <div>
-            <h3>Menu</h3>
-            <p>Open any section to view details and manage your account.</p>
-          </div>
-        </div>
-
-        <div class="menu-list">
-          <button class="menu-item" type="button" data-menu-open="profile">
-            <div class="menu-item-left">
-              <div class="menu-icon"><i class="fa-solid fa-user"></i></div>
-              <div>
-                <h4>User Profile</h4>
-                <p>View phone, email and change password</p>
-              </div>
+      <!-- MENU PAGE -->
+      <section class="page <%= activeTab === 'menu' ? 'active' : '' %>" id="page-menu">
+        <!-- MENU ROOT -->
+        <div class="subpage active" data-subpage="menu-root">
+          <div class="card">
+            <div class="card-title">
+              <h2>Menu</h2>
+              <span class="pill">Account & platform settings</span>
             </div>
-            <i class="fa-solid fa-chevron-right"></i>
-          </button>
 
-          <button class="menu-item" type="button" data-menu-open="support">
-            <div class="menu-item-left">
-              <div class="menu-icon"><i class="fa-brands fa-whatsapp"></i></div>
-              <div>
-                <h4>Contact Support</h4>
-                <p>WhatsApp manager and group links</p>
-              </div>
-            </div>
-            <i class="fa-solid fa-chevron-right"></i>
-          </button>
-
-          <button class="menu-item" type="button" data-menu-open="referrals">
-            <div class="menu-item-left">
-              <div class="menu-icon"><i class="fa-solid fa-user-group"></i></div>
-              <div>
-                <h4>Referrals</h4>
-                <p>Copy link, share link and view referrals</p>
-              </div>
-            </div>
-            <i class="fa-solid fa-chevron-right"></i>
-          </button>
-
-          <button class="menu-item" type="button" data-menu-open="terms">
-            <div class="menu-item-left">
-              <div class="menu-icon"><i class="fa-solid fa-file-contract"></i></div>
-              <div>
-                <h4>Terms & Conditions</h4>
-                <p>Read platform terms and usage rules</p>
-              </div>
-            </div>
-            <i class="fa-solid fa-chevron-right"></i>
-          </button>
-
-          <button class="menu-item" type="button" data-menu-open="history">
-            <div class="menu-item-left">
-              <div class="menu-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
-              <div>
-                <h4>Transaction History</h4>
-                <p>View all deposits, withdrawals, tasks and rewards</p>
-              </div>
-            </div>
-            <i class="fa-solid fa-chevron-right"></i>
-          </button>
-
-          <button class="menu-item" type="button" data-menu-open="download">
-            <div class="menu-item-left">
-              <div class="menu-icon"><i class="fa-solid fa-download"></i></div>
-              <div>
-                <h4>Download Application</h4>
-                <p>Download the platform application to your device</p>
-              </div>
-            </div>
-            <i class="fa-solid fa-chevron-right"></i>
-          </button>
-
-          <% if (isAdminPhone) { %>
-            <a class="menu-item" href="/admin">
-              <div class="menu-item-left">
-                <div class="menu-icon"><i class="fa-solid fa-shield-halved"></i></div>
-                <div>
-                  <h4>Admin Portal</h4>
-                  <p>Access admin dashboard with approved admin phone</p>
+            <div class="menu-list">
+              <button class="menu-item" type="button" data-open-subpage="profile">
+                <div class="left">
+                  <div class="menu-icon">👤</div>
+                  <div>
+                    <strong>User Profile</strong>
+                    <div class="muted tiny">Phone, email and change password</div>
+                  </div>
                 </div>
-              </div>
-              <i class="fa-solid fa-arrow-up-right-from-square"></i>
-            </a>
-          <% } %>
-        </div>
-
-        <div class="logout-wrap">
-          <form method="POST" action="/logout">
-            <button class="btn btn-danger" type="submit">
-              <i class="fa-solid fa-right-from-bracket"></i> Logout
-            </button>
-          </form>
-        </div>
-      </div>
-
-      <!-- USER PROFILE PAGE -->
-      <div class="menu-page" id="menu-profile">
-        <div class="menu-page-head">
-          <button class="back-btn" type="button" data-menu-back><i class="fa-solid fa-arrow-left"></i></button>
-          <h3 class="page-title">User Profile</h3>
-        </div>
-
-        <div class="detail-grid">
-          <div class="detail-card">
-            <h4>Account Details</h4>
-            <div class="profile-list">
-              <div class="profile-row">
-                <span>Full Name</span>
-                <strong><%= user.name || '-' %></strong>
-              </div>
-              <div class="profile-row">
-                <span>Phone Number</span>
-                <strong><%= user.phone || '-' %></strong>
-              </div>
-              <div class="profile-row">
-                <span>Email Address</span>
-                <strong><%= user.email || '-' %></strong>
-              </div>
-              <div class="profile-row">
-                <span>Referral Code</span>
-                <strong><%= user.referralCode || '-' %></strong>
-              </div>
-              <div class="profile-row">
-                <span>Account Created</span>
-                <strong><%= user.createdAt ? new Date(user.createdAt).toLocaleString() : '-' %></strong>
-              </div>
-            </div>
-          </div>
-
-          <div class="detail-card">
-            <h4>Change Password</h4>
-            <form method="POST" action="/profile/password" class="detail-grid">
-              <div class="form-group" style="margin-bottom:0;">
-                <label class="form-label">Current Password</label>
-                <div class="input-wrap">
-                  <input class="form-control password-input" type="password" name="currentPassword" placeholder="Current password" required />
-                  <button type="button" class="password-toggle"><i class="fa-regular fa-eye"></i></button>
-                </div>
-              </div>
-
-              <div class="form-group" style="margin-bottom:0;">
-                <label class="form-label">New Password</label>
-                <div class="input-wrap">
-                  <input class="form-control password-input" type="password" name="newPassword" placeholder="New password (6 - 8 characters)" minlength="6" maxlength="8" required />
-                  <button type="button" class="password-toggle"><i class="fa-regular fa-eye"></i></button>
-                </div>
-              </div>
-
-              <button class="btn btn-primary" type="submit">
-                <i class="fa-solid fa-lock"></i> Update Password
+                <span>›</span>
               </button>
+
+              <button class="menu-item" type="button" data-open-subpage="support">
+                <div class="left">
+                  <div class="menu-icon">💬</div>
+                  <div>
+                    <strong>Contact Support</strong>
+                    <div class="muted tiny">WhatsApp manager and WhatsApp group</div>
+                  </div>
+                </div>
+                <span>›</span>
+              </button>
+
+              <button class="menu-item" type="button" data-open-subpage="referrals">
+                <div class="left">
+                  <div class="menu-icon">🔗</div>
+                  <div>
+                    <strong>Referrals</strong>
+                    <div class="muted tiny">Copy link, share and referral count</div>
+                  </div>
+                </div>
+                <span>›</span>
+              </button>
+
+              <button class="menu-item" type="button" data-open-subpage="terms">
+                <div class="left">
+                  <div class="menu-icon">📜</div>
+                  <div>
+                    <strong>Terms & Conditions</strong>
+                    <div class="muted tiny">Read the platform terms and policies</div>
+                  </div>
+                </div>
+                <span>›</span>
+              </button>
+
+              <button class="menu-item" type="button" data-open-subpage="transactions">
+                <div class="left">
+                  <div class="menu-icon">🧾</div>
+                  <div>
+                    <strong>Transaction History</strong>
+                    <div class="muted tiny">View all your account transactions</div>
+                  </div>
+                </div>
+                <span>›</span>
+              </button>
+
+              <button class="menu-item" type="button" data-open-subpage="download">
+                <div class="left">
+                  <div class="menu-icon">⬇️</div>
+                  <div>
+                    <strong>Download Application</strong>
+                    <div class="muted tiny">Download the platform application to your device</div>
+                  </div>
+                </div>
+                <span>›</span>
+              </button>
+            </div>
+
+            <form action="/logout" method="POST" style="margin-top:18px;">
+              <button class="btn btn-danger" type="submit" style="width:100%;">Logout</button>
             </form>
           </div>
         </div>
-      </div>
 
-      <!-- CONTACT SUPPORT PAGE -->
-      <div class="menu-page" id="menu-support">
-        <div class="menu-page-head">
-          <button class="back-btn" type="button" data-menu-back><i class="fa-solid fa-arrow-left"></i></button>
-          <h3 class="page-title">Contact Support</h3>
+        <!-- PROFILE -->
+        <div class="subpage" data-subpage="profile">
+          <div class="back-row">
+            <button class="back-btn" type="button" data-back-menu>←</button>
+            <h2 class="section-title">User Profile</h2>
+          </div>
+
+          <div class="card">
+            <div class="profile-grid">
+              <div class="detail-row">
+                <div class="label">Full Name</div>
+                <div class="value"><%= user.name || 'Investor' %></div>
+              </div>
+              <div class="detail-row">
+                <div class="label">Phone Number</div>
+                <div class="value"><%= user.phone %></div>
+              </div>
+              <div class="detail-row">
+                <div class="label">Email Address</div>
+                <div class="value"><%= user.email || 'Not set' %></div>
+              </div>
+              <div class="detail-row">
+                <div class="label">Referral Code</div>
+                <div class="value"><%= user.referralCode || 'N/A' %></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top:16px;">
+            <div class="card-title">
+              <h2>Change Password</h2>
+            </div>
+            <form action="/profile/password" method="POST" class="stack">
+              <div class="field" style="margin:0;">
+                <label for="currentPassword">Current Password</label>
+                <div class="password-wrap">
+                  <input id="currentPassword" type="password" name="currentPassword" required />
+                  <button type="button" class="eye-btn" data-toggle-password="currentPassword">👁️</button>
+                </div>
+              </div>
+
+              <div class="field" style="margin:0;">
+                <label for="newPasswordProfile">New Password</label>
+                <div class="password-wrap">
+                  <input id="newPasswordProfile" type="password" name="newPassword" minlength="6" maxlength="8" required />
+                  <button type="button" class="eye-btn" data-toggle-password="newPasswordProfile">👁️</button>
+                </div>
+              </div>
+
+              <button class="btn btn-primary" type="submit">Update Password</button>
+            </form>
+          </div>
         </div>
 
-        <div class="detail-grid">
-          <div class="detail-card">
-            <h4>WhatsApp Manager</h4>
-            <p>Reach our manager directly on WhatsApp for account, payment and platform assistance.</p>
-            <div class="inline-actions" style="margin-top:14px;">
-              <a class="btn btn-success small-btn" href="https://wa.me/254780535898" target="_blank">
-                <i class="fa-brands fa-whatsapp"></i> Chat 0780535898
+        <!-- SUPPORT -->
+        <div class="subpage" data-subpage="support">
+          <div class="back-row">
+            <button class="back-btn" type="button" data-back-menu>←</button>
+            <h2 class="section-title">Contact Support</h2>
+          </div>
+
+          <div class="card">
+            <div class="support-links">
+              <a class="support-link" href="https://wa.me/254780535898" target="_blank" rel="noopener noreferrer">
+                <div>
+                  <strong>WhatsApp Manager</strong>
+                  <div class="muted tiny">0780535898</div>
+                </div>
+                <span>Open</span>
+              </a>
+
+              <a class="support-link" href="https://chat.whatsapp.com/LLYrOJazzxsHqxnqdJrc2q" target="_blank" rel="noopener noreferrer">
+                <div>
+                  <strong>WhatsApp Group</strong>
+                  <div class="muted tiny">Join the BITREX community group</div>
+                </div>
+                <span>Open</span>
               </a>
             </div>
           </div>
-
-          <div class="detail-card">
-            <h4>WhatsApp Group</h4>
-            <p>Join the official community group for updates, announcements and help from the platform team.</p>
-            <div class="inline-actions" style="margin-top:14px;">
-              <a class="btn btn-primary small-btn" href="https://chat.whatsapp.com/LLYrOJazzxsHqxnqdJrc2q" target="_blank">
-                <i class="fa-brands fa-whatsapp"></i> Join WhatsApp Group
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- REFERRALS PAGE -->
-      <div class="menu-page" id="menu-referrals">
-        <div class="menu-page-head">
-          <button class="back-btn" type="button" data-menu-back><i class="fa-solid fa-arrow-left"></i></button>
-          <h3 class="page-title">Referrals</h3>
         </div>
 
-        <div class="detail-grid">
-          <div class="detail-card">
-            <h4>Your Referral Performance</h4>
-            <div class="profile-list">
-              <div class="profile-row">
-                <span>Referral Code</span>
-                <strong><%= user.referralCode || '-' %></strong>
-              </div>
-              <div class="profile-row">
-                <span>Number of Referrals</span>
-                <strong><%= Number(user.referredCount || 0) %></strong>
-              </div>
-              <div class="profile-row">
-                <span>Bonus Status</span>
-                <strong><%= user.referralBonusEarned ? 'Bonus Earned' : 'Not yet earned' %></strong>
-              </div>
-            </div>
+        <!-- REFERRALS -->
+        <div class="subpage" data-subpage="referrals">
+          <div class="back-row">
+            <button class="back-btn" type="button" data-back-menu>←</button>
+            <h2 class="section-title">Referrals</h2>
           </div>
 
-          <div class="detail-card">
-            <h4>Share Referral Link</h4>
+          <div class="card">
             <div class="referral-box">
-              <div class="ref-link-wrap">
-                <input class="form-control" type="text" id="referralLinkInput" readonly value="<%= referralLink || '' %>"/>
-                <button class="btn btn-primary small-btn" type="button" id="copyReferralBtn">
-                  <i class="fa-regular fa-copy"></i> Copy Link
-                </button>
-                <button class="btn btn-success small-btn" type="button" id="shareReferralBtn">
-                  <i class="fa-solid fa-share-nodes"></i> Share
-                </button>
+              <div class="grid grid-2">
+                <div class="mini-stat">
+                  <div class="label">Referral Code</div>
+                  <div class="value"><%= user.referralCode || 'N/A' %></div>
+                </div>
+                <div class="mini-stat">
+                  <div class="label">Total Referrals</div>
+                  <div class="value"><%= Number(user.referredCount || 0) %></div>
+                </div>
               </div>
-              <p class="muted">When a friend joins a city using your referral, your referral count increases. According to your backend logic, one-time bonus is triggered after enough successful referrals.</p>
+
+              <div>
+                <div class="muted" style="margin-bottom:10px;">Your referral link</div>
+                <div class="copy-wrap">
+                  <input id="referralLinkInput" type="text" value="<%= referralLink || '' %>" readonly />
+                  <button class="btn btn-secondary" type="button" id="copyReferralBtn">Copy Link</button>
+                  <button class="btn btn-primary" type="button" id="shareReferralBtn">Share</button>
+                </div>
+              </div>
+
+              <div class="empty" style="text-align:left;">
+                Referral bonus: when you refer a friend who joins a city, you earn progress toward the one-time KSH 300 referral bonus after 5 qualifying referrals.
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- TERMS PAGE -->
-      <div class="menu-page" id="menu-terms">
-        <div class="menu-page-head">
-          <button class="back-btn" type="button" data-menu-back><i class="fa-solid fa-arrow-left"></i></button>
-          <h3 class="page-title">Terms & Conditions</h3>
+        <!-- TERMS -->
+        <div class="subpage" data-subpage="terms">
+          <div class="back-row">
+            <button class="back-btn" type="button" data-back-menu>←</button>
+            <h2 class="section-title">Terms & Conditions</h2>
+          </div>
+
+          <div class="card">
+            <div class="terms">
+              <div>
+                <h4>1. Acceptance of Terms</h4>
+                <div>By accessing and using this platform, you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.</div>
+              </div>
+
+              <div>
+                <h4>2. Investment Risks</h4>
+                <div>All investments carry risk. Past performance is not indicative of future results. You should carefully consider your investment objectives, level of experience, and risk appetite before making any investment decisions.</div>
+              </div>
+
+              <div>
+                <h4>3. Account Responsibility</h4>
+                <div>You are responsible for maintaining the confidentiality of your account and password. You agree to accept responsibility for all activities that occur under your account. Notify us immediately of any unauthorized use.</div>
+              </div>
+
+              <div>
+                <h4>4. Deposits and Withdrawals</h4>
+                <div>Minimum deposit amount is Ksh200. Minimum withdrawal amount is Ksh300. Withdrawals are processed within 24 hours. We reserve the right to request verification documents before processing withdrawals.</div>
+              </div>
+
+              <div>
+                <h4>5. Referral Program</h4>
+                <div>Referral bonuses are when you refer a friend to join a city you earn a one time bonus of ksh300.</div>
+              </div>
+
+              <div>
+                <h4>6. Privacy Policy</h4>
+                <div>We respect your privacy and are committed to protecting your personal data. We collect and process personal information in accordance with applicable data protection laws.</div>
+              </div>
+
+              <div>
+                <h4>7. Prohibited Activities</h4>
+                <div>Users are prohibited from: creating multiple accounts, using automated systems, engaging in fraudulent activities, or attempting to manipulate the platform in any way.</div>
+              </div>
+
+              <div>
+                <h4>8. Termination</h4>
+                <div>We may terminate or suspend your account immediately, without prior notice, for any breach of these Terms. Upon termination, your right to use the platform will immediately cease.</div>
+              </div>
+
+              <div>
+                <h4>9. Contact Us</h4>
+                <div>If you have any questions about these Terms, please contact our support team or hiring manager.</div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div class="terms-box">
-1. Acceptance of Terms
-By accessing and using this platform, you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.
+        <!-- TRANSACTIONS -->
+        <div class="subpage" data-subpage="transactions">
+          <div class="back-row">
+            <button class="back-btn" type="button" data-back-menu>←</button>
+            <h2 class="section-title">Transaction History</h2>
+          </div>
 
-2. Investment Risks
-All investments carry risk. Past performance is not indicative of future results. You should carefully consider your investment objectives, level of experience, and risk appetite before making any investment decisions.
-
-3. Account Responsibility
-You are responsible for maintaining the confidentiality of your account and password. You agree to accept responsibility for all activities that occur under your account. Notify us immediately of any unauthorized use.
-
-4. Deposits and Withdrawals
-Minimum deposit amount is Ksh200. Minimum withdrawal amount is Ksh300. Withdrawals are processed within 24 hours. We reserve the right to request verification documents before processing withdrawals.
-
-5. Referral Program
-Referral bonuses are when you refer a friend to join a city you earn a one time bonus of ksh300.
-
-6. Privacy Policy
-We respect your privacy and are committed to protecting your personal data. We collect and process personal information in accordance with applicable data protection laws.
-
-7. Prohibited Activities
-Users are prohibited from: creating multiple accounts, using automated systems, engaging in fraudulent activities, or attempting to manipulate the platform in any way.
-
-8. Termination
-We may terminate or suspend your account immediately, without prior notice, for any breach of these Terms. Upon termination, your right to use the platform will immediately cease.
-
-9. Contact Us
-If you have any questions about these Terms, please contact our support team or hiring manager.
-        </div>
-      </div>
-
-      <!-- HISTORY PAGE -->
-      <div class="menu-page" id="menu-history">
-        <div class="menu-page-head">
-          <button class="back-btn" type="button" data-menu-back><i class="fa-solid fa-arrow-left"></i></button>
-          <h3 class="page-title">Transaction History</h3>
-        </div>
-
-        <div class="tx-table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Type</th>
-                <th>Amount</th>
-                <th>Detail</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% if (user.transactions && user.transactions.length) { %>
+          <div class="card">
+            <% if (!Array.isArray(user.transactions) || !user.transactions.length) { %>
+              <div class="empty">No transactions have been recorded yet.</div>
+            <% } else { %>
+              <div class="tx-list">
                 <% user.transactions.forEach(function(tx){ %>
-                  <tr>
-                    <td><%= tx.date ? new Date(tx.date).toLocaleString() : '-' %></td>
-                    <td><%= tx.type || '-' %></td>
-                    <td>KSH <%= Number(tx.amount || 0).toLocaleString() %></td>
-                    <td><%= tx.detail || '-' %></td>
-                    <td><%= tx.status || '-' %></td>
-                  </tr>
+                  <div class="tx-item">
+                    <div class="tx-head">
+                      <div class="tx-title"><%= tx.type || 'Transaction' %></div>
+                      <div class="pill <%= tx.status === 'APPROVED' ? 'green' : (tx.status === 'REJECTED' ? 'red' : '') %>">
+                        <%= tx.status || 'APPROVED' %>
+                      </div>
+                    </div>
+                    <div><strong>Amount:</strong> KSH <%= formatMoney(tx.amount || 0) %></div>
+                    <div class="tx-detail"><%= tx.detail || 'No detail provided' %></div>
+                    <div class="muted tiny"><%= tx.date ? new Date(tx.date).toLocaleString() : '' %></div>
+                  </div>
                 <% }) %>
-              <% } else { %>
-                <tr>
-                  <td colspan="5">No transaction history available yet.</td>
-                </tr>
-              <% } %>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- DOWNLOAD PAGE -->
-      <div class="menu-page" id="menu-download">
-        <div class="menu-page-head">
-          <button class="back-btn" type="button" data-menu-back><i class="fa-solid fa-arrow-left"></i></button>
-          <h3 class="page-title">Download Application</h3>
-        </div>
-
-        <div class="detail-grid">
-          <div class="detail-card">
-            <h4>Download App</h4>
-            <p>Use the button below to download the BITREX-722 application to your device. Replace the link below with your actual APK or application file path once uploaded.</p>
-            <div class="inline-actions" style="margin-top:14px;">
-              <a class="btn btn-primary small-btn" href="/downloads/bitrex-722.apk" download>
-                <i class="fa-solid fa-download"></i> Download Application
-              </a>
-            </div>
-            <p class="muted" style="margin-top:12px;">
-              Note: make sure the application file exists in your public folder path or hosted download path, for example:
-              <code>/public/downloads/bitrex-722.apk</code>
-            </p>
+              </div>
+            <% } %>
           </div>
         </div>
-      </div>
-    </section>
-  </div>
 
-  <!-- Bottom Navigation -->
-  <nav class="bottom-nav">
-    <div class="bottom-nav-inner">
-      <button class="nav-btn <%= activeTab === 'home' ? 'active' : '' %>" type="button" data-tab="home">
-        <i class="fa-solid fa-house"></i>
-        <span>Home</span>
-      </button>
+        <!-- DOWNLOAD -->
+        <div class="subpage" data-subpage="download">
+          <div class="back-row">
+            <button class="back-btn" type="button" data-back-menu>←</button>
+            <h2 class="section-title">Download Application</h2>
+          </div>
 
-      <button class="nav-btn <%= activeTab === 'task' ? 'active' : '' %>" type="button" data-tab="task">
-        <i class="fa-solid fa-list-check"></i>
-        <span>Task</span>
-      </button>
+          <div class="card">
+            <div class="download-card">
+              <div class="download-icon">📲</div>
+              <div>
+                <h3 style="margin:0 0 8px;">Download BITREX App</h3>
+                <div class="muted" style="max-width:620px;line-height:1.7;">
+                  Tap the button below to download the platform application to your device.
+                  If you already host an APK or installable file in your public folder, update the link below to point to it.
+                </div>
+              </div>
 
-      <button class="nav-btn <%= activeTab === 'city' ? 'active' : '' %>" type="button" data-tab="city">
-        <i class="fa-solid fa-city"></i>
-        <span>Cities</span>
-      </button>
-
-      <button class="nav-btn <%= activeTab === 'spin' ? 'active' : '' %>" type="button" data-tab="spin">
-        <i class="fa-solid fa-dharmachakra"></i>
-        <span>Spin</span>
-      </button>
-
-      <button class="nav-btn <%= activeTab === 'menu' ? 'active' : '' %>" type="button" data-tab="menu">
-        <i class="fa-solid fa-bars"></i>
-        <span>Menu</span>
-      </button>
+              <!-- Change href to your actual app file if you upload one, e.g. /BITREX.apk -->
+              <a class="btn btn-primary" href="/" download>Download Application</a>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
-  </nav>
 
-<% } %>
+    <!-- BOTTOM NAV -->
+    <nav class="nav">
+      <div class="nav-inner">
+        <button class="nav-btn <%= activeTab === 'home' || !activeTab ? 'active' : '' %>" type="button" data-nav-target="home">
+          <div class="icon">🏠</div>
+          <span class="label">Home</span>
+        </button>
+        <button class="nav-btn <%= activeTab === 'task' ? 'active' : '' %>" type="button" data-nav-target="task">
+          <div class="icon">📝</div>
+          <span class="label">Task</span>
+        </button>
+        <button class="nav-btn <%= activeTab === 'city' ? 'active' : '' %>" type="button" data-nav-target="cities">
+          <div class="icon">🏙️</div>
+          <span class="label">Cities</span>
+        </button>
+        <button class="nav-btn <%= activeTab === 'spin' ? 'active' : '' %>" type="button" data-nav-target="spin">
+          <div class="icon">🎡</div>
+          <span class="label">Spin</span>
+        </button>
+        <button class="nav-btn <%= activeTab === 'menu' ? 'active' : '' %>" type="button" data-nav-target="menu">
+          <div class="icon">☰</div>
+          <span class="label">Menu</span>
+        </button>
+      </div>
+    </nav>
+  <% } %>
 
-<script>
-  (function(){
-    // ================= AUTH TABS =================
-    const authButtons = document.querySelectorAll('[data-auth-tab]');
-    const authLinkButtons = document.querySelectorAll('[data-auth-tab-link]');
-    const authPanels = document.querySelectorAll('.auth-panel');
+  <script>
+    (function () {
+      // =========================
+      // AUTH PANEL SWITCHING
+      // =========================
+      const authPanels = {
+        login: document.getElementById('auth-login'),
+        signup: document.getElementById('auth-signup'),
+        forgot: document.getElementById('auth-forgot')
+      };
 
-    function openAuthTab(tab){
-      authButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.authTab === tab));
-      authPanels.forEach(panel => panel.classList.toggle('active', panel.id === 'auth-' + tab));
-      const url = new URL(window.location.href);
-      url.searchParams.set('auth', tab);
-      history.replaceState({}, '', url.toString());
-    }
-
-    authButtons.forEach(btn => {
-      btn.addEventListener('click', () => openAuthTab(btn.dataset.authTab));
-    });
-
-    authLinkButtons.forEach(link => {
-      link.addEventListener('click', () => openAuthTab(link.dataset.authTabLink));
-    });
-
-    // ================= PASSWORD TOGGLE =================
-    document.querySelectorAll('.password-toggle').forEach(btn => {
-      btn.addEventListener('click', function(){
-        const input = this.parentElement.querySelector('.password-input');
-        if(!input) return;
-        const icon = this.querySelector('i');
-        if(input.type === 'password'){
-          input.type = 'text';
-          if(icon){
-            icon.classList.remove('fa-eye');
-            icon.classList.add('fa-eye-slash');
-          }
-        }else{
-          input.type = 'password';
-          if(icon){
-            icon.classList.remove('fa-eye-slash');
-            icon.classList.add('fa-eye');
-          }
-        }
-      });
-    });
-
-    // If no dashboard user, stop here.
-    const loggedIn = <%- JSON.stringify(!!user) %>;
-    if(!loggedIn) return;
-
-    // ================= BOTTOM TABS =================
-    const navButtons = document.querySelectorAll('.nav-btn[data-tab]');
-    const tabViews = document.querySelectorAll('.tab-view');
-
-    function openTab(tab){
-      navButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tab));
-      tabViews.forEach(view => view.classList.toggle('active', view.id === 'tab-' + tab));
-
-      const url = new URL(window.location.href);
-      url.searchParams.set('tab', tab);
-      history.replaceState({}, '', url.toString());
-    }
-
-    navButtons.forEach(btn => {
-      btn.addEventListener('click', () => openTab(btn.dataset.tab));
-    });
-
-    // ================= MENU SUBPAGES =================
-    const menuMain = document.getElementById('menu-main');
-    const menuPages = {
-      profile: document.getElementById('menu-profile'),
-      support: document.getElementById('menu-support'),
-      referrals: document.getElementById('menu-referrals'),
-      terms: document.getElementById('menu-terms'),
-      history: document.getElementById('menu-history'),
-      download: document.getElementById('menu-download')
-    };
-
-    function openMenuPage(name){
-      if(!menuMain) return;
-      menuMain.classList.remove('active');
-      Object.values(menuPages).forEach(page => page && page.classList.remove('active'));
-      if(menuPages[name]) menuPages[name].classList.add('active');
-    }
-
-    function backToMenu(){
-      if(!menuMain) return;
-      menuMain.classList.add('active');
-      Object.values(menuPages).forEach(page => page && page.classList.remove('active'));
-    }
-
-    document.querySelectorAll('[data-menu-open]').forEach(btn => {
-      btn.addEventListener('click', () => openMenuPage(btn.dataset.menuOpen));
-    });
-
-    document.querySelectorAll('[data-menu-back]').forEach(btn => {
-      btn.addEventListener('click', backToMenu);
-    });
-
-    // ================= REFERRAL COPY/SHARE =================
-    const refInput = document.getElementById('referralLinkInput');
-    const copyBtn = document.getElementById('copyReferralBtn');
-    const shareBtn = document.getElementById('shareReferralBtn');
-
-    if(copyBtn && refInput){
-      copyBtn.addEventListener('click', async () => {
-        try{
-          await navigator.clipboard.writeText(refInput.value);
-          copyBtn.innerHTML = '<i class="fa-solid fa-check"></i> Copied';
-          setTimeout(() => {
-            copyBtn.innerHTML = '<i class="fa-regular fa-copy"></i> Copy Link';
-          }, 1600);
-        }catch{
-          refInput.select();
-          document.execCommand('copy');
-        }
-      });
-    }
-
-    if(shareBtn && refInput){
-      shareBtn.addEventListener('click', async () => {
-        const shareData = {
-          title: 'Join BITREX-722',
-          text: 'Join BITREX-722 using my referral link.',
-          url: refInput.value
-        };
-
-        if(navigator.share){
-          try{
-            await navigator.share(shareData);
-          }catch(err){}
-        }else{
-          window.open('https://wa.me/?text=' + encodeURIComponent(shareData.text + ' ' + shareData.url), '_blank');
-        }
-      });
-    }
-
-    // ================= TASK CLAIM SYSTEM =================
-    const claimButtons = document.querySelectorAll('.task-claim-btn');
-    let currentTasksCompleted = <%- JSON.stringify(Number(user.tasksCompletedToday || 0)) %>;
-    let currentTaskLimit = <%- JSON.stringify(Number(taskLimitToday || 0)) %>;
-
-    function formatSeconds(sec){
-      const mins = String(Math.floor(sec / 60)).padStart(2, '0');
-      const secs = String(sec % 60).padStart(2, '0');
-      return `${mins}:${secs}`;
-    }
-
-    function updateTaskSummaryUI(){
-      const badge = document.querySelector('#tab-task .badge.pending');
-      if(badge){
-        badge.innerHTML = `<i class="fa-solid fa-list-check"></i> ${currentTasksCompleted} / ${currentTaskLimit} Claimed Today`;
-      }
-
-      if(currentTasksCompleted >= currentTaskLimit){
-        document.querySelectorAll('.task-claim-btn').forEach(btn => {
-          btn.disabled = true;
-          btn.classList.add('btn-dark');
+      function openAuthPanel(name) {
+        if (!authPanels.login && !authPanels.signup && !authPanels.forgot) return;
+        Object.keys(authPanels).forEach((key) => {
+          if (authPanels[key]) authPanels[key].classList.toggle('active', key === name);
         });
       }
-    }
 
-    async function completeTask(taskName, card, btn){
-      try{
-        const response = await fetch('/api/task/claim', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ taskName })
+      document.querySelectorAll('[data-open-auth]').forEach((btn) => {
+        btn.addEventListener('click', function (e) {
+          e.preventDefault();
+          const target = btn.getAttribute('data-open-auth');
+          openAuthPanel(target);
         });
-        const data = await response.json();
-
-        if(!response.ok || !data.ok){
-          throw new Error(data.error || 'Could not claim task.');
-        }
-
-        currentTasksCompleted = Number(data.tasksCompletedToday || currentTasksCompleted + 1);
-        currentTaskLimit = Number(data.taskLimitToday || currentTaskLimit);
-        updateTaskSummaryUI();
-
-        const badge = card.querySelector('.badge');
-        const countdownText = card.querySelector('.countdown-text');
-
-        if(badge){
-          badge.className = 'badge claimed';
-          badge.innerHTML = '<i class="fa-solid fa-check"></i> Claimed';
-        }
-        if(countdownText) countdownText.textContent = 'Completed';
-
-        btn.disabled = true;
-        btn.className = 'btn btn-dark';
-        btn.innerHTML = '<i class="fa-solid fa-check"></i> Claimed';
-        card.dataset.claimed = 'true';
-
-        // Refresh balance/income cards quickly without full reload
-        setTimeout(() => {
-          window.location.href = '/?tab=task&message=' + encodeURIComponent(data.message || 'Task completed.');
-        }, 600);
-
-      } catch(err){
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fa-solid fa-hand-holding-dollar"></i> Claim';
-        alert(err.message || 'Task claim failed.');
-      }
-    }
-
-    claimButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        if(btn.disabled) return;
-
-        if(currentTasksCompleted >= currentTaskLimit){
-          alert('Task limit reached for today.');
-          return;
-        }
-
-        const taskName = btn.dataset.task;
-        const card = btn.closest('[data-task-card]');
-        if(!card || card.dataset.claimed === 'true') return;
-
-        btn.disabled = true;
-        let seconds = 60;
-        btn.innerHTML = '<i class="fa-regular fa-clock"></i> Processing...';
-
-        const countdownText = card.querySelector('.countdown-text');
-        if(countdownText) countdownText.textContent = formatSeconds(seconds);
-
-        const timer = setInterval(() => {
-          seconds--;
-          if(countdownText) countdownText.textContent = formatSeconds(Math.max(seconds, 0));
-
-          if(seconds <= 0){
-            clearInterval(timer);
-            completeTask(taskName, card, btn);
-          }
-        }, 1000);
       });
-    });
 
-    // ================= SPIN WHEEL =================
-    const spinBtn = document.getElementById('spinWheelBtn');
-    const wheelCircle = document.getElementById('wheelCircle');
-    const spinResultBox = document.getElementById('spinResultBox');
-    const spinFreeSpins = document.getElementById('spinFreeSpins');
-    const spinGems = document.getElementById('spinGems');
-    const spinWalletBalance = document.getElementById('spinWalletBalance');
+      // =========================
+      // PASSWORD TOGGLE
+      // =========================
+      document.querySelectorAll('[data-toggle-password]').forEach((btn) => {
+        btn.addEventListener('click', function () {
+          const id = btn.getAttribute('data-toggle-password');
+          const input = document.getElementById(id);
+          if (!input) return;
+          input.type = input.type === 'password' ? 'text' : 'password';
+        });
+      });
 
-    let wheelRotation = 0;
-    const wheelRewardSlots = [
-      { label: '3 Gems', angle: 30 },
-      { label: '1 Gem', angle: 90 },
-      { label: '2 Gems', angle: 150 },
-      { label: 'KSH 50', angle: 210 },
-      { label: 'KSH 100', angle: 270 },
-      { label: 'KSH 150', angle: 330 }
-    ];
+      // If not logged in, stop here.
+      const userLoggedIn = <%= user ? 'true' : 'false' %>;
+      if (!userLoggedIn) return;
 
-    if(spinBtn){
-      spinBtn.addEventListener('click', async () => {
-        if(spinBtn.disabled) return;
-        spinBtn.disabled = true;
-        spinBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Spinning...';
+      // =========================
+      // DASHBOARD PAGE NAVIGATION
+      // =========================
+      const navButtons = document.querySelectorAll('.nav-btn[data-nav-target]');
+      const pages = {
+        home: document.getElementById('page-home'),
+        task: document.getElementById('page-task'),
+        cities: document.getElementById('page-cities'),
+        spin: document.getElementById('page-spin'),
+        menu: document.getElementById('page-menu')
+      };
 
-        try{
-          const response = await fetch('/api/spin-roulette', {
+      function showPage(name) {
+        Object.keys(pages).forEach((key) => {
+          if (pages[key]) pages[key].classList.toggle('active', key === name);
+        });
+        navButtons.forEach((btn) => {
+          btn.classList.toggle('active', btn.getAttribute('data-nav-target') === name);
+        });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      navButtons.forEach((btn) => {
+        btn.addEventListener('click', function () {
+          const target = btn.getAttribute('data-nav-target');
+          showPage(target);
+        });
+      });
+
+      // =========================
+      // MENU SUBPAGES
+      // =========================
+      const menuSubpages = document.querySelectorAll('#page-menu .subpage');
+      function openMenuSubpage(name) {
+        menuSubpages.forEach((panel) => {
+          panel.classList.toggle('active', panel.getAttribute('data-subpage') === name);
+        });
+      }
+
+      document.querySelectorAll('[data-open-subpage]').forEach((btn) => {
+        btn.addEventListener('click', function () {
+          openMenuSubpage(btn.getAttribute('data-open-subpage'));
+        });
+      });
+
+      document.querySelectorAll('[data-back-menu]').forEach((btn) => {
+        btn.addEventListener('click', function () {
+          openMenuSubpage('menu-root');
+        });
+      });
+
+      // =========================
+      // REFERRAL COPY / SHARE
+      // =========================
+      const referralInput = document.getElementById('referralLinkInput');
+      const copyReferralBtn = document.getElementById('copyReferralBtn');
+      const shareReferralBtn = document.getElementById('shareReferralBtn');
+
+      if (copyReferralBtn && referralInput) {
+        copyReferralBtn.addEventListener('click', async function () {
+          try {
+            await navigator.clipboard.writeText(referralInput.value || '');
+            copyReferralBtn.textContent = 'Copied';
+            setTimeout(() => { copyReferralBtn.textContent = 'Copy Link'; }, 1500);
+          } catch (e) {
+            referralInput.select();
+            document.execCommand('copy');
+            copyReferralBtn.textContent = 'Copied';
+            setTimeout(() => { copyReferralBtn.textContent = 'Copy Link'; }, 1500);
+          }
+        });
+      }
+
+      if (shareReferralBtn && referralInput) {
+        shareReferralBtn.addEventListener('click', async function () {
+          const link = referralInput.value || '';
+          if (!link) return;
+          if (navigator.share) {
+            try {
+              await navigator.share({
+                title: 'Join BITREX',
+                text: 'Use my BITREX referral link to sign up.',
+                url: link
+              });
+            } catch (e) {}
+          } else {
+            try {
+              await navigator.clipboard.writeText(link);
+              shareReferralBtn.textContent = 'Link Copied';
+              setTimeout(() => { shareReferralBtn.textContent = 'Share'; }, 1500);
+            } catch (e) {}
+          }
+        });
+      }
+
+      // =========================
+      // TASK CLAIMING
+      // Claim -> 1 minute countdown -> auto POST /api/task/claim -> Claimed
+      // =========================
+      const tasksGrid = document.getElementById('tasksGrid');
+      let tasksCompletedToday = <%= Number(user.tasksCompletedToday || 0) %>;
+      let taskLimitToday = <%= Number(taskLimitToday || 0) %>;
+
+      function disableAllRemainingTaskButtonsIfLimitReached() {
+        if (tasksCompletedToday < taskLimitToday) return;
+        document.querySelectorAll('[data-task-card]').forEach((card) => {
+          const claimed = card.getAttribute('data-claimed') === 'true';
+          const btn = card.querySelector('[data-claim-btn]');
+          const countdown = card.querySelector('[data-countdown]');
+          if (!claimed && btn) {
+            btn.disabled = true;
+            btn.textContent = 'Limit Reached';
+            btn.classList.remove('btn-primary');
+            btn.classList.add('btn-secondary');
+            if (countdown) countdown.textContent = 'Daily limit reached';
+          }
+        });
+      }
+
+      async function completeTaskClaim(taskName, card, btn, countdown) {
+        try {
+          const res = await fetch('/api/task/claim', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' }
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ taskName })
           });
 
-          const data = await response.json();
-          if(!response.ok || !data.ok){
-            throw new Error(data.error || 'Spin failed');
+          const data = await res.json();
+          if (!res.ok || !data.ok) {
+            throw new Error(data.error || 'Failed to claim task.');
           }
 
-          const prizeLabel = data.prize?.label || 'Reward';
-          const slot = wheelRewardSlots.find(item => item.label === prizeLabel) || wheelRewardSlots[Math.floor(Math.random() * wheelRewardSlots.length)];
-          const extraSpins = 5 * 360;
-          wheelRotation += extraSpins + (360 - slot.angle);
+          card.setAttribute('data-claimed', 'true');
+          btn.disabled = true;
+          btn.textContent = 'Claimed';
+          btn.classList.remove('btn-primary');
+          btn.classList.add('btn-secondary');
+          countdown.textContent = 'Claimed';
 
-          if(wheelCircle){
-            wheelCircle.style.transform = `rotate(${wheelRotation}deg)`;
-          }
+          tasksCompletedToday = Number(data.tasksCompletedToday || tasksCompletedToday + 1);
+          taskLimitToday = Number(data.taskLimitToday || taskLimitToday);
+          disableAllRemainingTaskButtonsIfLimitReached();
 
-          setTimeout(() => {
-            spinResultBox.innerHTML = `
-              <strong style="display:block;font-size:18px;margin-bottom:8px;">Congratulations 🎉</strong>
-              You won <strong>${prizeLabel}</strong>.<br/>
-              ${data.message || 'Your reward has been applied to your account.'}
-            `;
-
-            if(spinFreeSpins) spinFreeSpins.textContent = data.freeSpins ?? spinFreeSpins.textContent;
-            if(spinGems) spinGems.textContent = data.gems ?? spinGems.textContent;
-            if(spinWalletBalance) spinWalletBalance.textContent = 'KSH ' + Number(data.balance || 0).toLocaleString();
-
-            spinBtn.disabled = false;
-            spinBtn.innerHTML = '<i class="fa-solid fa-dharmachakra"></i> Spin Now';
-          }, 4200);
-
-        }catch(err){
-          spinBtn.disabled = false;
-          spinBtn.innerHTML = '<i class="fa-solid fa-dharmachakra"></i> Spin Now';
-          alert(err.message || 'Unable to spin right now.');
+          // refresh home page income figures by reloading after short delay
+          setTimeout(() => window.location.reload(), 900);
+        } catch (error) {
+          countdown.textContent = error.message || 'Claim failed';
+          btn.disabled = false;
+          btn.textContent = 'Claim';
+          btn.classList.remove('btn-secondary');
+          btn.classList.add('btn-primary');
         }
-      });
-    }
+      }
 
-  })();
-</script>
+      if (tasksGrid) {
+        tasksGrid.querySelectorAll('[data-task-card]').forEach((card) => {
+          const btn = card.querySelector('[data-claim-btn]');
+          const countdown = card.querySelector('[data-countdown]');
+          if (!btn || !countdown) return;
+
+          btn.addEventListener('click', function () {
+            if (btn.disabled) return;
+
+            const taskName = card.getAttribute('data-task-name');
+            if (!taskName) return;
+
+            btn.disabled = true;
+            btn.textContent = 'Counting...';
+            btn.classList.remove('btn-primary');
+            btn.classList.add('btn-secondary');
+
+            let remaining = 60;
+            countdown.textContent = `Claiming in ${remaining}s`;
+
+            const timer = setInterval(() => {
+              remaining -= 1;
+              if (remaining > 0) {
+                countdown.textContent = `Claiming in ${remaining}s`;
+                return;
+              }
+
+              clearInterval(timer);
+              countdown.textContent = 'Processing...';
+              completeTaskClaim(taskName, card, btn, countdown);
+            }, 1000);
+          });
+        });
+
+        disableAllRemainingTaskButtonsIfLimitReached();
+      }
+
+      // =========================
+      // SPIN WHEEL
+      // =========================
+      const spinBtn = document.getElementById('spinBtn');
+      const spinWheel = document.getElementById('spinWheel');
+      const spinResult = document.getElementById('spinResult');
+      const spinGems = document.getElementById('spinGems');
+      const spinFree = document.getElementById('spinFree');
+
+      const wheelAngles = {
+        '3 Gems': 30,
+        '1 Gem': 90,
+        '2 Gems': 150,
+        'KSH 50': 210,
+        'KSH 100': 270,
+        'KSH 150': 330
+      };
+      let currentWheelRotation = 0;
+      let spinning = false;
+
+      if (spinBtn && spinWheel) {
+        spinBtn.addEventListener('click', async function () {
+          if (spinning) return;
+          spinning = true;
+          spinBtn.disabled = true;
+          spinBtn.textContent = 'Spinning...';
+          spinResult.textContent = 'Spinning the wheel...';
+
+          try {
+            const res = await fetch('/api/spin-roulette', { method: 'POST' });
+            const data = await res.json();
+
+            if (!res.ok || !data.ok) {
+              throw new Error(data.error || 'Spin failed.');
+            }
+
+            const prizeLabel = data.prize && data.prize.label ? data.prize.label : 'Reward';
+            const targetAngle = wheelAngles[prizeLabel] || 30;
+            currentWheelRotation += 360 * 5 + (360 - targetAngle);
+            spinWheel.style.transform = `rotate(${currentWheelRotation}deg)`;
+
+            setTimeout(() => {
+              spinResult.textContent = `You won ${prizeLabel}!`;
+              if (spinGems) spinGems.textContent = String(data.gems ?? '');
+              if (spinFree) spinFree.textContent = String(data.freeSpins ?? '');
+              spinBtn.disabled = false;
+              spinBtn.textContent = 'Spin Again';
+              spinning = false;
+            }, 5200);
+          } catch (error) {
+            spinResult.textContent = error.message || 'Spin failed.';
+            spinBtn.disabled = false;
+            spinBtn.textContent = 'Spin the Wheel';
+            spinning = false;
+          }
+        });
+      }
+    })();
+  </script>
 </body>
 </html>
