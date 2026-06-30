@@ -3,1005 +3,743 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bitrex 722</title>
+  <meta name="theme-color" content="#fff7ea" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <title>BITREX 722</title>
   <style>
-    :root{
-      --bg:#0b1220;
-      --bg-soft:#101a2e;
-      --card:#111c31;
-      --card-2:#162540;
-      --line:rgba(255,255,255,.08);
-      --text:#f4f7fb;
-      --muted:#98a7c7;
-      --primary:#16a34a;
-      --primary-2:#22c55e;
-      --danger:#ef4444;
-      --warning:#f59e0b;
-      --blue:#2563eb;
-      --purple:#8b5cf6;
-      --gold:#facc15;
-      --shadow:0 18px 40px rgba(0,0,0,.35);
-      --radius:20px;
+    :root {
+      --bg: #fff7ea;
+      --panel: rgba(255, 255, 255, 0.9);
+      --line: rgba(22, 32, 45, 0.09);
+      --text: #16202d;
+      --muted: #647386;
+      --orange: #ff8b3d;
+      --pink: #ff5fa2;
+      --cyan: #28c7f7;
+      --green: #35d08a;
+      --red: #ff6f61;
+      --shadow: 0 18px 50px rgba(36, 44, 58, 0.12);
+      --radius: 24px;
     }
 
-    *{box-sizing:border-box}
-    html,body{margin:0;padding:0;background:linear-gradient(180deg,#08101d,#0c1627 35%,#0a1323 100%);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--text)}
-    a{text-decoration:none;color:inherit}
-    button,input,select,textarea{font:inherit}
-    img{max-width:100%;display:block}
-
-    .container{
-      width:min(1180px, 100%);
-      margin:0 auto;
-      padding:18px 14px 110px;
-    }
-
-    .app-shell{
-      min-height:100vh;
-      position:relative;
-    }
-
-    .flash{
-      margin:0 0 16px;
-      padding:14px 16px;
-      border-radius:14px;
-      border:1px solid var(--line);
-      box-shadow:var(--shadow);
-      font-weight:700;
-      font-size:14px;
-    }
-    .flash.success{
-      background:rgba(34,197,94,.12);
-      color:#c9ffd9;
-      border-color:rgba(34,197,94,.35);
-    }
-    .flash.error{
-      background:rgba(239,68,68,.12);
-      color:#ffd3d3;
-      border-color:rgba(239,68,68,.35);
-    }
-
-    /* SIMPLE LOGIN */
-    .auth-wrap{
-      min-height:100vh;
-      display:grid;
-      place-items:center;
-      padding:20px;
-    }
-
-    .auth-simple{
-      width:min(420px,100%);
-      background:linear-gradient(180deg,rgba(18,29,51,.95),rgba(12,20,36,.98));
-      border:1px solid var(--line);
-      border-radius:30px;
-      padding:40px;
-      box-shadow:var(--shadow);
-    }
-
-    .auth-logo{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:12px;
-      margin-bottom:28px;
-    }
-    .auth-logo-icon{
-      width:48px;height:48px;border-radius:14px;
-      display:grid;place-items:center;
-      background:linear-gradient(135deg,var(--primary),var(--blue));
-      font-weight:900;font-size:20px;color:#fff;
-      box-shadow:0 10px 30px rgba(22,163,74,.35);
-    }
-    .auth-logo h1{
-      margin:0;font-size:24px;letter-spacing:.4px;
-    }
-
-    .auth-title{
-      text-align:center;
-      margin-bottom:28px;
-    }
-    .auth-title h2{
-      margin:0 0 8px;
-      font-size:24px;
-    }
-    .auth-title p{
-      margin:0;color:var(--muted);font-size:13px;
-    }
-
-    .form-group{
-      margin-bottom:16px;
-    }
-    .form-group label{
-      display:block;
-      font-size:13px;
-      color:#cdd9f1;
-      font-weight:700;
-      margin-bottom:8px;
-    }
-    .form-group input{
-      width:100%;
-      background:#0d1526;
-      border:1px solid rgba(255,255,255,.08);
-      color:#fff;
-      border-radius:12px;
-      padding:12px 14px;
-      outline:none;
-      font-size:14px;
-    }
-    .form-group input::placeholder{
-      color:#7f92b8;
-    }
-    .form-group input:focus{
-      border-color:rgba(34,197,94,.35);
-      background:#0f1830;
-    }
-
-    .password-wrapper{
-      position:relative;
-    }
-    .password-toggle{
-      position:absolute;
-      right:12px;
-      top:50%;
-      transform:translateY(-50%);
-      background:none;
-      border:none;
-      color:#7f92b8;
-      cursor:pointer;
-      font-size:18px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      width:30px;
-      height:30px;
-    }
-    .password-toggle:hover{color:#cdd9f1}
-
-    .btn-auth{
-      width:100%;
-      background:linear-gradient(135deg,var(--primary),var(--primary-2));
-      color:#fff;
-      border:none;
-      border-radius:12px;
-      padding:13px;
-      font-weight:800;
-      cursor:pointer;
-      transition:.2s ease;
-      box-shadow:0 10px 25px rgba(34,197,94,.25);
-      margin-bottom:16px;
-    }
-    .btn-auth:hover{transform:translateY(-2px)}
-
-    .auth-links{
-      display:grid;
-      gap:12px;
-    }
-    .auth-link{
-      text-align:center;
-      font-size:13px;
-    }
-    .auth-link button{
-      background:none;
-      border:none;
-      color:var(--blue);
-      cursor:pointer;
-      font-weight:700;
-      text-decoration:underline;
-    }
-    .auth-link button:hover{opacity:.8}
-
-    .auth-section{display:none}
-    .auth-section.active{display:block}
-
-    /* DASHBOARD */
-    .page{display:none}
-    .page.active{display:block}
-
-    .topbar{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:16px;
-      margin-bottom:16px;
-      padding:10px 0;
-    }
-
-    .topbar-left{
-      display:flex;
-      align-items:center;
-      gap:12px;
-    }
-
-    .topbar-phone{
-      font-size:14px;
-      font-weight:700;
-    }
-    .topbar-phone-sub{
-      font-size:12px;
-      color:var(--muted);
-    }
-
-    .stats-cards{
-      display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:14px;
-      margin-bottom:18px;
-    }
-
-    .stat-card-small{
-      background:linear-gradient(135deg,#111c31,#0d1627);
-      border:1px solid var(--line);
-      border-radius:18px;
-      padding:16px;
-      text-align:center;
-      box-shadow:var(--shadow);
-    }
-    .stat-card-small .label{
-      font-size:12px;
-      color:var(--muted);
-      margin-bottom:8px;
-      text-transform:uppercase;
-      letter-spacing:.3px;
-    }
-    .stat-card-small .value{
-      font-size:26px;
-      font-weight:900;
-      color:#fff;
-    }
-
-    .quick-actions-grid{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:14px;
-      margin-bottom:18px;
-    }
-
-    .action-card{
-      background:linear-gradient(135deg,#14223b,#0f182a);
-      border:1px solid var(--line);
-      border-radius:18px;
-      padding:18px;
-      display:flex;
-      flex-direction:column;
-      gap:12px;
-      cursor:pointer;
-      transition:.2s ease;
-      box-shadow:var(--shadow);
-    }
-    .action-card:hover{
-      border-color:rgba(34,197,94,.35);
-      background:linear-gradient(135deg,#17283e,#11192e);
-    }
-    .action-card h3{
-      margin:0;
-      font-size:16px;
-      color:#fff;
-    }
-    .action-card p{
-      margin:0;
-      font-size:12px;
-      color:var(--muted);
-    }
-    .action-card form{
-      margin-top:auto;
-    }
-
-    .action-btn{
-      background:linear-gradient(135deg,var(--primary),var(--primary-2));
-      color:#fff;
-      border:none;
-      border-radius:10px;
-      padding:10px 14px;
-      font-weight:700;
-      font-size:12px;
-      cursor:pointer;
-      transition:.2s ease;
-      width:100%;
-    }
-    .action-btn:hover{transform:translateY(-1px)}
-
-    .section{
-      margin-bottom:18px;
-    }
-    .section-title{
-      font-size:18px;
-      font-weight:800;
-      margin-bottom:12px;
-      color:#fff;
-    }
-
-    .city-grid{
-      display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:16px;
-    }
-
-    .city-card{
-      overflow:hidden;
-      border-radius:20px;
-      background:linear-gradient(180deg,#111c31,#0e182b);
-      border:1px solid var(--line);
-      box-shadow:var(--shadow);
-    }
-
-    .city-image{
-      height:140px;
-      background-size:cover;
-      background-position:center;
-      position:relative;
-    }
-    .city-overlay{
-      position:absolute;inset:0;
-      background:linear-gradient(180deg,transparent,rgba(0,0,0,.7));
-      display:flex;
-      align-items:flex-end;
-      padding:14px;
-    }
-    .city-name{
-      font-size:20px;
-      font-weight:900;
-    }
-    .city-body{
-      padding:14px;
-    }
-    .city-meta{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:8px;
-      margin-bottom:12px;
-    }
-    .meta-item{
-      padding:10px;
-      border-radius:12px;
-      background:rgba(255,255,255,.04);
-      border:1px solid rgba(255,255,255,.08);
-    }
-    .meta-item .k{
-      color:var(--muted);
-      font-size:11px;
-      margin-bottom:4px;
-    }
-    .meta-item .v{
-      font-size:16px;
-      font-weight:800;
-    }
-    .city-btn{
-      width:100%;
-      background:linear-gradient(135deg,var(--primary),var(--primary-2));
-      color:#fff;
-      border:none;
-      border-radius:10px;
-      padding:10px;
-      font-weight:700;
-      font-size:12px;
-      cursor:pointer;
-    }
-
-    .task-grid{
-      display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:16px;
-    }
-
-    .task-card{
-      border-radius:18px;
-      background:linear-gradient(180deg,#111c31,#0e182b);
-      border:1px solid var(--line);
-      padding:16px;
-      box-shadow:var(--shadow);
-      display:flex;
-      flex-direction:column;
-    }
-
-    .task-title{
-      font-size:16px;
-      font-weight:800;
-      margin-bottom:10px;
-    }
-    .task-reward{
-      font-size:13px;
-      color:var(--primary-2);
-      font-weight:700;
-      margin-bottom:10px;
-    }
-    .task-claim-btn{
-      background:linear-gradient(135deg,var(--primary),var(--primary-2));
-      color:#fff;
-      border:none;
-      border-radius:10px;
-      padding:10px;
-      font-weight:700;
-      font-size:12px;
-      cursor:pointer;
-      margin-top:auto;
-    }
-    .task-claim-btn:disabled{
-      background:rgba(255,255,255,.1);
-      color:#7f92b8;
-      cursor:not-allowed;
-    }
-
-    .wheel-section{
-      background:linear-gradient(135deg,#111c31,#0d1627);
-      border:1px solid var(--line);
-      border-radius:20px;
-      padding:24px;
-      box-shadow:var(--shadow);
-      text-align:center;
-      margin-bottom:18px;
-    }
-
-    .wheel{
-      width:min(300px,100%);
-      aspect-ratio:1/1;
-      margin:20px auto;
-      border-radius:50%;
-      border:10px solid rgba(255,255,255,.08);
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: "Segoe UI", "Trebuchet MS", Arial, sans-serif;
       background:
-        conic-gradient(
-          #22c55e 0 60deg,
-          #2563eb 60deg 120deg,
-          #f59e0b 120deg 180deg,
-          #8b5cf6 180deg 240deg,
-          #ef4444 240deg 300deg,
-          #14b8a6 300deg 360deg
-        );
-      position:relative;
-      box-shadow:0 30px 60px rgba(0,0,0,.35);
-      transition:transform 4s cubic-bezier(.12,.8,.12,1);
-      cursor:pointer;
+        radial-gradient(circle at 15% 10%, rgba(255, 204, 77, 0.45), transparent 26%),
+        radial-gradient(circle at 82% 20%, rgba(255, 95, 162, 0.22), transparent 24%),
+        radial-gradient(circle at 50% 100%, rgba(40, 199, 247, 0.12), transparent 30%),
+        linear-gradient(135deg, var(--bg), #fff0f6);
     }
-
-    .wheel::before{
-      content:"";
-      position:absolute;
-      inset:22%;
-      border-radius:50%;
-      background:linear-gradient(180deg,#101b31,#0b1322);
-      border:8px solid rgba(255,255,255,.08);
-      z-index:1;
+    a { color: #b95a10; text-decoration: none; }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    .wrap {
+      width: min(1200px, calc(100% - 24px));
+      margin: 0 auto;
+      padding: 14px 0 34px;
     }
-
-    .wheel::after{
-      content:"SPIN";
-      position:absolute;
-      inset:39%;
-      border-radius:50%;
-      background:linear-gradient(135deg,var(--primary),var(--primary-2));
-      display:grid;
-      place-items:center;
-      font-weight:900;
-      font-size:14px;
-      letter-spacing:1px;
-      z-index:2;
-      box-shadow:0 8px 20px rgba(34,197,94,.28);
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 18px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.72);
+      backdrop-filter: blur(14px);
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 12px;
+      z-index: 10;
     }
-
-    .wheel-pointer{
-      width:0;height:0;
-      border-left:12px solid transparent;
-      border-right:12px solid transparent;
-      border-top:24px solid #fff;
-      margin:0 auto -6px;
-      filter:drop-shadow(0 8px 12px rgba(0,0,0,.4));
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
     }
-
-    .prize-display{
-      font-size:16px;
-      font-weight:800;
-      margin-top:16px;
-      color:var(--primary-2);
-      min-height:24px;
+    .brand-mark {
+      width: 40px;
+      height: 40px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      color: white;
+      background: linear-gradient(135deg, var(--orange), var(--pink));
+      box-shadow: 0 12px 24px rgba(255, 139, 61, 0.28);
+      font-size: 1.05rem;
     }
-
-    .spin-info{
-      font-size:13px;
-      color:var(--muted);
-      margin-top:12px;
+    .top-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
     }
-
-    .bottom-nav{
-      position:fixed;
-      left:50%;
-      transform:translateX(-50%);
-      bottom:16px;
-      width:min(500px, calc(100% - 20px));
-      background:rgba(12,20,36,.92);
-      border:1px solid rgba(255,255,255,.08);
-      box-shadow:0 20px 50px rgba(0,0,0,.45);
-      border-radius:24px;
-      padding:10px;
-      display:grid;
-      grid-template-columns:repeat(5,1fr);
-      gap:8px;
+    .pill, .ghost, .solid {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 800;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+    }
+    .pill:hover, .ghost:hover, .solid:hover { transform: translateY(-1px); }
+    .pill { background: rgba(255,255,255,0.7); color: var(--text); }
+    .ghost { background: transparent; color: var(--text); }
+    .solid {
+      background: linear-gradient(135deg, var(--orange), var(--pink));
+      color: white;
+      border-color: transparent;
+      box-shadow: 0 12px 22px rgba(255, 95, 162, 0.18);
+    }
+    .hero {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 18px;
+      margin-top: 18px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
       backdrop-filter: blur(12px);
-      z-index:100;
     }
-
-    .nav-btn{
-      border:none;
-      cursor:pointer;
-      background:transparent;
-      color:#9fb0d1;
-      border-radius:16px;
-      padding:10px 8px;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap:4px;
-      transition:.2s ease;
-      font-weight:700;
-      font-size:10px;
+    .hero-copy, .panel, .auth-card, .section {
+      padding: 22px;
     }
-    .nav-btn:hover{background:rgba(255,255,255,.04)}
-    .nav-btn.active{
-      background:linear-gradient(135deg,var(--primary),var(--primary-2));
-      color:#fff;
-      box-shadow:0 10px 25px rgba(34,197,94,.25);
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: rgba(255, 139, 61, 0.12);
+      color: #b95a10;
+      font-size: 0.82rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
     }
-    .nav-icon{font-size:20px}
-
-    .page-header{
-      display:flex;
-      align-items:center;
-      gap:16px;
-      margin-bottom:24px;
-      padding:16px;
-      background:linear-gradient(135deg,#111c31,#0d1627);
-      border:1px solid var(--line);
-      border-radius:18px;
+    h1, h2, h3, p { margin: 0; }
+    h1 {
+      font-size: clamp(2rem, 3.4vw, 4rem);
+      line-height: 1.02;
+      margin-top: 16px;
+      letter-spacing: -0.04em;
     }
-    .back-btn{
-      background:rgba(255,255,255,.1);
-      border:1px solid var(--line);
-      color:#fff;
-      width:40px;height:40px;
-      border-radius:12px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      cursor:pointer;
-      font-size:18px;
-      transition:.2s ease;
+    .sub {
+      margin-top: 14px;
+      color: var(--muted);
+      line-height: 1.7;
+      max-width: 60ch;
     }
-    .back-btn:hover{background:rgba(255,255,255,.15)}
-
-    .page-title{
-      font-size:24px;
-      font-weight:900;
+    .hero-grid {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
     }
-
-    .profile-section{
-      background:linear-gradient(135deg,#111c31,#0d1627);
-      border:1px solid var(--line);
-      border-radius:18px;
-      padding:20px;
-      margin-bottom:16px;
-      box-shadow:var(--shadow);
+    .mini {
+      padding: 14px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.72);
+      border: 1px solid var(--line);
     }
-    .profile-item{
-      display:grid;
-      gap:8px;
-      margin-bottom:16px;
+    .mini b { display: block; font-size: 1.05rem; margin-top: 6px; }
+    .mini span { color: var(--muted); font-size: 0.88rem; }
+    .panel {
+      display: grid;
+      gap: 14px;
     }
-    .profile-label{
-      font-size:12px;
-      color:var(--muted);
-      text-transform:uppercase;
-      font-weight:700;
-      letter-spacing:.3px;
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
     }
-    .profile-value{
-      font-size:15px;
-      font-weight:700;
-      color:#fff;
+    .stat {
+      padding: 14px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.94), rgba(255,255,255,0.72));
+      border: 1px solid var(--line);
     }
-
-    .password-change-form{
-      background:rgba(255,255,255,.05);
-      border:1px solid var(--line);
-      border-radius:14px;
-      padding:16px;
-      margin-top:16px;
+    .stat .label {
+      color: var(--muted);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 800;
     }
-
-    .support-link{
-      background:linear-gradient(135deg,#111c31,#0d1627);
-      border:1px solid var(--line);
-      border-radius:14px;
-      padding:16px;
-      margin-bottom:12px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      text-decoration:none;
-      color:inherit;
-      transition:.2s ease;
-      cursor:pointer;
+    .stat .value {
+      display: block;
+      margin-top: 8px;
+      font-size: 1.35rem;
+      font-weight: 900;
     }
-    .support-link:hover{
-      border-color:rgba(34,197,94,.35);
-      background:linear-gradient(135deg,#14223b,#0f1830);
+    .alerts {
+      display: grid;
+      gap: 10px;
+      margin-top: 16px;
     }
-    .support-link-text{
-      flex:1;
+    .alert {
+      padding: 14px 16px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.82);
+      box-shadow: var(--shadow);
     }
-    .support-link-text h4{
-      margin:0 0 4px;
-      font-size:15px;
-      font-weight:800;
+    .alert.success { border-color: rgba(53, 208, 138, 0.28); }
+    .alert.error { border-color: rgba(255, 111, 97, 0.32); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+      margin-top: 18px;
     }
-    .support-link-text p{
-      margin:0;
-      font-size:12px;
-      color:var(--muted);
+    .section h2 {
+      font-size: 1.2rem;
+      margin-bottom: 12px;
+      letter-spacing: -0.02em;
     }
-    .support-link-icon{
-      font-size:20px;
+    .section .note {
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.6;
+      margin-bottom: 14px;
     }
-
-    .referral-stats{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:12px;
-      margin-bottom:16px;
+    .auth-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
     }
-    .ref-stat{
-      background:linear-gradient(135deg,#111c31,#0d1627);
-      border:1px solid var(--line);
-      border-radius:14px;
-      padding:16px;
-      text-align:center;
+    .tablink {
+      padding: 9px 13px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.7);
+      color: var(--text);
+      font-weight: 800;
     }
-    .ref-stat-label{
-      font-size:12px;
-      color:var(--muted);
-      margin-bottom:8px;
+    .tablink.active {
+      color: white;
+      background: linear-gradient(135deg, var(--orange), var(--pink));
+      border-color: transparent;
     }
-    .ref-stat-value{
-      font-size:24px;
-      font-weight:900;
-      color:var(--primary-2);
+    .form {
+      display: grid;
+      gap: 12px;
     }
-
-    .copy-btn, .share-btn{
-      width:100%;
-      background:linear-gradient(135deg,var(--primary),var(--primary-2));
-      color:#fff;
-      border:none;
-      border-radius:12px;
-      padding:12px;
-      font-weight:700;
-      cursor:pointer;
-      margin-bottom:12px;
-      transition:.2s ease;
+    .fields {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-    .copy-btn:hover, .share-btn:hover{transform:translateY(-2px)}
-
-    .terms-text{
-      background:rgba(255,255,255,.03);
-      border:1px solid var(--line);
-      border-radius:14px;
-      padding:16px;
-      font-size:13px;
-      line-height:1.8;
-      color:#d4e0f9;
-      max-height:600px;
-      overflow-y:auto;
+    .field, .select, .textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.92);
+      border-radius: 16px;
+      padding: 13px 14px;
+      color: var(--text);
     }
-    .terms-text h4{
-      margin:16px 0 8px;
-      font-size:14px;
-      font-weight:800;
-      color:#fff;
+    .textarea { min-height: 110px; resize: vertical; }
+    .field:focus, .select:focus, .textarea:focus {
+      outline: none;
+      border-color: rgba(255, 139, 61, 0.5);
+      box-shadow: 0 0 0 4px rgba(255, 139, 61, 0.12);
     }
-    .terms-text p{
-      margin:0 0 12px;
+    .stack { display: grid; gap: 12px; }
+    .city-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
     }
-
-    .tx-table{
-      width:100%;
-      border-collapse:collapse;
-      background:#0e182b;
-      border:1px solid var(--line);
-      border-radius:14px;
-      overflow:hidden;
+    .city {
+      overflow: hidden;
+      border-radius: 20px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.86);
     }
-    .tx-table th{
-      background:#101c31;
-      color:#b9c7e6;
-      padding:12px;
-      text-align:left;
-      font-size:12px;
-      font-weight:700;
-      text-transform:uppercase;
-      border-bottom:1px solid var(--line);
+    .city img {
+      width: 100%;
+      height: 155px;
+      object-fit: cover;
+      display: block;
     }
-    .tx-table td{
-      padding:12px;
-      border-bottom:1px solid rgba(255,255,255,.06);
-      font-size:13px;
+    .city-body { padding: 14px; }
+    .city-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: start;
     }
-
-    .logout-btn{
-      background:linear-gradient(135deg,var(--danger),#f87171);
-      color:#fff;
-      border:none;
-      border-radius:12px;
-      padding:13px;
-      font-weight:800;
-      cursor:pointer;
-      width:100%;
-      transition:.2s ease;
-      box-shadow:0 10px 25px rgba(239,68,68,.25);
-      margin-top:20px;
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      background: rgba(40, 199, 247, 0.12);
+      color: #0d6d8d;
     }
-    .logout-btn:hover{transform:translateY(-2px)}
-
-    .muted{color:var(--muted)}
-    .center{text-align:center}
-    .hidden{display:none !important}
-
-    @media (max-width: 1080px){
-      .stats-cards,.quick-actions-grid{grid-template-columns:1fr}
-      .city-grid,.task-grid{grid-template-columns:repeat(2,1fr)}
-      .auth-simple{width:min(360px,100%);padding:30px}
+    .tag.free { background: rgba(53, 208, 138, 0.12); color: #17704b; }
+    .kv {
+      margin-top: 12px;
+      display: grid;
+      gap: 8px;
+      font-size: 0.92rem;
+      color: var(--muted);
     }
-
-    @media (max-width: 720px){
-      .container{padding:14px 12px 110px}
-      .auth-simple{width:100%;padding:24px}
-      .stats-cards,.city-grid,.task-grid{grid-template-columns:1fr}
-      .bottom-nav{
-        border-radius:18px;
-        padding:8px;
-        width:calc(100% - 12px);
-      }
-      .nav-btn{padding:8px 4px;font-size:9px}
-      .nav-icon{font-size:18px}
+    .kv strong { color: var(--text); }
+    .city form, .box form { margin-top: 12px; display: grid; gap: 10px; }
+    .inline {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+    .subtle {
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.6;
+    }
+    .transactions {
+      display: grid;
+      gap: 10px;
+    }
+    .tx {
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.8);
+      border: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: start;
+    }
+    .tx small { color: var(--muted); display: block; margin-top: 4px; }
+    .badge {
+      display: inline-flex;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 900;
+      background: rgba(53, 208, 138, 0.12);
+      color: #17704b;
+      white-space: nowrap;
+    }
+    .footer {
+      margin: 18px 0 8px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    .copy {
+      width: 100%;
+      border: 1px dashed rgba(22, 32, 45, 0.18);
+      border-radius: 16px;
+      padding: 13px 14px;
+      background: rgba(255,255,255,0.8);
+      color: var(--text);
+    }
+    .split {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 18px;
+      margin-top: 18px;
+    }
+    .statusline {
+      display: inline-flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .mini-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      border-bottom: 1px solid rgba(22, 32, 45, 0.06);
+      padding: 10px 0;
+      font-size: 0.95rem;
+    }
+    .mini-line:last-child { border-bottom: none; }
+    @media (max-width: 960px) {
+      .hero, .grid, .split { grid-template-columns: 1fr; }
+      .city-grid, .fields, .stat-grid, .hero-grid { grid-template-columns: 1fr; }
+      .topbar { border-radius: 24px; position: static; }
     }
   </style>
 </head>
 <body>
-  <% const hasUser = !!user; %>
-  <% const userName = user ? (user.name || (user.email ? user.email.split('@')[0] : 'Investor')) : 'Investor'; %>
-  <% const firstLetter = userName ? userName.charAt(0).toUpperCase() : 'B'; %>
-  <% const totalTasks = hasUser ? taskLimitToday : 0; %>
-  <% const completedTasks = hasUser ? Number(user.tasksCompletedToday || 0) : 0; %>
-  <% const todayTasksClaimed = hasUser && Array.isArray(user.claimedTasksToday) ? user.claimedTasksToday : []; %>
-  <% const isAdminUser = hasUser && isAdminPhone; %>
+<%
+  const money = (value) => new Intl.NumberFormat('en-KE').format(Number(value || 0));
+  const activeCities = Array.isArray(user?.activeCities) ? user.activeCities : [];
+  const recentTransactions = Array.isArray(user?.transactions) ? user.transactions.slice(0, 8) : [];
+  const cityEntries = Object.entries(cityConfig || {});
+  const selectedAuth = authMode || 'login';
+  const currentTab = activeTab || 'home';
+  const isLoggedIn = Boolean(user);
+  const verified = Boolean(user && user.emailVerified);
+  const showVerifyCard = isLoggedIn && !verified;
+  const selectedCityList = cityEntries.filter(([code]) => activeCities.includes(code));
+%>
 
-  <% function formatMoney(amount){ return `KSH ${Number(amount || 0).toLocaleString()}`; } %>
+<div class="wrap">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">B</div>
+      <div>
+        <div>BITREX 722</div>
+        <div style="font-size:.78rem;color:var(--muted);font-weight:700;letter-spacing:0;">Task and city platform</div>
+      </div>
+    </div>
+    <div class="top-actions">
+      <a class="pill" href="/?tab=home">Home</a>
+      <a class="pill" href="/?tab=city">Cities</a>
+      <a class="pill" href="/?tab=task">Tasks</a>
+      <a class="pill" href="/?tab=menu">Wallet</a>
+      <% if (isLoggedIn) { %>
+        <form action="/logout" method="post" style="margin:0;">
+          <button class="ghost" type="submit">Logout</button>
+        </form>
+      <% } else { %>
+        <a class="solid" href="/?auth=login">Sign in</a>
+      <% } %>
+    </div>
+  </header>
 
-  <!-- AUTH PAGE -->
-  <% if (!hasUser) { %>
-    <div class="auth-wrap">
-      <div class="auth-simple">
-        <div class="auth-logo">
-          <div class="auth-logo-icon">B7</div>
-          <h1>Bitrex 722</h1>
+  <section class="hero">
+    <div class="card hero-copy">
+      <span class="eyebrow">Simple Render ready deployment</span>
+      <h1>Grow with task earnings, city packages, and a clean wallet flow.</h1>
+      <p class="sub">
+        This page is wired to the server routes already in the project:
+        signup, login, password reset, city investment, task claiming, deposits, withdrawals, and roulette.
+      </p>
+      <div class="hero-grid">
+        <div class="mini">
+          <span>Public demo</span>
+          <b>Login or create an account</b>
         </div>
-
-        <div class="auth-title">
-          <h2>Welcome Back</h2>
-          <p>Login to your account</p>
+        <div class="mini">
+          <span>Task rewards</span>
+          <b>KSH 50 per claim</b>
         </div>
-
-        <% if (message) { %>
-          <div class="flash success"><%= message %></div>
-        <% } %>
-        <% if (error) { %>
-          <div class="flash error"><%= error %></div>
-        <% } %>
-
-        <!-- LOGIN FORM -->
-        <div class="auth-section active" id="login-section">
-          <form method="POST" action="/login">
-            <div class="form-group">
-              <label>Phone Number</label>
-              <input type="tel" name="phone" placeholder="0712345678" required>
-            </div>
-            <div class="form-group">
-              <label>Password</label>
-              <div class="password-wrapper">
-                <input type="password" id="login-password" name="password" placeholder="Enter password" required>
-                <button type="button" class="password-toggle" onclick="togglePassword('login-password')">👁️</button>
-              </div>
-            </div>
-            <button type="submit" class="btn-auth">Login</button>
-          </form>
-
-          <div class="auth-links">
-            <div class="auth-link">
-              <span>Don't have an account? </span>
-              <button type="button" onclick="switchAuth('signup-section')">Sign Up</button>
-            </div>
-            <div class="auth-link">
-              <button type="button" onclick="switchAuth('forgot-section')">Forgot Password?</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- SIGNUP FORM -->
-        <div class="auth-section" id="signup-section">
-          <form method="POST" action="/signup">
-            <div class="form-group">
-              <label>Full Name</label>
-              <input type="text" name="name" placeholder="John Doe">
-            </div>
-            <div class="form-group">
-              <label>Email Address</label>
-              <input type="email" name="email" placeholder="you@example.com" required>
-            </div>
-            <div class="form-group">
-              <label>Phone Number</label>
-              <input type="tel" name="phone" placeholder="0712345678" required>
-            </div>
-            <div class="form-group">
-              <label>Password (6-8 characters)</label>
-              <div class="password-wrapper">
-                <input type="password" id="signup-password" name="password" placeholder="Enter password" required>
-                <button type="button" class="password-toggle" onclick="togglePassword('signup-password')">👁️</button>
-              </div>
-            </div>
-            <input type="hidden" name="referralCode" value="<%= referralFromQuery %>">
-            <button type="submit" class="btn-auth">Sign Up</button>
-          </form>
-
-          <div class="auth-links">
-            <div class="auth-link">
-              <span>Already have an account? </span>
-              <button type="button" onclick="switchAuth('login-section')">Login</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- FORGOT PASSWORD FORM -->
-        <div class="auth-section" id="forgot-section">
-          <form method="POST" action="/forgot-password">
-            <div class="form-group">
-              <label>Email Address</label>
-              <input type="email" name="email" placeholder="you@example.com" required>
-            </div>
-            <div class="form-group">
-              <label>New Password (6-8 characters)</label>
-              <div class="password-wrapper">
-                <input type="password" id="forgot-password" name="newPassword" placeholder="Enter new password" required>
-                <button type="button" class="password-toggle" onclick="togglePassword('forgot-password')">👁️</button>
-              </div>
-            </div>
-            <div class="form-group">
-              <label>Confirm Password</label>
-              <div class="password-wrapper">
-                <input type="password" id="confirm-password" name="confirmNewPassword" placeholder="Confirm password" required>
-                <button type="button" class="password-toggle" onclick="togglePassword('confirm-password')">👁️</button>
-              </div>
-            </div>
-            <button type="submit" class="btn-auth">Reset Password</button>
-          </form>
-
-          <div class="auth-links">
-            <div class="auth-link">
-              <button type="button" onclick="switchAuth('login-section')">Back to Login</button>
-            </div>
-          </div>
+        <div class="mini">
+          <span>Deployment</span>
+          <b>Server-rendered EJS</b>
         </div>
       </div>
     </div>
 
-    <script>
-      function switchAuth(sectionId) {
-        document.querySelectorAll('.auth-section').forEach(el => el.classList.remove('active'));
-        document.getElementById(sectionId).classList.add('active');
-      }
-      function togglePassword(inputId) {
-        const input = document.getElementById(inputId);
-        input.type = input.type === 'password' ? 'text' : 'password';
-      }
-    </script>
+    <aside class="card panel">
+      <% if (isLoggedIn) { %>
+        <div class="stat-grid">
+          <div class="stat"><span class="label">Balance</span><span class="value">KSH <%= money(user.balance) %></span></div>
+          <div class="stat"><span class="label">Today Income</span><span class="value">KSH <%= money(user.todayIncome) %></span></div>
+          <div class="stat"><span class="label">Gems</span><span class="value"><%= money(user.gems) %></span></div>
+          <div class="stat"><span class="label">Free Spins</span><span class="value"><%= money(user.freeSpins) %></span></div>
+        </div>
+        <div class="mini-line"><span>Referral code</span><strong><%= user.referralCode %></strong></div>
+        <div class="mini-line"><span>Tasks today</span><strong><%= money(user.tasksCompletedToday) %> / <%= money(taskLimitToday) %></strong></div>
+        <div class="mini-line"><span>Email status</span><strong><%= verified ? 'Verified' : 'Pending' %></strong></div>
+        <div class="mini-line"><span>Joined cities</span><strong><%= money(activeCities.length) %></strong></div>
+      <% } else { %>
+        <div class="stack">
+          <div class="mini">
+            <span>Ready to start</span>
+            <b>Sign in to see your wallet and packages</b>
+          </div>
+          <div class="mini">
+            <span>Accounts</span>
+            <b>Signup, login, forgot password, verify</b>
+          </div>
+          <div class="mini">
+            <span>Support</span>
+            <b>Admin portal available from the server routes</b>
+          </div>
+        </div>
+      <% } %>
+    </aside>
+  </section>
+
+  <% if (message || error) { %>
+    <div class="alerts">
+      <% if (message) { %><div class="alert success"><strong>Success:</strong> <%= message %></div><% } %>
+      <% if (error) { %><div class="alert error"><strong>Issue:</strong> <%= error %></div><% } %>
+    </div>
+  <% } %>
+
+  <% if (!isLoggedIn) { %>
+    <section class="grid">
+      <div class="card auth-card">
+        <h2>Access your account</h2>
+        <p class="note">Use the built-in auth routes. Signup creates the account, login opens the dashboard, and forgot password updates the stored password.</p>
+        <div class="auth-tabs">
+          <a class="tablink <%= selectedAuth === 'login' ? 'active' : '' %>" href="/?auth=login">Login</a>
+          <a class="tablink <%= selectedAuth === 'signup' ? 'active' : '' %>" href="/?auth=signup">Signup</a>
+          <a class="tablink <%= selectedAuth === 'forgot' ? 'active' : '' %>" href="/?auth=forgot">Forgot</a>
+        </div>
+
+        <% if (selectedAuth === 'signup') { %>
+          <form class="form" action="/signup" method="post">
+            <div class="fields">
+              <input class="field" type="text" name="name" placeholder="Full name" required />
+              <input class="field" type="text" name="phone" placeholder="Phone number" required />
+              <input class="field" type="email" name="email" placeholder="Email address" required />
+              <input class="field" type="password" name="password" placeholder="Password 6-8 chars" minlength="6" maxlength="8" required />
+            </div>
+            <input class="field" type="text" name="referralCode" placeholder="Referral code" value="<%= referralFromQuery || '' %>" />
+            <button class="solid" type="submit">Create account</button>
+          </form>
+        <% } else if (selectedAuth === 'forgot') { %>
+          <form class="form" action="/forgot-password" method="post">
+            <input class="field" type="email" name="email" placeholder="Registered email" required />
+            <div class="fields">
+              <input class="field" type="password" name="newPassword" placeholder="New password" minlength="6" maxlength="8" required />
+              <input class="field" type="password" name="confirmNewPassword" placeholder="Confirm password" minlength="6" maxlength="8" required />
+            </div>
+            <button class="solid" type="submit">Reset password</button>
+          </form>
+        <% } else { %>
+          <form class="form" action="/login" method="post">
+            <input class="field" type="text" name="phone" placeholder="Phone number" required />
+            <input class="field" type="password" name="password" placeholder="Password" required />
+            <button class="solid" type="submit">Login</button>
+          </form>
+        <% } %>
+      </div>
+
+      <div class="card section">
+        <h2>What this project does</h2>
+        <p class="note">The homepage stays small and deployable, but the server already supports the full flow behind it.</p>
+        <div class="stack">
+          <div class="mini">
+            <span>Tasks</span>
+            <b>Claim one item from the daily task list after joining a city</b>
+          </div>
+          <div class="mini">
+            <span>Investments</span>
+            <b>Join city packages with a contract signature</b>
+          </div>
+          <div class="mini">
+            <span>Wallet</span>
+            <b>Deposit, withdraw, spin roulette, and change password</b>
+          </div>
+        </div>
+      </div>
+    </section>
   <% } else { %>
-    <!-- DASHBOARD PAGE -->
-    <div class="app-shell">
-      <!-- HOME PAGE -->
-      <div class="page active" id="home-page">
-        <div class="container">
-          <% if (message) { %>
-            <div class="flash success"><%= message %></div>
-          <% } %>
-          <% if (error) { %>
-            <div class="flash error"><%= error %></div>
-          <% } %>
+    <section class="split">
+      <div class="card section">
+        <h2>Account overview</h2>
+        <p class="note">Your wallet, referral details, and joined cities are shown here. The data comes straight from the server session.</p>
+        <div class="stat-grid">
+          <div class="stat"><span class="label">Total earnings</span><span class="value">KSH <%= money(user.totalEarnings) %></span></div>
+          <div class="stat"><span class="label">Referral count</span><span class="value"><%= money(user.referredCount) %></span></div>
+          <div class="stat"><span class="label">Joined cities</span><span class="value"><%= money(activeCities.length) %></span></div>
+          <div class="stat"><span class="label">Tasks left</span><span class="value"><%= money(Math.max(taskLimitToday - (user.tasksCompletedToday || 0), 0)) %></span></div>
+        </div>
 
-          <div class="topbar">
-            <div class="topbar-left">
-              <div>
-                <div class="topbar-phone"><%= user.phone %></div>
-                <div class="topbar-phone-sub"><%= user.email || 'User Account' %></div>
-              </div>
-            </div>
+        <% if (showVerifyCard) { %>
+          <div class="mini" style="margin-top:14px;">
+            <span>Email verification</span>
+            <b>Your account is waiting for verification</b>
+            <p class="subtle" style="margin-top:8px;">This keeps the flow aligned with the route that marks your email as verified after signup.</p>
+            <form action="/verify-email" method="post">
+              <button class="solid" type="submit">Verify email</button>
+            </form>
           </div>
-
-          <!-- WALLET STATS -->
-          <div class="stats-cards">
-            <div class="stat-card-small">
-              <div class="label">Wallet Balance</div>
-              <div class="value"><%= formatMoney(user.balance) %></div>
-            </div>
-            <div class="stat-card-small">
-              <div class="label">Today's Income</div>
-              <div class="value"><%= formatMoney(user.todayIncome) %></div>
-            </div>
-            <div class="stat-card-small">
-              <div class="label">Total Earnings</div>
-              <div class="value"><%= formatMoney(user.totalEarnings) %></div>
-            </div>
+        <% } else { %>
+          <div class="mini" style="margin-top:14px;">
+            <span>Email verification</span>
+            <b>Verified and ready</b>
           </div>
+        <% } %>
 
-          <!-- QUICK ACTIONS -->
-          <div class="quick-actions-grid">
-            <div class="action-card">
-              <h3>💰 Deposit</h3>
-              <p>Add funds to your wallet</p>
-              <form method="POST" action="/deposit">
-                <div class="form-group">
-                  <label>Phone Number</label>
-                  <input type="tel" name="phone" value="<%= user.phone %>" placeholder="0712345678" required>
+        <div class="mini" style="margin-top:14px;">
+          <span>Referral link</span>
+          <input class="copy" id="refLink" readonly value="<%= referralLink || '' %>" />
+          <div class="inline" style="margin-top:10px;">
+            <button class="pill" type="button" onclick="copyReferral()">Copy link</button>
+            <span class="subtle">Share this to grow referrals.</span>
+          </div>
+        </div>
+
+        <div class="mini" style="margin-top:14px;">
+          <span>Joined cities</span>
+          <% if (selectedCityList.length) { %>
+            <div class="stack" style="margin-top:10px;">
+              <% selectedCityList.forEach(([code, city]) => { %>
+                <div class="mini-line">
+                  <span><%= city.city %> (<%= code %>)</span>
+                  <strong><%= user.cityJoinDates && user.cityJoinDates[code] ? new Date(user.cityJoinDates[code]).toLocaleDateString() : 'Joined' %></strong>
                 </div>
-                <div class="form-group">
-                  <label>Amount (KSH)</label>
-                  <input type="number" name="amount" min="1" placeholder="500" required>
-                </div>
-                <button type="submit" class="action-btn">Deposit Now</button>
-              </form>
-            </div>
-            <div class="action-card">
-              <h3>🏦 Withdraw</h3>
-              <p>Withdraw your earnings</p>
-              <button class="action-btn" onclick="switchPage('withdraw-page')">Withdraw</button>
-            </div>
-          </div>
-
-          <!-- ACTIVE INVESTMENTS -->
-          <% if (user.activeCities && user.activeCities.length > 0) { %>
-            <div class="section">
-              <div class="section-title">Active Investments</div>
-              <div class="city-grid">
-                <% user.activeCities.forEach(code => { %>
-                  <% const city = cityConfig[code]; %>
-                  <% if (city) { %>
-                    <div class="city-card">
-                      <div class="city-image" style="background-image: url('<%= city.image %>'); background-size: cover; background-position: center;"></div>
-                      <div class="city-body">
-                        <div class="city-meta">
-                          <div class="meta-item">
-                            <div class="k">City</div>
-                            <div class="v"><%= city.city %></div>
-                          </div>
-                          <div class="meta-item">
-                            <div class="k">Daily Income</div>
-                            <div class="v"><%= formatMoney(city.dailyIncome) %></div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  <% } %>
-                <% }); %>
-              </div>
+              <% }) %>
             </div>
           <% } else { %>
-            <div class="section" style="background:linear-gradient(135deg,#111c31,#0d1627);border:1px solid var(--line);border-radius:18px;padding:20px;text-align:center;">
-              <p style="color:var(--muted);margin:0;">No active investments yet. Join a city to start earning!</p>
-            </div>
+            <p class="subtle" style="margin-top:10px;">You have not joined any city package yet.</p>
           <% } %>
         </div>
       </div>
 
-      <!-- CITY PAGE -->
-      <div class="page" id="city-page">
-        <div class="container">
-          <div class="page-header">
-            <button class="back-btn" onclick="switchPage('home-page')">←</button>
-            <div class="page-title">Investment Cities</div>
+      <div class="card section">
+        <h2>Quick actions</h2>
+        <p class="note">Use the forms below to exercise the routes already in the app. The page stays compact and does not need a build step.</p>
+
+        <div class="stack">
+          <div class="mini">
+            <span>Task claim</span>
+            <form action="/task" method="post">
+              <select class="select" name="taskName" required>
+                <% (tasks || []).forEach((task) => { %>
+                  <option value="<%= task %>"><%= task %></option>
+                <% }) %>
+              </select>
+              <button class="solid" type="submit">Claim task</button>
+            </form>
+            <p class="subtle" style="margin-top:8px;">Daily limit: <%= money(taskLimitToday) %>. Tasks only work after joining a city.</p>
           </div>
-[...]
+
+          <div class="mini">
+            <span>Deposit</span>
+            <form action="/deposit" method="post">
+              <div class="fields">
+                <input class="field" type="number" name="amount" min="200" step="1" placeholder="Amount" required />
+                <input class="field" type="text" name="phone" placeholder="Phone number" required />
+              </div>
+              <button class="solid" type="submit">Send STK push</button>
+            </form>
+          </div>
+
+          <div class="mini">
+            <span>Withdraw</span>
+            <form action="/withdraw" method="post">
+              <div class="fields">
+                <input class="field" type="number" name="amount" min="300" step="1" placeholder="Amount" required />
+                <input class="field" type="text" name="phone" placeholder="Phone number" required />
+              </div>
+              <input class="field" type="password" name="withdrawalPassword" placeholder="Withdrawal password" required />
+              <button class="solid" type="submit">Request withdrawal</button>
+            </form>
+          </div>
+
+          <div class="mini">
+            <span>Change password</span>
+            <form action="/profile/password" method="post">
+              <div class="fields">
+                <input class="field" type="password" name="currentPassword" placeholder="Current password" required />
+                <input class="field" type="password" name="newPassword" placeholder="New password" minlength="6" maxlength="8" required />
+              </div>
+              <button class="solid" type="submit">Update password</button>
+            </form>
+          </div>
+
+          <div class="mini">
+            <span>Roulette</span>
+            <p class="subtle" style="margin:10px 0 12px;">Use a free spin or 2 gems to play the roulette route.</p>
+            <form action="/spin-roulette" method="post">
+              <button class="solid" type="submit">Spin now</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  <% } %>
+
+  <section class="grid">
+    <div class="card section">
+      <h2>City packages</h2>
+      <p class="note">Each package uses the existing `/invest/:cityCode` route. A signature is required, so the form includes a short approval line.</p>
+      <div class="city-grid">
+        <% cityEntries.forEach(([code, city]) => { %>
+          <article class="city">
+            <img src="<%= city.image %>" alt="<%= city.city %>" />
+            <div class="city-body">
+              <div class="city-head">
+                <div>
+                  <h3><%= city.city %></h3>
+                  <p class="subtle" style="margin-top:4px;">Code <%= code %></p>
+                </div>
+                <span class="tag <%= city.free ? 'free' : '' %>"><%= city.free ? 'Free start' : 'Paid plan' %></span>
+              </div>
+
+              <div class="kv">
+                <div><strong>Amount:</strong> KSH <%= money(city.amount) %></div>
+                <div><strong>Tasks/day:</strong> <%= money(city.tasksPerDay) %></div>
+                <div><strong>Daily income:</strong> KSH <%= money(city.dailyIncome) %></div>
+                <div><strong>Duration:</strong> <%= money(city.durationDays) %> days</div>
+                <% if (code === 'INTERN' && internExpired) { %>
+                  <div><strong>Status:</strong> INTERN expired</div>
+                <% } %>
+              </div>
+
+              <% if (isLoggedIn) { %>
+                <form action="/invest/<%= code %>" method="post">
+                  <input class="field" type="text" name="signature" placeholder="Type your signature to join" required />
+                  <button class="solid" type="submit">Join city</button>
+                </form>
+              <% } else { %>
+                <p class="subtle" style="margin-top:12px;">Sign in first to activate this package.</p>
+              <% } %>
+            </div>
+          </article>
+        <% }) %>
+      </div>
+    </div>
+
+    <div class="card section">
+      <h2>Recent activity</h2>
+      <p class="note">This shows the latest stored transactions for the current user session.</p>
+      <div class="transactions">
+        <% if (recentTransactions.length) { %>
+          <% recentTransactions.forEach((tx) => { %>
+            <div class="tx">
+              <div>
+                <strong><%= tx.type || 'Transaction' %></strong>
+                <small><%= tx.detail || 'No details' %></small>
+                <small><%= tx.date ? new Date(tx.date).toLocaleString() : '' %></small>
+              </div>
+              <div style="text-align:right;">
+                <span class="badge"><%= tx.status || 'PENDING' %></span>
+                <div style="margin-top:8px;font-weight:900;">KSH <%= money(tx.amount) %></div>
+              </div>
+            </div>
+          <% }) %>
+        <% } else { %>
+          <div class="mini">
+            <span>Nothing yet</span>
+            <b>Use deposit, task, or investment actions to populate activity</b>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </section>
+
+  <div class="footer">
+    BITREX 722 is wired for simple server-side deployment on Render with EJS, Express, and the existing routes.
+  </div>
+</div>
+
+<script>
+  function copyReferral() {
+    const input = document.getElementById('refLink');
+    if (!input) return;
+    input.select();
+    input.setSelectionRange(0, input.value.length);
+    document.execCommand('copy');
+  }
+</script>
+</body>
+</html>
