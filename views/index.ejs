@@ -103,6 +103,21 @@
       transition:transform 5s cubic-bezier(.17,.67,.12,.99);
       background:conic-gradient(from -30deg,#2563eb 0deg 60deg,#16a34a 60deg 120deg,#06b6d4 120deg 180deg,#9333ea 180deg 240deg,#dc2626 240deg 300deg,#f59e0b 300deg 360deg)
     }
+    .wheel-prize{
+      position:absolute;left:50%;top:50%;z-index:2;
+      transform:rotate(calc(var(--i) * 60deg)) translateY(-112px) rotate(calc(var(--i) * -60deg));
+      transform-origin:center center;
+      width:92px;padding:5px 8px;border-radius:999px;
+      background:var(--tone);
+      border:1px solid rgba(255,255,255,.22);
+      color:#fff;text-align:center;font-size:.74rem;font-weight:900;
+      box-shadow:0 6px 14px rgba(0,0,0,.18)
+    }
+    .wheel-pointer{
+      position:absolute;left:50%;top:-14px;transform:translateX(-50%);
+      width:0;height:0;border-left:14px solid transparent;border-right:14px solid transparent;border-bottom:28px solid #fef3c7;z-index:4;
+      filter:drop-shadow(0 4px 8px rgba(0,0,0,.35))
+    }
     .wheel::before{
       content:'';position:absolute;inset:28%;background:radial-gradient(circle,#7f1d1d,#4c0519);border:6px solid #fef3c7;border-radius:50%;z-index:2
     }
@@ -127,6 +142,16 @@
   const txs = Array.isArray(user?.transactions) ? user.transactions.slice(0, 20) : [];
   const isLogged = Boolean(user);
   const adminLink = isAdminPhone ? '<a href="/admin" class="badge-link">⚙️ Admin Portal</a>' : '';
+  const cityFallback = (name) => `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760"><defs><linearGradient id="g" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#11203d"/><stop offset="1" stop-color="#0b1730"/></linearGradient></defs><rect fill="url(#g)" width="1200" height="760"/><circle cx="1040" cy="120" r="180" fill="#4f8dff22"/><circle cx="150" cy="620" r="220" fill="#35d3ff22"/><text x="80" y="410" fill="#e8eeff" font-family="Arial, sans-serif" font-size="72" font-weight="700">${name || 'BITREX'}</text><text x="80" y="480" fill="#a8b5d8" font-family="Arial, sans-serif" font-size="28">BITREX CITY</text></svg>`)}`;
+  const wheelRewards = [
+    { label: '3 Gems', tone: '#2563eb' },
+    { label: '1 Gem', tone: '#16a34a' },
+    { label: '2 Gems', tone: '#06b6d4' },
+    { label: 'KSH 50', tone: '#9333ea' },
+    { label: 'KSH 100', tone: '#dc2626' },
+    { label: 'KSH 150', tone: '#f59e0b' }
+  ];
+  const claimedTasks = new Set((user && Array.isArray(user.claimedTasksToday)) ? user.claimedTasksToday : []);
 %>
 <div class="container">
   <% if (message) { %><div class="msg ok"><%= message %></div><% } %>
@@ -200,24 +225,6 @@
         <div class="pill"><div class="small">Total Earnings</div><div class="kpi">KSH <%= money(user.totalEarnings) %></div></div>
       </div>
 
-      <div class="card">
-        <h3>Overview</h3>
-        <div class="row">
-          <div>
-            <div class="small">Referral Code</div>
-            <input class="copy-box" value="<%= user.referralCode %>" readonly />
-          </div>
-          <div>
-            <div class="small">Tasks Today</div>
-            <input class="copy-box" value="<%= user.tasksCompletedToday %> / <%= taskLimitToday %>" readonly />
-          </div>
-        </div>
-        <div class="row">
-          <div class="pill"><div class="small">Gems</div><div class="kpi"><%= money(user.gems) %></div></div>
-          <div class="pill"><div class="small">Free Spins</div><div class="kpi"><%= money(user.freeSpins) %></div></div>
-        </div>
-      </div>
-
       <div class="home-grid">
         <div class="card">
           <h3>Deposit</h3>
@@ -279,7 +286,7 @@
         <div class="city-grid" style="margin-top:12px;">
           <% cities.forEach(([code, city]) => { %>
             <div class="card city-card">
-              <img src="<%= city.image %>" alt="<%= city.city %>" />
+              <img src="<%= city.image || cityFallback(city.city) %>" alt="<%= city.city %>" onerror="this.src='<%= cityFallback(city.city) %>'" />
               <div style="margin-top:10px;">
                 <div class="topbar" style="margin-bottom:8px;">
                   <div>
@@ -310,7 +317,7 @@
     <section id="task" class="section <%= section === 'task' ? 'active' : '' %>">
       <div class="card">
         <h3>Task Center</h3>
-        <div class="small">Tasks are only available after joining a city.</div>
+        <div class="small">Each task opens after a 1 minute countdown. Claimed tasks stay locked so you do not place duplicate orders.</div>
         <div class="pill-grid" style="margin-top:12px;">
           <div class="pill"><div class="small">Completed</div><div class="kpi"><%= money(user.tasksCompletedToday) %></div></div>
           <div class="pill"><div class="small">Limit</div><div class="kpi"><%= money(taskLimitToday) %></div></div>
@@ -321,18 +328,15 @@
         <h3>Task Grid</h3>
         <div class="task-grid">
           <% (tasks || []).forEach((taskName) => { %>
-            <div class="task-item" data-task-item="<%= taskName %>">
+            <div class="task-item" data-task-item="<%= taskName %>" data-claimed="<%= claimedTasks.has(taskName) ? '1' : '0' %>">
               <div class="task-head">
                 <div>
                   <div class="task-title"><%= taskName %></div>
-                  <div class="task-sub">KSH 50 reward</div>
+                  <div class="task-sub">KSH 50 reward. <span class="task-timer">Ready in 01:00</span></div>
                 </div>
                 <div class="task-icon">✓</div>
               </div>
-              <form action="/task" method="post">
-                <input type="hidden" name="taskName" value="<%= taskName %>" />
-                <button class="claim-btn" type="submit">Claim</button>
-              </form>
+              <button class="claim-btn task-claim-btn" type="button" data-task="<%= taskName %>">Wait 01:00</button>
             </div>
           <% }) %>
         </div>
@@ -345,6 +349,10 @@
         <div class="small">Use your free spin or gems.</div>
         <div style="position:relative;margin:12px 0 4px;">
           <div class="wheel" id="wheel">
+            <% wheelRewards.forEach((reward, index) => { %>
+              <span class="wheel-prize" style="--i:<%= index %>;--tone:<%= reward.tone %>"><%= reward.label %></span>
+            <% }) %>
+            <div class="wheel-pointer"></div>
             <div class="wheel-label">SPIN<br/>ROULETTE</div>
           </div>
         </div>
@@ -364,8 +372,8 @@
         <h3>Menu</h3>
         <div class="menu-list">
           <button class="menu-item" type="button" onclick="openMenuPage('profilePage')"><span>1. My Profile</span><span>›</span></button>
-          <button class="menu-item" type="button" onclick="openMenuPage('walletPage')"><span>2. Wallet Actions</span><span>›</span></button>
-          <button class="menu-item" type="button" onclick="openMenuPage('referralsPage')"><span>3. Referrals</span><span>›</span></button>
+          <button class="menu-item" type="button" onclick="openMenuPage('referralsPage')"><span>2. Referrals</span><span>›</span></button>
+          <button class="menu-item" type="button" onclick="openMenuPage('downloadPage')"><span>3. Download BITREX</span><span>›</span></button>
           <button class="menu-item" type="button" onclick="openMenuPage('transactionsPage')"><span>4. Transaction History</span><span>›</span></button>
           <% if (isAdminPhone) { %><a class="menu-item" href="/admin"><span>⚙️ Admin Portal</span><span>›</span></a><% } %>
         </div>
@@ -390,31 +398,6 @@
         </div>
       </div>
 
-      <div id="walletPage" class="card menu-detail">
-        <button class="back-btn" type="button" onclick="backToMenu()">← Back</button>
-        <h3>Wallet Actions</h3>
-        <div class="action-buttons">
-          <a class="action-link" href="#" onclick="togglePanel('depositPanel');return false;">💳 Deposit</a>
-          <a class="action-link" href="#" onclick="togglePanel('withdrawPanel');return false;">📤 Withdrawal</a>
-        </div>
-        <div id="depositPanel" class="panel">
-          <p class="small">Send money to <strong>0733319700</strong>. Reflects after admin approval.</p>
-          <form action="/deposit" method="post">
-            <input name="phone" placeholder="Your Phone Number" required />
-            <input name="amount" type="number" min="200" placeholder="Amount" required />
-            <button type="submit">Send Deposit</button>
-          </form>
-        </div>
-        <div id="withdrawPanel" class="panel">
-          <form action="/withdraw" method="post">
-            <input name="phone" placeholder="Phone to Receive Payment" required />
-            <input name="amount" type="number" min="300" placeholder="Amount" required />
-            <input name="withdrawalPassword" type="password" placeholder="Withdrawal Password" required />
-            <button type="submit">Withdraw</button>
-          </form>
-        </div>
-      </div>
-
       <div id="referralsPage" class="card menu-detail">
         <button class="back-btn" type="button" onclick="backToMenu()">← Back</button>
         <h3>Referrals</h3>
@@ -427,6 +410,22 @@
         <div class="copy-actions">
           <button type="button" onclick="copyReferral('<%= referralLink %>')">Copy Link</button>
           <button type="button" onclick="shareReferral('<%= referralLink %>')">Share Link</button>
+        </div>
+      </div>
+
+      <div id="downloadPage" class="card menu-detail">
+        <button class="back-btn" type="button" onclick="backToMenu()">← Back</button>
+        <h3>Download BITREX</h3>
+        <p class="small">Install or save the web app from this section.</p>
+        <div class="action-buttons" style="margin-top:12px;">
+          <a class="action-link" href="/" target="_blank" rel="noopener">🌐 Open Website</a>
+          <a class="action-link" href="/manifest.webmanifest" target="_blank" rel="noopener">📄 App Manifest</a>
+          <a class="action-link" href="/offline.html" target="_blank" rel="noopener">📥 Offline Page</a>
+          <a class="action-link" href="/icon.svg" target="_blank" rel="noopener">🖼️ App Icon</a>
+        </div>
+        <div class="card" style="margin-top:14px;padding:14px;background:#0a1428;">
+          <div class="small">Tip</div>
+          <div style="margin-top:6px;font-weight:700;">Use your browser install option to add BITREX to the home screen on mobile or desktop.</div>
         </div>
       </div>
 
@@ -468,18 +467,14 @@
 <% } %>
 
 <script>
-  const claimedToday = new Set();
+  const claimedToday = new Set(<%- JSON.stringify(Array.from(claimedTasks || [])) %>);
+  const taskCooldownMs = 60000;
   function switchTab(id){
     document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
     const section = document.getElementById(id);
     if(section) section.classList.add('active');
     if(id==='menu'){backToMenu();}
     window.scrollTo({top:0,behavior:'smooth'});
-  }
-  function togglePanel(id){
-    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-    const panel = document.getElementById(id);
-    if(panel) panel.classList.add('active');
   }
   function openMenuPage(id){
     const menuList = document.getElementById('menuListPage');
@@ -503,31 +498,79 @@
     setTimeout(()=>{toast.style.opacity='0';toast.style.transform='translateY(-6px)';},2500);
     setTimeout(()=>toast.remove(),3000);
   }
-  async function startClaim(btn){
-    const taskName=btn.dataset.task;
-    if(claimedToday.has(taskName)) return;
-    btn.disabled=true;
-    let sec=59;
-    btn.textContent='Wait 00:'+String(sec).padStart(2,'0');
-    const timer=setInterval(()=>{
-      sec--;
-      btn.textContent='Wait 00:'+String(Math.max(sec,0)).padStart(2,'0');
-      if(sec<=0){clearInterval(timer);finishClaim(btn,taskName);}
-    },1000);
+  function formatClock(ms){
+    const totalSeconds = Math.max(0, Math.ceil(ms / 1000));
+    const mins = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
+    const secs = String(totalSeconds % 60).padStart(2, '0');
+    return `${mins}:${secs}`;
   }
-  async function finishClaim(btn,taskName){
+  function initTaskCard(item){
+    const btn = item.querySelector('.task-claim-btn');
+    const timerText = item.querySelector('.task-timer');
+    const taskName = btn && btn.dataset.task;
+    if(!btn || !timerText || !taskName) return;
+    if(item.dataset.claimed === '1' || claimedToday.has(taskName)){
+      btn.disabled = true;
+      btn.textContent = 'Claimed';
+      timerText.textContent = 'Already claimed today';
+      return;
+    }
+    const startedAt = Date.now();
+    const tick = () => {
+      const remaining = taskCooldownMs - (Date.now() - startedAt);
+      if(remaining <= 0){
+        btn.disabled = false;
+        btn.textContent = 'Claim again';
+        timerText.textContent = 'Ready now';
+        if(item._taskTimer) clearInterval(item._taskTimer);
+        return;
+      }
+      const clock = formatClock(remaining);
+      btn.disabled = true;
+      btn.textContent = `Wait ${clock}`;
+      timerText.textContent = `Ready in ${clock}`;
+    };
+    tick();
+    item._taskTimer = setInterval(tick, 1000);
+    btn.addEventListener('click', () => startClaim(btn));
+  }
+  async function startClaim(btn){
+    const taskName = btn.dataset.task;
+    const item = btn.closest('.task-item');
+    if(!taskName || !item || btn.disabled || claimedToday.has(taskName)) return;
+    btn.disabled = true;
+    btn.textContent = 'Claiming...';
     try{
       const res=await fetch('/api/task/claim',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({taskName})});
       const data=await res.json();
-      if(!data.ok){btn.disabled=false;btn.textContent='Claim';showToast(data.error||'Task failed','err');return;}
+      if(!data.ok){
+        const msg = String(data.error || 'Task failed');
+        if(msg.toLowerCase().includes('already claimed')){
+          claimedToday.add(taskName);
+          item.dataset.claimed = '1';
+          btn.disabled = true;
+          btn.textContent = 'Claimed';
+          const timerText = item.querySelector('.task-timer');
+          if(timerText){timerText.textContent='Already claimed today';}
+          if(item._taskTimer) clearInterval(item._taskTimer);
+        } else {
+          btn.disabled=false;
+          btn.textContent='Claim again';
+        }
+        showToast(msg,'err');
+        return;
+      }
       claimedToday.add(taskName);
       btn.textContent='Claimed';
       btn.disabled=true;
-      const item=document.querySelector(`[data-task-item="${CSS.escape(taskName)}"]`);
-      if(item){item.style.opacity='.7';}
+      item.dataset.claimed = '1';
+      const timerText = item.querySelector('.task-timer');
+      if(timerText){timerText.textContent='Already claimed today';}
+      if(item._taskTimer) clearInterval(item._taskTimer);
       showToast(data.message,'ok');
+      switchTab('task');
     }catch(e){
-      btn.disabled=false;btn.textContent='Claim';showToast('Network error while claiming task','err');
+      btn.disabled=false;btn.textContent='Claim again';showToast('Network error while claiming task','err');
     }
   }
   function copyReferral(link){
@@ -568,11 +611,9 @@
   }
   window.addEventListener('DOMContentLoaded',()=>{
     document.querySelectorAll('.msg').forEach((m)=>setTimeout(()=>{m.style.opacity='0';m.style.transform='translateY(-6px)';setTimeout(()=>m.remove(),450);},3000));
-    if (document.getElementById('depositPanel')) {
-      togglePanel('depositPanel');
-    }
     const active = '<%= section %>';
     if (active && active !== 'home') switchTab(active);
+    document.querySelectorAll('.task-item').forEach(initTaskCard);
   });
 </script>
 </body>
