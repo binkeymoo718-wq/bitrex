@@ -3,741 +3,399 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#fff7ea" />
+  <meta name="theme-color" content="#f6f1e8" />
   <link rel="manifest" href="/manifest.webmanifest" />
-  <title>BITREX 722</title>
+  <title>BITREX 722 | Alt</title>
   <style>
-    :root {
-      --bg: #fff7ea;
-      --panel: rgba(255, 255, 255, 0.9);
-      --line: rgba(22, 32, 45, 0.09);
-      --text: #16202d;
-      --muted: #647386;
-      --orange: #ff8b3d;
-      --pink: #ff5fa2;
-      --cyan: #28c7f7;
-      --green: #35d08a;
-      --red: #ff6f61;
-      --shadow: 0 18px 50px rgba(36, 44, 58, 0.12);
-      --radius: 24px;
+    :root{
+      --bg:#f6f1e8;
+      --paper:rgba(255,255,255,.78);
+      --ink:#19202b;
+      --muted:#6e7784;
+      --line:rgba(25,32,43,.08);
+      --gold:#c47f2f;
+      --teal:#1f9fb1;
+      --rose:#cc5b7e;
+      --shadow:0 18px 42px rgba(17,23,34,.12);
+      --radius:26px;
     }
-
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      color: var(--text);
-      font-family: "Segoe UI", "Trebuchet MS", Arial, sans-serif;
-      background:
-        radial-gradient(circle at 15% 10%, rgba(255, 204, 77, 0.45), transparent 26%),
-        radial-gradient(circle at 82% 20%, rgba(255, 95, 162, 0.22), transparent 24%),
-        radial-gradient(circle at 50% 100%, rgba(40, 199, 247, 0.12), transparent 30%),
-        linear-gradient(135deg, var(--bg), #fff0f6);
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%;background:
+      radial-gradient(circle at 12% 12%, rgba(196,127,47,.12), transparent 26%),
+      radial-gradient(circle at 88% 18%, rgba(31,159,177,.12), transparent 26%),
+      linear-gradient(180deg, #f6f1e8 0%, #f8f4ee 100%);
+      color:var(--ink);
+      font-family:"Segoe UI", Georgia, serif;
     }
-    a { color: #b95a10; text-decoration: none; }
-    button, input, select, textarea { font: inherit; }
-    button { cursor: pointer; }
-    .wrap {
-      width: min(1200px, calc(100% - 24px));
-      margin: 0 auto;
-      padding: 14px 0 34px;
+    a{text-decoration:none;color:inherit}
+    button,input,select{font:inherit}
+    .wrap{width:min(1160px, calc(100% - 20px)); margin:0 auto; padding:16px 0 100px}
+    .top{
+      display:flex; justify-content:space-between; align-items:center; gap:12px;
+      background:rgba(255,255,255,.75); border:1px solid var(--line); border-radius:999px;
+      padding:14px 16px; box-shadow:var(--shadow); backdrop-filter:blur(12px);
+      position:sticky; top:12px; z-index:10;
     }
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      padding: 14px 18px;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.72);
-      backdrop-filter: blur(14px);
-      box-shadow: var(--shadow);
-      position: sticky;
-      top: 12px;
-      z-index: 10;
+    .brand{display:flex; align-items:center; gap:12px; font-weight:900; letter-spacing:.08em; text-transform:uppercase}
+    .logo{
+      width:42px;height:42px;border-radius:14px; display:grid; place-items:center;
+      background:linear-gradient(135deg,var(--gold),var(--rose)); color:white; box-shadow:0 10px 20px rgba(196,127,47,.22)
     }
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-weight: 900;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
+    .hint{color:var(--muted); font-size:.84rem}
+    .hero{
+      margin-top:18px; display:grid; grid-template-columns:1.1fr .9fr; gap:16px;
     }
-    .brand-mark {
-      width: 40px;
-      height: 40px;
-      border-radius: 14px;
-      display: grid;
-      place-items: center;
-      color: white;
-      background: linear-gradient(135deg, var(--orange), var(--pink));
-      box-shadow: 0 12px 24px rgba(255, 139, 61, 0.28);
-      font-size: 1.05rem;
+    .card{
+      background:var(--paper); border:1px solid var(--line); border-radius:var(--radius);
+      box-shadow:var(--shadow); backdrop-filter:blur(10px);
     }
-    .top-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      justify-content: flex-end;
+    .pad{padding:22px}
+    h1,h2,h3,p{margin:0}
+    h1{
+      font-family:Georgia, "Times New Roman", serif;
+      font-size:clamp(2rem,3.7vw,4.2rem);
+      line-height:1; letter-spacing:-.04em;
     }
-    .pill, .ghost, .solid {
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      padding: 10px 14px;
-      font-weight: 800;
-      transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+    .lead{margin-top:14px; color:var(--muted); line-height:1.7; max-width:62ch}
+    .slabs{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin-top:18px}
+    .slab{
+      padding:14px; border-radius:18px; border:1px solid var(--line); background:rgba(255,255,255,.6)
     }
-    .pill:hover, .ghost:hover, .solid:hover { transform: translateY(-1px); }
-    .pill { background: rgba(255,255,255,0.7); color: var(--text); }
-    .ghost { background: transparent; color: var(--text); }
-    .solid {
-      background: linear-gradient(135deg, var(--orange), var(--pink));
-      color: white;
-      border-color: transparent;
-      box-shadow: 0 12px 22px rgba(255, 95, 162, 0.18);
+    .slab b{display:block; margin-top:6px}
+    .grid{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; margin-top:16px}
+    .stats{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px}
+    .stat{padding:14px; border:1px solid var(--line); border-radius:18px; background:rgba(255,255,255,.6)}
+    .label{font-size:.76rem; letter-spacing:.09em; text-transform:uppercase; color:var(--muted)}
+    .value{display:block; margin-top:8px; font-size:1.25rem; font-weight:900}
+    .tabs{display:flex; flex-wrap:wrap; gap:8px; margin-top:14px}
+    .tabs a,.nav a,.btn,.ghost{
+      border:1px solid var(--line); border-radius:999px; padding:10px 14px; font-weight:800;
+      background:rgba(255,255,255,.6); color:var(--ink)
     }
-    .hero {
-      display: grid;
-      grid-template-columns: 1.1fr 0.9fr;
-      gap: 18px;
-      margin-top: 18px;
+    .tabs a.active,.nav a.active{
+      background:linear-gradient(135deg,var(--teal),#5ea2ff); color:white; border-color:transparent
     }
-    .card {
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(12px);
+    .btn{
+      background:linear-gradient(135deg,var(--gold),#f0b55e); color:white; border-color:transparent
     }
-    .hero-copy, .panel, .auth-card, .section {
-      padding: 22px;
+    .ghost{background:transparent}
+    .note{color:var(--muted); line-height:1.6; font-size:.95rem}
+    .field,.select{
+      width:100%; padding:13px 14px; border-radius:16px; border:1px solid var(--line);
+      background:white; color:var(--ink)
     }
-    .eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 7px 12px;
-      border-radius: 999px;
-      background: rgba(255, 139, 61, 0.12);
-      color: #b95a10;
-      font-size: 0.82rem;
-      font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
+    .field:focus,.select:focus{outline:none; border-color:rgba(31,159,177,.55); box-shadow:0 0 0 4px rgba(31,159,177,.1)}
+    .form{display:grid; gap:10px; margin-top:14px}
+    .fields{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px}
+    .pane{display:none}
+    .pane.active{display:block}
+    .city-list{display:grid; gap:12px}
+    .city{
+      overflow:hidden; border-radius:22px; background:rgba(255,255,255,.72); border:1px solid var(--line)
     }
-    h1, h2, h3, p { margin: 0; }
-    h1 {
-      font-size: clamp(2rem, 3.4vw, 4rem);
-      line-height: 1.02;
-      margin-top: 16px;
-      letter-spacing: -0.04em;
+    .city img{display:block; width:100%; height:150px; object-fit:cover}
+    .city-body{padding:14px}
+    .city-top{display:flex; justify-content:space-between; gap:10px; align-items:flex-start}
+    .badge{display:inline-flex; padding:6px 10px; border-radius:999px; background:rgba(31,159,177,.12); color:#156d7a; font-size:.75rem; font-weight:900; text-transform:uppercase}
+    .badge.free{background:rgba(60,211,159,.14); color:#15714f}
+    .row{display:flex; justify-content:space-between; gap:12px; padding:10px 0; border-bottom:1px solid rgba(25,32,43,.06); color:var(--muted)}
+    .row:last-child{border-bottom:none}
+    .row strong{color:var(--ink)}
+    .feed{display:grid; gap:10px}
+    .tx{
+      padding:12px 14px; border:1px solid var(--line); border-radius:18px; background:rgba(255,255,255,.62);
+      display:flex; justify-content:space-between; gap:10px
     }
-    .sub {
-      margin-top: 14px;
-      color: var(--muted);
-      line-height: 1.7;
-      max-width: 60ch;
+    .tx small{display:block; margin-top:4px; color:var(--muted)}
+    .bottom{
+      position:fixed; left:50%; transform:translateX(-50%); bottom:12px;
+      width:min(1160px, calc(100% - 14px)); display:grid; grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:8px; padding:10px; border-radius:24px; background:rgba(255,255,255,.88); border:1px solid var(--line);
+      box-shadow:var(--shadow); backdrop-filter:blur(14px)
     }
-    .hero-grid {
-      margin-top: 18px;
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 12px;
-    }
-    .mini {
-      padding: 14px;
-      border-radius: 18px;
-      background: rgba(255,255,255,0.72);
-      border: 1px solid var(--line);
-    }
-    .mini b { display: block; font-size: 1.05rem; margin-top: 6px; }
-    .mini span { color: var(--muted); font-size: 0.88rem; }
-    .panel {
-      display: grid;
-      gap: 14px;
-    }
-    .stat-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
-    }
-    .stat {
-      padding: 14px;
-      border-radius: 18px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.94), rgba(255,255,255,0.72));
-      border: 1px solid var(--line);
-    }
-    .stat .label {
-      color: var(--muted);
-      font-size: 0.85rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      font-weight: 800;
-    }
-    .stat .value {
-      display: block;
-      margin-top: 8px;
-      font-size: 1.35rem;
-      font-weight: 900;
-    }
-    .alerts {
-      display: grid;
-      gap: 10px;
-      margin-top: 16px;
-    }
-    .alert {
-      padding: 14px 16px;
-      border-radius: 18px;
-      border: 1px solid var(--line);
-      background: rgba(255,255,255,0.82);
-      box-shadow: var(--shadow);
-    }
-    .alert.success { border-color: rgba(53, 208, 138, 0.28); }
-    .alert.error { border-color: rgba(255, 111, 97, 0.32); }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 18px;
-      margin-top: 18px;
-    }
-    .section h2 {
-      font-size: 1.2rem;
-      margin-bottom: 12px;
-      letter-spacing: -0.02em;
-    }
-    .section .note {
-      color: var(--muted);
-      font-size: 0.92rem;
-      line-height: 1.6;
-      margin-bottom: 14px;
-    }
-    .auth-tabs {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 16px;
-    }
-    .tablink {
-      padding: 9px 13px;
-      border-radius: 999px;
-      border: 1px solid var(--line);
-      background: rgba(255,255,255,0.7);
-      color: var(--text);
-      font-weight: 800;
-    }
-    .tablink.active {
-      color: white;
-      background: linear-gradient(135deg, var(--orange), var(--pink));
-      border-color: transparent;
-    }
-    .form {
-      display: grid;
-      gap: 12px;
-    }
-    .fields {
-      display: grid;
-      gap: 10px;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-    .field, .select, .textarea {
-      width: 100%;
-      border: 1px solid var(--line);
-      background: rgba(255,255,255,0.92);
-      border-radius: 16px;
-      padding: 13px 14px;
-      color: var(--text);
-    }
-    .textarea { min-height: 110px; resize: vertical; }
-    .field:focus, .select:focus, .textarea:focus {
-      outline: none;
-      border-color: rgba(255, 139, 61, 0.5);
-      box-shadow: 0 0 0 4px rgba(255, 139, 61, 0.12);
-    }
-    .stack { display: grid; gap: 12px; }
-    .city-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 14px;
-    }
-    .city {
-      overflow: hidden;
-      border-radius: 20px;
-      border: 1px solid var(--line);
-      background: rgba(255,255,255,0.86);
-    }
-    .city img {
-      width: 100%;
-      height: 155px;
-      object-fit: cover;
-      display: block;
-    }
-    .city-body { padding: 14px; }
-    .city-head {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      align-items: start;
-    }
-    .tag {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-size: 0.78rem;
-      font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      background: rgba(40, 199, 247, 0.12);
-      color: #0d6d8d;
-    }
-    .tag.free { background: rgba(53, 208, 138, 0.12); color: #17704b; }
-    .kv {
-      margin-top: 12px;
-      display: grid;
-      gap: 8px;
-      font-size: 0.92rem;
-      color: var(--muted);
-    }
-    .kv strong { color: var(--text); }
-    .city form, .box form { margin-top: 12px; display: grid; gap: 10px; }
-    .inline {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      align-items: center;
-    }
-    .subtle {
-      color: var(--muted);
-      font-size: 0.88rem;
-      line-height: 1.6;
-    }
-    .transactions {
-      display: grid;
-      gap: 10px;
-    }
-    .tx {
-      padding: 12px 14px;
-      border-radius: 16px;
-      background: rgba(255,255,255,0.8);
-      border: 1px solid var(--line);
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      align-items: start;
-    }
-    .tx small { color: var(--muted); display: block; margin-top: 4px; }
-    .badge {
-      display: inline-flex;
-      padding: 5px 10px;
-      border-radius: 999px;
-      font-size: 0.75rem;
-      font-weight: 900;
-      background: rgba(53, 208, 138, 0.12);
-      color: #17704b;
-      white-space: nowrap;
-    }
-    .footer {
-      margin: 18px 0 8px;
-      text-align: center;
-      color: var(--muted);
-      font-size: 0.9rem;
-    }
-    .copy {
-      width: 100%;
-      border: 1px dashed rgba(22, 32, 45, 0.18);
-      border-radius: 16px;
-      padding: 13px 14px;
-      background: rgba(255,255,255,0.8);
-      color: var(--text);
-    }
-    .split {
-      display: grid;
-      grid-template-columns: 1.1fr 0.9fr;
-      gap: 18px;
-      margin-top: 18px;
-    }
-    .statusline {
-      display: inline-flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-    .mini-line {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      border-bottom: 1px solid rgba(22, 32, 45, 0.06);
-      padding: 10px 0;
-      font-size: 0.95rem;
-    }
-    .mini-line:last-child { border-bottom: none; }
-    @media (max-width: 960px) {
-      .hero, .grid, .split { grid-template-columns: 1fr; }
-      .city-grid, .fields, .stat-grid, .hero-grid { grid-template-columns: 1fr; }
-      .topbar { border-radius: 24px; position: static; }
+    .bottom a{padding:12px 8px; text-align:center; border-radius:18px; font-weight:900; color:var(--muted)}
+    .bottom a.active{background:rgba(196,127,47,.12); color:var(--gold)}
+    .footer{text-align:center; color:var(--muted); padding-top:18px; font-size:.88rem}
+    @media (max-width: 960px){
+      .hero,.grid,.slabs,.stats,.fields{grid-template-columns:1fr}
+      .top{position:static; border-radius:24px}
+      .bottom{left:0; transform:none; width:calc(100% - 14px)}
     }
   </style>
 </head>
 <body>
 <%
-  const money = (value) => new Intl.NumberFormat('en-KE').format(Number(value || 0));
+  const money = (v) => new Intl.NumberFormat('en-KE').format(Number(v || 0));
+  const tab = activeTab || 'home';
+  const isLogged = Boolean(user);
+  const cities = Object.entries(cityConfig || {});
   const activeCities = Array.isArray(user?.activeCities) ? user.activeCities : [];
-  const recentTransactions = Array.isArray(user?.transactions) ? user.transactions.slice(0, 8) : [];
-  const cityEntries = Object.entries(cityConfig || {});
-  const selectedAuth = authMode || 'login';
-  const currentTab = activeTab || 'home';
-  const isLoggedIn = Boolean(user);
-  const verified = Boolean(user && user.emailVerified);
-  const showVerifyCard = isLoggedIn && !verified;
-  const selectedCityList = cityEntries.filter(([code]) => activeCities.includes(code));
+  const txs = Array.isArray(user?.transactions) ? user.transactions.slice(0, 6) : [];
+  const authTab = authMode || 'login';
 %>
 
 <div class="wrap">
-  <header class="topbar">
+  <header class="top">
     <div class="brand">
-      <div class="brand-mark">B</div>
+      <div class="logo">B</div>
       <div>
         <div>BITREX 722</div>
-        <div style="font-size:.78rem;color:var(--muted);font-weight:700;letter-spacing:0;">Task and city platform</div>
+        <div class="hint">Clean alternate presentation</div>
       </div>
     </div>
-    <div class="top-actions">
-      <a class="pill" href="/?tab=home">Home</a>
-      <a class="pill" href="/?tab=city">Cities</a>
-      <a class="pill" href="/?tab=task">Tasks</a>
-      <a class="pill" href="/?tab=menu">Wallet</a>
-      <% if (isLoggedIn) { %>
-        <form action="/logout" method="post" style="margin:0;">
-          <button class="ghost" type="submit">Logout</button>
-        </form>
-      <% } else { %>
-        <a class="solid" href="/?auth=login">Sign in</a>
-      <% } %>
-    </div>
+    <div class="hint"><%= isLogged ? 'Account open' : 'Guest preview' %></div>
   </header>
 
-  <section class="hero">
-    <div class="card hero-copy">
-      <span class="eyebrow">Simple Render ready deployment</span>
-      <h1>Grow with task earnings, city packages, and a clean wallet flow.</h1>
-      <p class="sub">
-        This page is wired to the server routes already in the project:
-        signup, login, password reset, city investment, task claiming, deposits, withdrawals, and roulette.
-      </p>
-      <div class="hero-grid">
-        <div class="mini">
-          <span>Public demo</span>
-          <b>Login or create an account</b>
-        </div>
-        <div class="mini">
-          <span>Task rewards</span>
-          <b>KSH 50 per claim</b>
-        </div>
-        <div class="mini">
-          <span>Deployment</span>
-          <b>Server-rendered EJS</b>
-        </div>
-      </div>
-    </div>
-
-    <aside class="card panel">
-      <% if (isLoggedIn) { %>
-        <div class="stat-grid">
-          <div class="stat"><span class="label">Balance</span><span class="value">KSH <%= money(user.balance) %></span></div>
-          <div class="stat"><span class="label">Today Income</span><span class="value">KSH <%= money(user.todayIncome) %></span></div>
-          <div class="stat"><span class="label">Gems</span><span class="value"><%= money(user.gems) %></span></div>
-          <div class="stat"><span class="label">Free Spins</span><span class="value"><%= money(user.freeSpins) %></span></div>
-        </div>
-        <div class="mini-line"><span>Referral code</span><strong><%= user.referralCode %></strong></div>
-        <div class="mini-line"><span>Tasks today</span><strong><%= money(user.tasksCompletedToday) %> / <%= money(taskLimitToday) %></strong></div>
-        <div class="mini-line"><span>Email status</span><strong><%= verified ? 'Verified' : 'Pending' %></strong></div>
-        <div class="mini-line"><span>Joined cities</span><strong><%= money(activeCities.length) %></strong></div>
-      <% } else { %>
-        <div class="stack">
-          <div class="mini">
-            <span>Ready to start</span>
-            <b>Sign in to see your wallet and packages</b>
-          </div>
-          <div class="mini">
-            <span>Accounts</span>
-            <b>Signup, login, forgot password, verify</b>
-          </div>
-          <div class="mini">
-            <span>Support</span>
-            <b>Admin portal available from the server routes</b>
-          </div>
-        </div>
-      <% } %>
-    </aside>
-  </section>
-
   <% if (message || error) { %>
-    <div class="alerts">
-      <% if (message) { %><div class="alert success"><strong>Success:</strong> <%= message %></div><% } %>
-      <% if (error) { %><div class="alert error"><strong>Issue:</strong> <%= error %></div><% } %>
+    <div class="grid" style="grid-template-columns:1fr; margin-top:16px;">
+      <% if (message) { %><div class="card pad"><strong>Success:</strong> <%= message %></div><% } %>
+      <% if (error) { %><div class="card pad"><strong>Alert:</strong> <%= error %></div><% } %>
     </div>
   <% } %>
 
-  <% if (!isLoggedIn) { %>
-    <section class="grid">
-      <div class="card auth-card">
-        <h2>Access your account</h2>
-        <p class="note">Use the built-in auth routes. Signup creates the account, login opens the dashboard, and forgot password updates the stored password.</p>
-        <div class="auth-tabs">
-          <a class="tablink <%= selectedAuth === 'login' ? 'active' : '' %>" href="/?auth=login">Login</a>
-          <a class="tablink <%= selectedAuth === 'signup' ? 'active' : '' %>" href="/?auth=signup">Signup</a>
-          <a class="tablink <%= selectedAuth === 'forgot' ? 'active' : '' %>" href="/?auth=forgot">Forgot</a>
-        </div>
+  <section class="hero pane <%= tab === 'home' ? 'active' : '' %>">
+    <div class="card pad">
+      <h1>A softer, editorial-looking BITREX homepage.</h1>
+      <p class="lead">This version is intentionally very different: lighter surfaces, serif headlines, and a more magazine-style spacing system while still using the same backend routes.</p>
+      <div class="slabs">
+        <div class="slab"><span class="label">Format</span><b>Bottom navigation</b></div>
+        <div class="slab"><span class="label">Render</span><b>Simple deployment</b></div>
+        <div class="slab"><span class="label">Tabs</span><b>Own query page</b></div>
+      </div>
+      <div class="tabs">
+        <a class="<%= authTab === 'login' ? 'active' : '' %>" href="/?tab=home&auth=login">Login</a>
+        <a class="<%= authTab === 'signup' ? 'active' : '' %>" href="/?tab=home&auth=signup">Signup</a>
+        <a class="<%= authTab === 'forgot' ? 'active' : '' %>" href="/?tab=home&auth=forgot">Forgot</a>
+      </div>
+    </div>
+    <div class="card pad">
+      <div class="stats">
+        <div class="stat"><span class="label">Balance</span><span class="value">KSH <%= money(user?.balance) %></span></div>
+        <div class="stat"><span class="label">Today</span><span class="value">KSH <%= money(user?.todayIncome) %></span></div>
+        <div class="stat"><span class="label">Gems</span><span class="value"><%= money(user?.gems) %></span></div>
+        <div class="stat"><span class="label">Spins</span><span class="value"><%= money(user?.freeSpins) %></span></div>
+      </div>
+      <div class="card pad" style="margin-top:12px; background:rgba(255,255,255,.45);">
+        <span class="label">Referral</span>
+        <div style="margin-top:8px; font-weight:900; font-size:1.2rem;"><%= user?.referralCode || 'N/A' %></div>
+        <div class="note" style="margin-top:6px;">The profile tab contains the share link and password tools.</div>
+      </div>
+    </div>
+  </section>
 
-        <% if (selectedAuth === 'signup') { %>
+  <% if (!isLogged) { %>
+    <section class="grid pane <%= tab === 'home' ? 'active' : '' %>">
+      <div class="card pad">
+        <h2>Account access</h2>
+        <p class="note" style="margin-top:10px;">This stays compact and uses the existing auth routes exactly as the server expects.</p>
+        <% if (authTab === 'signup') { %>
           <form class="form" action="/signup" method="post">
             <div class="fields">
-              <input class="field" type="text" name="name" placeholder="Full name" required />
-              <input class="field" type="text" name="phone" placeholder="Phone number" required />
-              <input class="field" type="email" name="email" placeholder="Email address" required />
-              <input class="field" type="password" name="password" placeholder="Password 6-8 chars" minlength="6" maxlength="8" required />
+              <input class="field" name="name" placeholder="Full name" required />
+              <input class="field" name="phone" placeholder="Phone number" required />
+              <input class="field" name="email" type="email" placeholder="Email address" required />
+              <input class="field" name="password" type="password" minlength="6" maxlength="8" placeholder="Password 6-8 chars" required />
             </div>
-            <input class="field" type="text" name="referralCode" placeholder="Referral code" value="<%= referralFromQuery || '' %>" />
-            <button class="solid" type="submit">Create account</button>
+            <input class="field" name="referralCode" value="<%= referralFromQuery || '' %>" placeholder="Referral code" />
+            <button class="btn" type="submit">Create account</button>
           </form>
-        <% } else if (selectedAuth === 'forgot') { %>
+        <% } else if (authTab === 'forgot') { %>
           <form class="form" action="/forgot-password" method="post">
-            <input class="field" type="email" name="email" placeholder="Registered email" required />
+            <input class="field" name="email" type="email" placeholder="Registered email" required />
             <div class="fields">
-              <input class="field" type="password" name="newPassword" placeholder="New password" minlength="6" maxlength="8" required />
-              <input class="field" type="password" name="confirmNewPassword" placeholder="Confirm password" minlength="6" maxlength="8" required />
+              <input class="field" name="newPassword" type="password" minlength="6" maxlength="8" placeholder="New password" required />
+              <input class="field" name="confirmNewPassword" type="password" minlength="6" maxlength="8" placeholder="Confirm password" required />
             </div>
-            <button class="solid" type="submit">Reset password</button>
+            <button class="btn" type="submit">Reset password</button>
           </form>
         <% } else { %>
           <form class="form" action="/login" method="post">
-            <input class="field" type="text" name="phone" placeholder="Phone number" required />
-            <input class="field" type="password" name="password" placeholder="Password" required />
-            <button class="solid" type="submit">Login</button>
+            <input class="field" name="phone" placeholder="Phone number" required />
+            <input class="field" name="password" type="password" placeholder="Password" required />
+            <button class="btn" type="submit">Login</button>
           </form>
         <% } %>
       </div>
-
-      <div class="card section">
-        <h2>What this project does</h2>
-        <p class="note">The homepage stays small and deployable, but the server already supports the full flow behind it.</p>
-        <div class="stack">
-          <div class="mini">
-            <span>Tasks</span>
-            <b>Claim one item from the daily task list after joining a city</b>
-          </div>
-          <div class="mini">
-            <span>Investments</span>
-            <b>Join city packages with a contract signature</b>
-          </div>
-          <div class="mini">
-            <span>Wallet</span>
-            <b>Deposit, withdraw, spin roulette, and change password</b>
-          </div>
-        </div>
-      </div>
-    </section>
-  <% } else { %>
-    <section class="split">
-      <div class="card section">
-        <h2>Account overview</h2>
-        <p class="note">Your wallet, referral details, and joined cities are shown here. The data comes straight from the server session.</p>
-        <div class="stat-grid">
-          <div class="stat"><span class="label">Total earnings</span><span class="value">KSH <%= money(user.totalEarnings) %></span></div>
-          <div class="stat"><span class="label">Referral count</span><span class="value"><%= money(user.referredCount) %></span></div>
-          <div class="stat"><span class="label">Joined cities</span><span class="value"><%= money(activeCities.length) %></span></div>
-          <div class="stat"><span class="label">Tasks left</span><span class="value"><%= money(Math.max(taskLimitToday - (user.tasksCompletedToday || 0), 0)) %></span></div>
-        </div>
-
-        <% if (showVerifyCard) { %>
-          <div class="mini" style="margin-top:14px;">
-            <span>Email verification</span>
-            <b>Your account is waiting for verification</b>
-            <p class="subtle" style="margin-top:8px;">This keeps the flow aligned with the route that marks your email as verified after signup.</p>
-            <form action="/verify-email" method="post">
-              <button class="solid" type="submit">Verify email</button>
-            </form>
-          </div>
-        <% } else { %>
-          <div class="mini" style="margin-top:14px;">
-            <span>Email verification</span>
-            <b>Verified and ready</b>
-          </div>
-        <% } %>
-
-        <div class="mini" style="margin-top:14px;">
-          <span>Referral link</span>
-          <input class="copy" id="refLink" readonly value="<%= referralLink || '' %>" />
-          <div class="inline" style="margin-top:10px;">
-            <button class="pill" type="button" onclick="copyReferral()">Copy link</button>
-            <span class="subtle">Share this to grow referrals.</span>
-          </div>
-        </div>
-
-        <div class="mini" style="margin-top:14px;">
-          <span>Joined cities</span>
-          <% if (selectedCityList.length) { %>
-            <div class="stack" style="margin-top:10px;">
-              <% selectedCityList.forEach(([code, city]) => { %>
-                <div class="mini-line">
-                  <span><%= city.city %> (<%= code %>)</span>
-                  <strong><%= user.cityJoinDates && user.cityJoinDates[code] ? new Date(user.cityJoinDates[code]).toLocaleDateString() : 'Joined' %></strong>
-                </div>
-              <% }) %>
-            </div>
-          <% } else { %>
-            <p class="subtle" style="margin-top:10px;">You have not joined any city package yet.</p>
-          <% } %>
-        </div>
-      </div>
-
-      <div class="card section">
-        <h2>Quick actions</h2>
-        <p class="note">Use the forms below to exercise the routes already in the app. The page stays compact and does not need a build step.</p>
-
-        <div class="stack">
-          <div class="mini">
-            <span>Task claim</span>
-            <form action="/task" method="post">
-              <select class="select" name="taskName" required>
-                <% (tasks || []).forEach((task) => { %>
-                  <option value="<%= task %>"><%= task %></option>
-                <% }) %>
-              </select>
-              <button class="solid" type="submit">Claim task</button>
-            </form>
-            <p class="subtle" style="margin-top:8px;">Daily limit: <%= money(taskLimitToday) %>. Tasks only work after joining a city.</p>
-          </div>
-
-          <div class="mini">
-            <span>Deposit</span>
-            <form action="/deposit" method="post">
-              <div class="fields">
-                <input class="field" type="number" name="amount" min="200" step="1" placeholder="Amount" required />
-                <input class="field" type="text" name="phone" placeholder="Phone number" required />
-              </div>
-              <button class="solid" type="submit">Send STK push</button>
-            </form>
-          </div>
-
-          <div class="mini">
-            <span>Withdraw</span>
-            <form action="/withdraw" method="post">
-              <div class="fields">
-                <input class="field" type="number" name="amount" min="300" step="1" placeholder="Amount" required />
-                <input class="field" type="text" name="phone" placeholder="Phone number" required />
-              </div>
-              <input class="field" type="password" name="withdrawalPassword" placeholder="Withdrawal password" required />
-              <button class="solid" type="submit">Request withdrawal</button>
-            </form>
-          </div>
-
-          <div class="mini">
-            <span>Change password</span>
-            <form action="/profile/password" method="post">
-              <div class="fields">
-                <input class="field" type="password" name="currentPassword" placeholder="Current password" required />
-                <input class="field" type="password" name="newPassword" placeholder="New password" minlength="6" maxlength="8" required />
-              </div>
-              <button class="solid" type="submit">Update password</button>
-            </form>
-          </div>
-
-          <div class="mini">
-            <span>Roulette</span>
-            <p class="subtle" style="margin:10px 0 12px;">Use a free spin or 2 gems to play the roulette route.</p>
-            <form action="/spin-roulette" method="post">
-              <button class="solid" type="submit">Spin now</button>
-            </form>
-          </div>
-        </div>
+      <div class="card pad">
+        <h2>Why this version</h2>
+        <p class="note" style="margin-top:10px;">It keeps the same server behavior, but the visual language is much calmer and more premium-looking than the first version.</p>
       </div>
     </section>
   <% } %>
 
-  <section class="grid">
-    <div class="card section">
-      <h2>City packages</h2>
-      <p class="note">Each package uses the existing `/invest/:cityCode` route. A signature is required, so the form includes a short approval line.</p>
-      <div class="city-grid">
-        <% cityEntries.forEach(([code, city]) => { %>
-          <article class="city">
-            <img src="<%= city.image %>" alt="<%= city.city %>" />
-            <div class="city-body">
-              <div class="city-head">
-                <div>
-                  <h3><%= city.city %></h3>
-                  <p class="subtle" style="margin-top:4px;">Code <%= code %></p>
+  <section class="pane <%= tab === 'city' ? 'active' : '' %>">
+    <div class="grid">
+      <div class="card pad">
+        <h2>City packages</h2>
+        <p class="note" style="margin-top:10px;">Join a city from this screen using the existing route and a contract signature.</p>
+        <div class="city-list" style="margin-top:14px;">
+          <% cities.forEach(([code, city]) => { %>
+            <article class="city">
+              <img src="<%= city.image %>" alt="<%= city.city %>" />
+              <div class="city-body">
+                <div class="city-top">
+                  <div>
+                    <h3><%= city.city %></h3>
+                    <div class="note">Code <%= code %></div>
+                  </div>
+                  <span class="badge <%= city.free ? 'free' : '' %>"><%= city.free ? 'Free start' : 'Paid plan' %></span>
                 </div>
-                <span class="tag <%= city.free ? 'free' : '' %>"><%= city.free ? 'Free start' : 'Paid plan' %></span>
-              </div>
-
-              <div class="kv">
-                <div><strong>Amount:</strong> KSH <%= money(city.amount) %></div>
-                <div><strong>Tasks/day:</strong> <%= money(city.tasksPerDay) %></div>
-                <div><strong>Daily income:</strong> KSH <%= money(city.dailyIncome) %></div>
-                <div><strong>Duration:</strong> <%= money(city.durationDays) %> days</div>
-                <% if (code === 'INTERN' && internExpired) { %>
-                  <div><strong>Status:</strong> INTERN expired</div>
+                <div class="row"><span>Amount</span><strong>KSH <%= money(city.amount) %></strong></div>
+                <div class="row"><span>Tasks/day</span><strong><%= money(city.tasksPerDay) %></strong></div>
+                <div class="row"><span>Income/day</span><strong>KSH <%= money(city.dailyIncome) %></strong></div>
+                <div class="row"><span>Duration</span><strong><%= money(city.durationDays) %> days</strong></div>
+                <% if (isLogged) { %>
+                  <form class="form" action="/invest/<%= code %>" method="post">
+                    <input class="field" name="signature" placeholder="Type your signature" required />
+                    <button class="btn" type="submit">Join city</button>
+                  </form>
+                <% } else { %>
+                  <div class="note" style="margin-top:10px;">Login to activate this package.</div>
                 <% } %>
               </div>
-
-              <% if (isLoggedIn) { %>
-                <form action="/invest/<%= code %>" method="post">
-                  <input class="field" type="text" name="signature" placeholder="Type your signature to join" required />
-                  <button class="solid" type="submit">Join city</button>
-                </form>
-              <% } else { %>
-                <p class="subtle" style="margin-top:12px;">Sign in first to activate this package.</p>
-              <% } %>
+            </article>
+          <% }) %>
+        </div>
+      </div>
+      <div class="card pad">
+        <h2>Joined cities</h2>
+        <div class="feed" style="margin-top:14px;">
+          <% if (activeCities.length) { %>
+            <% activeCities.forEach((code) => { const city = cityConfig[code]; %>
+              <div class="tx">
+                <div><strong><%= city.city %></strong><small>Package <%= code %></small></div>
+                <div class="badge">Active</div>
+              </div>
+            <% }) %>
+          <% } else { %>
+            <div class="card pad">
+              <div class="note">No city joined yet.</div>
             </div>
-          </article>
-        <% }) %>
+          <% } %>
+        </div>
       </div>
     </div>
+  </section>
 
-    <div class="card section">
-      <h2>Recent activity</h2>
-      <p class="note">This shows the latest stored transactions for the current user session.</p>
-      <div class="transactions">
-        <% if (recentTransactions.length) { %>
-          <% recentTransactions.forEach((tx) => { %>
-            <div class="tx">
-              <div>
-                <strong><%= tx.type || 'Transaction' %></strong>
-                <small><%= tx.detail || 'No details' %></small>
-                <small><%= tx.date ? new Date(tx.date).toLocaleString() : '' %></small>
-              </div>
-              <div style="text-align:right;">
-                <span class="badge"><%= tx.status || 'PENDING' %></span>
-                <div style="margin-top:8px;font-weight:900;">KSH <%= money(tx.amount) %></div>
-              </div>
-            </div>
-          <% }) %>
+  <section class="pane <%= tab === 'task' ? 'active' : '' %>">
+    <div class="grid">
+      <div class="card pad">
+        <h2>Task center</h2>
+        <div class="stats" style="margin-top:14px;">
+          <div class="stat"><span class="label">Completed</span><span class="value"><%= money(user?.tasksCompletedToday) %></span></div>
+          <div class="stat"><span class="label">Limit</span><span class="value"><%= money(taskLimitToday) %></span></div>
+        </div>
+        <% if (isLogged) { %>
+          <form class="form" action="/task" method="post">
+            <select class="select" name="taskName" required>
+              <% (tasks || []).forEach((task) => { %>
+                <option value="<%= task %>"><%= task %></option>
+              <% }) %>
+            </select>
+            <button class="btn" type="submit">Claim KSH 50</button>
+          </form>
         <% } else { %>
-          <div class="mini">
-            <span>Nothing yet</span>
-            <b>Use deposit, task, or investment actions to populate activity</b>
+          <div class="note" style="margin-top:14px;">Login first, then join a city to unlock task claims.</div>
+        <% } %>
+      </div>
+      <div class="card pad">
+        <h2>Recent activity</h2>
+        <div class="feed" style="margin-top:14px;">
+          <% if (txs.length) { %>
+            <% txs.forEach((tx) => { %>
+              <div class="tx">
+                <div>
+                  <strong><%= tx.type || 'Transaction' %></strong>
+                  <small><%= tx.detail || 'No details' %></small>
+                </div>
+                <div style="text-align:right;">
+                  <div class="badge"><%= tx.status || 'PENDING' %></div>
+                  <div style="margin-top:8px; font-weight:900;">KSH <%= money(tx.amount) %></div>
+                </div>
+              </div>
+            <% }) %>
+          <% } else { %>
+            <div class="note">No recent activity yet.</div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="pane <%= tab === 'menu' ? 'active' : '' %>">
+    <div class="grid">
+      <div class="card pad">
+        <h2>Wallet tools</h2>
+        <% if (isLogged) { %>
+          <form class="form" action="/deposit" method="post">
+            <div class="fields">
+              <input class="field" name="amount" type="number" min="200" step="1" placeholder="Deposit amount" required />
+              <input class="field" name="phone" placeholder="Phone number" required />
+            </div>
+            <button class="btn" type="submit">Send deposit push</button>
+          </form>
+          <form class="form" action="/withdraw" method="post" style="margin-top:14px;">
+            <div class="fields">
+              <input class="field" name="amount" type="number" min="300" step="1" placeholder="Withdraw amount" required />
+              <input class="field" name="phone" placeholder="Phone number" required />
+            </div>
+            <input class="field" name="withdrawalPassword" type="password" placeholder="Withdrawal password" required />
+            <button class="btn" type="submit">Request withdrawal</button>
+          </form>
+        <% } else { %>
+          <div class="note" style="margin-top:14px;">Sign in to use wallet actions.</div>
+        <% } %>
+      </div>
+      <div class="card pad">
+        <h2>Profile tools</h2>
+        <% if (isLogged) { %>
+          <div class="card pad" style="margin-top:14px; background:rgba(255,255,255,.45);">
+            <span class="label">Referral link</span>
+            <input class="field" id="refAlt" readonly value="<%= referralLink || '' %>" style="margin-top:8px;" />
+            <button class="ghost" type="button" style="margin-top:10px;" onclick="copyAlt()">Copy link</button>
           </div>
+          <form class="form" action="/verify-email" method="post" style="margin-top:14px;">
+            <button class="ghost" type="submit">Verify email</button>
+          </form>
+          <form class="form" action="/profile/password" method="post" style="margin-top:14px;">
+            <div class="fields">
+              <input class="field" name="currentPassword" type="password" placeholder="Current password" required />
+              <input class="field" name="newPassword" type="password" minlength="6" maxlength="8" placeholder="New password" required />
+            </div>
+            <button class="ghost" type="submit">Update password</button>
+          </form>
+          <form class="form" action="/spin-roulette" method="post" style="margin-top:14px;">
+            <button class="ghost" type="submit">Spin roulette</button>
+          </form>
+          <form class="form" action="/logout" method="post" style="margin-top:14px;">
+            <button class="ghost" type="submit">Logout</button>
+          </form>
+        <% } else { %>
+          <div class="note" style="margin-top:14px;">Login to unlock profile tools.</div>
         <% } %>
       </div>
     </div>
   </section>
 
-  <div class="footer">
-    BITREX 722 is wired for simple server-side deployment on Render with EJS, Express, and the existing routes.
-  </div>
+  <div class="footer">Alternate theme for BITREX 722 with the same server routes.</div>
 </div>
 
+<nav class="bottom">
+  <% ['home','city','task','menu'].forEach((key) => { %>
+    <a class="<%= tab === key ? 'active' : '' %>" href="/?tab=<%= key %>"><%= key === 'menu' ? 'Wallet' : key.charAt(0).toUpperCase() + key.slice(1) %></a>
+  <% }) %>
+</nav>
+
 <script>
-  function copyReferral() {
-    const input = document.getElementById('refLink');
+  function copyAlt() {
+    const input = document.getElementById('refAlt');
     if (!input) return;
+    if (navigator.clipboard && input.value) {
+      navigator.clipboard.writeText(input.value);
+      return;
+    }
+    input.focus();
     input.select();
-    input.setSelectionRange(0, input.value.length);
     document.execCommand('copy');
   }
 </script>
