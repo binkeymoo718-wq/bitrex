@@ -173,16 +173,16 @@
           <div class="action-buttons">
             <a class="action-link" href="#" onclick="togglePanel('depositPanel');return false;">💳 Deposit</a>
             <a class="action-link" href="#" onclick="togglePanel('withdrawPanel');return false;">📤 Withdrawal</a>
-          </div>
-          <div id="depositPanel" class="panel">
-            <p class="small">Send money to <strong>0733319700</strong>. Reflects after admin approval.</p>
-            <form action="/deposit" method="post" enctype="multipart/form-data">
-              <input name="phone" placeholder="Your Phone Number" required />
-              <input name="amount" type="number" min="200" placeholder="Amount" required />
-              <input type="file" name="evidence" />
-              <button type="submit">Submit Deposit Evidence</button>
-            </form>
-          </div>
+         <div class="home-grid">
+        <div class="card">
+          <h3>Deposit</h3>
+          <div class="small">Send a deposit request using the existing route.</div>
+          <form action="/deposit" method="post">
+            <input name="phone" placeholder="Phone number" required />
+            <input name="amount" type="number" min="200" placeholder="Amount" required />
+            <button type="submit">Send Deposit</button>
+          </form>
+        </div>
           <div id="withdrawPanel" class="panel">
             <form action="/withdraw" method="post">
               <input name="phone" placeholder="Phone to Receive Payment" required />
