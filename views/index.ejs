@@ -90,8 +90,8 @@
     <% if (!user) { %>
       <div class="card hero">
         <div>
-          <h2>Welcome to BITREX Business Platform</h2>
-          <div class="small" style="color:#ecfeff">Create account, join cities, complete daily tasks and grow your earnings dashboard.</div>
+          <h2>Welcome to BITREX Business Platform👋</h2>
+          <div class="small" style="color:#ecfeff">Create an account,log in,Navigate to cities,invest on your preferences,complete daily task to grow your account📈.</div>
         </div>
       </div>
       <% if (authMode === 'login') { %>
@@ -129,6 +129,7 @@
     <% } else { %>
       <div class="card topbar">
         <div>
+		<h4> 🧨CONGRATS🧨. Welcome again👋</h4>
           <h3>BITREX Dashboard</h3>
           <div class="small">Registered Number: <strong><%= user.phone %></strong></div>
         </div>
@@ -176,17 +177,18 @@
          <div class="home-grid">
         <div class="card">
           <h3>Deposit</h3>
-          <div class="small">Send a deposit request using the existing route.</div>
+          <div class="small">Input the mobile number and Amount.</div>
           <form action="/deposit" method="post">
             <input name="phone" placeholder="Phone number" required />
-            <input name="amount" type="number" min="200" placeholder="Amount" required />
+            <input name="amount" type="number" min="300" placeholder="Amount" required />
             <button type="submit">Send Deposit</button>
           </form>
         </div>
+		
           <div id="withdrawPanel" class="panel">
             <form action="/withdraw" method="post">
               <input name="phone" placeholder="Phone to Receive Payment" required />
-              <input name="amount" type="number" min="300" placeholder="Amount" required />
+              <input name="amount" type="number" min="500" placeholder="Amount" required />
               <input name="withdrawalPassword" type="password" placeholder="Withdrawal Password" required />
               <button type="submit">Withdraw</button>
             </form>
@@ -197,7 +199,7 @@
       <section id="task" class="section <%= activeTab === 'task' ? 'active' : '' %>">
         <div class="card">
           <h3>Daily Tasks (KSH 50 each)</h3>
-          <p class="small">Tap claim, wait for 59→00 countdown, then it auto-completes. Claimed task becomes inactive for today.</p>
+          <p class="small">Tap claim, wait for countdown.Task are availabe after every midnight.</p>
           <div class="task-grid" style="grid-template-columns:1fr;">
             <% const iconMap = ['🧴','💆','🩸','🧃','🔧','📺','⚡','📱','📷','🏠','🪠','🛋️','📶','💻','🧵','🎨','💄','🧰','👟','🍳','🔥','🍟','🍲','📦','🍽️','🚰','🥤','☕','🔊','📺','🔈','🎮','⌚','🎧','🔆']; %>
             <% tasks.forEach((t, idx) => { %>
@@ -206,7 +208,7 @@
                   <div class="task-title\"><%= t %></div>
                   <div class="task-icon\"><%= iconMap[idx % iconMap.length] %></div>
                 </div>
-                <div class="task-sub">Reward: KSH 50 · Daily limit applies.</div>
+                <div class="task-sub">Reward: KSH 50</div>
                 <button class="claim-btn" type="button" data-task="<%= t %>" onclick="startClaim(this)">Claim</button>
               </div>
             <% }) %>
@@ -234,7 +236,7 @@
                     <form method="post" action="/invest/<%= code %>" class="signature-box">
                       <label>
                         <span class="small">Signature</span>
-                        <input name="signature" placeholder="Type your full name" value="<%= user.citySignatures?.[code] || '' %>" <%= joined ? 'readonly' : 'required' %> />
+                        <input name="signature" placeholder="Type your name" value="<%= user.citySignatures?.[code] || '' %>" <%= joined ? 'readonly' : 'required' %> />
                       </label>
                       <button type="submit" <%= joined ? 'disabled' : '' %>><%= joined ? 'Joined ✓' : 'Confirm ✓' %></button>
                     </form>
@@ -324,6 +326,8 @@
             <p>We may terminate or suspend your account immediately, without prior notice, for any breach of these Terms. Upon termination, your right to use the platform will immediately cease.</p>
             <h4>9. Contact Us</h4>
             <p>If you have any questions about these Terms, please contact our support team or hiring manager.</p>
+			<h4>10. Tasking</h4>
+			<p>For a successive earning,after daily task completion,a screenshot of user account balances and user registration number should be posted to whatsapp working group for complete verification.</p>
           </div>
         </div>
 
