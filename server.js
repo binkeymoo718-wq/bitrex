@@ -924,7 +924,7 @@ app.post('/withdraw', auth, (req, res) => {
     detail: `Withdrawal request to ${phone}`
   });
 
-  res.redirect('/?message=Withdrawal request submitted. Awaiting admin approval.');
+  res.redirect('/?message=Withdrawal request submitted. Awaiting disbursment.');
 });
 
 function executeRouletteSpin(user) {
