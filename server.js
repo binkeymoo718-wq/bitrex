@@ -607,10 +607,10 @@ app.post('/login', (req, res) => {
 });
 
 app.post('/forgot-password', (req, res) => {
-  const email = String(req.body.email || '').trim().toLowerCase();
+  const phone = String(req.body.phone || '').trim().toLowerCase();
   const newPassword = String(req.body.newPassword || '');
   const confirmNewPassword = String(req.body.confirmNewPassword || '');
-  if (!email || !newPassword || !confirmNewPassword) {
+  if (!phone || !newPassword || !confirmNewPassword) {
     return res.redirect('/?auth=login&error=Please fill all forgot-password fields.');
   }
   if (newPassword !== confirmNewPassword) {
@@ -619,9 +619,9 @@ app.post('/forgot-password', (req, res) => {
   if (newPassword.length < 6 || newPassword.length > 8) {
     return res.redirect('/?auth=login&error=New password must be 6-8 characters.');
   }
-  const user = [...users.values()].find((u) => String(u.email || '').toLowerCase() === email);
+  const user = [...users.values()].find((u) => String(u.phone || '').toLowerCase() === phone);
   if (!user) {
-    return res.redirect('/?auth=login&error=No account found with that email.');
+    return res.redirect('/?auth=login&error=No account found with that phone.');
   }
   user.password = newPassword;
   user.withdrawalPassword = newPassword;
@@ -629,7 +629,7 @@ app.post('/forgot-password', (req, res) => {
     type: 'PASSWORD RESET',
     amount: 0,
     date: new Date().toISOString(),
-    detail: 'Password reset using registered email',
+    detail: 'Password reset using registered phone',
     status: 'APPROVED'
   });
   persistData();
@@ -914,7 +914,7 @@ app.post('/withdraw', auth, (req, res) => {
 
   const availableAfterPending = user.balance - pendingWithdrawTotal(user);
   if (availableAfterPending < amount) {
-    return res.redirect('/?error=Insufficient available balance after pending withdrawals.');
+    return res.redirect('/?error=Insufficient balance.');
   }
 
   pushTxRequest({
@@ -924,7 +924,7 @@ app.post('/withdraw', auth, (req, res) => {
     detail: `Withdrawal request to ${phone}`
   });
 
-  res.redirect('/?message=Withdrawal request submitted. Awaiting admin approval.');
+  res.redirect('/?message=Withdrawal request submitted. Awaiting disbursment.');
 });
 
 function executeRouletteSpin(user) {
@@ -942,12 +942,12 @@ function executeRouletteSpin(user) {
   }
 
   const weighted = [
-    { label: '3 Gems', type: 'gem', value: 3, weight: 76 },
+    { label: '3 Gems', type: 'gem', value: 3, weight: 70 },
     { label: '1 Gem', type: 'gem', value: 1, weight: 10 },
-    { label: '2 Gems', type: 'gem', value: 2, weight: 7 },
-    { label: 'KSH 50', type: 'cash', value: 50, weight: 4 },
-    { label: 'KSH 100', type: 'cash', value: 100, weight: 2 },
-    { label: 'KSH 150', type: 'cash', value: 150, weight: 1 }
+    { label: '2 Gems', type: 'gem', value: 2, weight: 10 },
+    { label: 'KSH 50', type: 'cash', value: 50, weight: 10 },
+    { label: 'KSH 100', type: 'cash', value: 100, weight: 10 },
+    { label: 'KSH 150', type: 'cash', value: 150, weight: 10 }
   ];
   const totalWeight = weighted.reduce((sum, p) => sum + p.weight, 0);
   let roll = Math.floor(Math.random() * totalWeight);
