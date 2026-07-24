@@ -279,7 +279,6 @@
             <a class="menu-item" href="https://chat.whatsapp.com/LLYrOJazzxsHqxnqdJrc2q" target="_blank"><span>👥 4. WhatsApp Group</span><span>›</span></a>
             <button class="menu-item" type="button" onclick="openMenuPage('referralsPage')"><span>🔗 5. Referrals</span><span>›</span></button>
             <button class="menu-item" type="button" onclick="openMenuPage('transactionsPage')"><span>🧾 6. Transaction History</span><span>›</span></button>
-            <button class="menu-item" type="button" onclick="openMenuPage('downloadDocPage')"><span>📥 7. Download User Manual</span><span>›</span></button>
             <% if (isAdminPhone) { %><a class="menu-item" href="/admin"><span>⚙️ Admin Portal</span><span>›</span></a><% } %>
           </div>
         </div>
@@ -362,15 +361,6 @@
               <% }) %>
             </tbody>
           </table>
-        </div>
-
-        <div id="downloadDocPage" class="card menu-detail">
-          <button class="back-btn" type="button" onclick="backToMenu()">← Back</button>
-          <h3>7. Download User Manual</h3>
-          <p class="small">Click the button below to download the official BITREX Official User Guide.</p>
-          <div style="margin-top:16px;text-align:center">
-            <a href="/downloads/BITREX_Official_User_Guide.docx" download class="action-link" style="display:inline-block;max-width:320px;width:100%">📥 Download Manual (.docx)</a>
-          </div>
         </div>
       </section>
 
