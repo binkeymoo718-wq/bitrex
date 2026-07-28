@@ -105,7 +105,7 @@
           <p class="small"><a href="#" style="color:#93c5fd" onclick="document.getElementById('forgotBox').style.display='block';return false;">Forgot password?</a></p>
           <div id="forgotBox" style="display:none">
             <form method="post" action="/forgot-password">
-              <input name="phone" type="Phone Number" placeholder="Registered Phone Number" required />
+              <input name="email" type="email" placeholder="Registered Email Address" required />
               <input name="newPassword" type="password" minlength="6" maxlength="8" placeholder="New Password (6-8 chars)" required />
               <input name="confirmNewPassword" type="password" minlength="6" maxlength="8" placeholder="Confirm New Password" required />
               <button type="submit">Reset Password</button>
@@ -117,7 +117,6 @@
         <div class="card">
           <h3>Create Account</h3>
           <form method="post" action="/signup">
-		    <input name="Name" placeholder="Names" required />
             <input name="phone" placeholder="Phone Number" required />
             <input name="email" type="email" placeholder="Email Address" required />
             <input name="password" type="password" minlength="6" maxlength="8" placeholder="Password (6-8 chars)" required />
@@ -170,7 +169,7 @@
           <% } %>
         </div>
 
-        <div class="card">
+   <div class="card">
           <h3>Wallet Actions</h3>
           <div class="action-button">
             <a class="action-link" href="#" onclick="togglePanel('depositPanel');return false;">💳 Deposit</a>
@@ -200,10 +199,10 @@
         </div>
       </section>
 
+
       <section id="task" class="section <%= activeTab === 'task' ? 'active' : '' %>">
         <div class="card">
           <h3>Daily Tasks (KSH 50 each)</h3>
-		  <p class="small">You are required to contact hiring manager before claiming task.</p>
           <p class="small">Tap claim, wait for countdown.Task are availabe after every midnight.</p>
           <div class="task-grid" style="grid-template-columns:1fr;">
             <% const iconMap = ['🧴','💆','🩸','🧃','🔧','📺','⚡','📱','📷','🏠','🪠','🛋️','📶','💻','🧵','🎨','💄','🧰','👟','🍳','🔥','🍟','🍲','📦','🍽️','🚰','🥤','☕','🔊','📺','🔈','🎮','⌚','🎧','🔆']; %>
@@ -255,27 +254,22 @@
 
       <section id="spin" class="section <%= activeTab === 'spin' ? 'active' : '' %>">
         <div class="card">
-          <h1>Spin & Win</h1>
+          <h3>Spin & Win</h3>
           <p>Gems: <strong id="spinGems"><%= user.gems || 0 %></strong> · Free spins: <strong id="spinFreeSpins"><%= user.freeSpins || 0 %></strong></p>
           <div class="wheel-wrap" style="margin-top:12px">
             <div class="pointer"></div>
             <div id="wheel" class="wheel">
-              <span class="wheel-label" style="transform:rotate(-60deg) translate(70px,-8px)">3 GEMS</span>
-              <span class="wheel-label" style="transform:rotate(0deg) translate(60px,-8px)">KSH 150</span>
-              <span class="wheel-label" style="transform:rotate(60deg) translate(70px,-8px)">1 GEM</span>
-              <span class="wheel-label" style="transform:rotate(120deg) translate(60px,-8px)">2 GEMS</span>
-              <span class="wheel-label" style="transform:rotate(180deg) translate(65px,-8px)">KSH 100</span>
-              <span class="wheel-label" style="transform:rotate(240deg) translate(70px,-8px)">KSH 50</span>
-              <span class="spin-center">🕓</span>
+              <span class="wheel-label" style="transform:rotate(-60deg) translate(105px,-8px)">3 GEMS</span>
+              <span class="wheel-label" style="transform:rotate(0deg) translate(110px,-8px)">KSH 150</span>
+              <span class="wheel-label" style="transform:rotate(60deg) translate(112px,-8px)">1 GEM</span>
+              <span class="wheel-label" style="transform:rotate(120deg) translate(105px,-8px)">2 GEMS</span>
+              <span class="wheel-label" style="transform:rotate(180deg) translate(102px,-8px)">KSH 100</span>
+              <span class="wheel-label" style="transform:rotate(240deg) translate(104px,-8px)">KSH 50</span>
+              <span class="spin-center">SPIN</span>
             </div>
             <button type="button" id="spinBtn" onclick="spinWheel()">🎡 Spin</button>
           </div>
-          <p class="small">NOTE:</P>
-          <p class="small">1. Cash bonus are added directly to the Account Balance.</p>
-		  <p class="small">2. 2 GEMS are needed for a single spin.</p>
-		  <p class="small">3. NEW member is entitled with 1 free spin.</p>
-		  <p class="small">4. Winning is 100% GUARRANTEED.</p>
-        </div>
+          <p class="small">Rewards: 1 Gem, 2 Gems, 3 Gems, KSH 50, KSH 100, KSH 150. Every spin wins something. One free spin for new users, then 2 Gems per spin.</p>
         </div>
       </section>
 
@@ -285,11 +279,11 @@
           <div class="menu-list">
             <button class="menu-item" type="button" onclick="openMenuPage('profilePage')"><span>👤 1. My Profile</span><span>›</span></button>
             <button class="menu-item" type="button" onclick="openMenuPage('termsPage')"><span>📜 2. Terms and Conditions</span><span>›</span></button>
-            <a class="menu-item" href="https://wa.me/254780535898" target="_blank"><span>💬 3. Hiring Manager</span><span>›</span></a>
+            <a class="menu-item" href="https://wa.me/254780535898" target="_blank"><span>💬 3. WhatsApp Manager</span><span>›</span></a>
             <a class="menu-item" href="https://chat.whatsapp.com/LLYrOJazzxsHqxnqdJrc2q" target="_blank"><span>👥 4. WhatsApp Group</span><span>›</span></a>
             <button class="menu-item" type="button" onclick="openMenuPage('referralsPage')"><span>🔗 5. Referrals</span><span>›</span></button>
             <button class="menu-item" type="button" onclick="openMenuPage('transactionsPage')"><span>🧾 6. Transaction History</span><span>›</span></button>
-			<button class="menu-item" type="button" onclick="openmenupage('usermanualpage')"><span>📕 7. User Manual</span><span›</span></button>
+            <button class="menu-item" type="button" onclick="openMenuPage('downloadDocPage')"><span>📥 7. Download User Manual</span><span>›</span></button>
             <% if (isAdminPhone) { %><a class="menu-item" href="/admin"><span>⚙️ Admin Portal</span><span>›</span></a><% } %>
           </div>
         </div>
@@ -326,7 +320,7 @@
             <h4>3. Account Responsibility</h4>
             <p>You are responsible for maintaining the confidentiality of your account and password. You agree to accept responsibility for all activities that occur under your account. Notify us immediately of any unauthorized use.</p>
             <h4>4. Deposits and Withdrawals</h4>
-            <p>Minimum deposit amount is Ksh300. Minimum withdrawal amount is Ksh500. Withdrawals are processed within 24 hours. We reserve the right to request verification documents before processing withdrawals.</p>
+            <p>Minimum deposit amount is Ksh200. Minimum withdrawal amount is Ksh300. Withdrawals are processed within 24 hours. We reserve the right to request verification documents before processing withdrawals.</p>
             <h4>5. Referral Program</h4>
             <p>Referral bonuses are when you refer a friend to join a city you earn a one time bonus of ksh300.</p>
             <h4>6. Privacy Policy</h4>
@@ -373,13 +367,15 @@
             </tbody>
           </table>
         </div>
-		
-		<div id="usermanual" class="card menu-detail">
+
+        <div id="downloadDocPage" class="card menu-detail">
           <button class="back-btn" type="button" onclick="backToMenu()">← Back</button>
-          <h3>7. User Manual</h3>
-          <div class="manual-box">
-		  <button type="button" onclick="Downoaduser('<%= referralLink %>')">DOWNLOAD</button>
-		
+          <h3>7. Download User Manual</h3>
+          <p class="small">Click the button below to download the official BITREX Official User Guide.</p>
+          <div style="margin-top:16px;text-align:center">
+            <a href="/downloads/BITREX_Official_User_Guide.docx" download class="action-link" style="display:inline-block;max-width:320px;width:100%">📥 Download Manual (.docx)</a>
+          </div>
+        </div>
       </section>
 
       <nav class="bottom-nav">
