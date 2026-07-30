@@ -70,6 +70,17 @@ app.get('/downloads/BITREX_Official_User_Guide.docx', (req, res) => {
   });
 });
 
+app.get('/downloads/BITREX.apk', (req, res) => {
+  const filePath = path.join(__dirname, 'public', 'downloads', 'BITREX.apk');
+
+  res.download(filePath, 'BITREX.apk', (err) => {
+    if (err) {
+      console.error('APK download error:', err);
+      res.status(404).send('APK file not found');
+    }
+  });
+});
+
 const CITY_CONFIG = {
   INTERN: { city: 'INTERN', amount: 0, tasksPerDay: 1, dailyIncome: 50, durationDays: 4, free: true, image: 'https://source.unsplash.com/1200x760/?internship,office' },
   A: { city: 'TOKYO', amount: 1500, tasksPerDay: 1, dailyIncome: 50, durationDays: 365, image: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=1200&q=80' },
