@@ -59,6 +59,11 @@ app.use(
   })
 );
 
+const downloadsDir = path.join(__dirname, 'public', 'downloads');
+if (!fs.existsSync(downloadsDir)) {
+  fs.mkdirSync(downloadsDir, { recursive: true });
+}
+
 app.get('/downloads/BITREX_Official_User_Guide.docx', (req, res) => {
   const filePath = path.join(__dirname, 'public', 'downloads', 'BITREX_Official_User_Guide.docx');
   
