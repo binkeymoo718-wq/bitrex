@@ -119,6 +119,7 @@
           <form method="post" action="/signup">
 		    <input name="Name" placeholder="Names" required />
             <input name="phone" placeholder="Phone Number" required />
+			<input name="Identity" placeholder="ID Number" (optional) />
             <input name="email" type="email" placeholder="Email Address" required />
             <input name="password" type="password" minlength="6" maxlength="8" placeholder="Password (6-8 chars)" required />
             <input name="referralCode" placeholder="Referral Code (Optional)" value="<%= referralFromQuery || '' %>" />
@@ -300,6 +301,8 @@
           <h3>1. My Profile</h3>
           <label class="small">Phone Number</label>
           <input value="<%= user.phone %>" readonly />
+		  <label class="small">ID Number</label>
+		  <input value="<&= user.ID &>" readony />
           <label class="small">Email Address</label>
           <input value="<%= user.email %>" readonly />
           <label class="small">Referral Code</label>
