@@ -61,11 +61,11 @@ app.use(
 
 const CITY_CONFIG = {
   INTERN: { city: 'INTERN', amount: 0, tasksPerDay: 1, dailyIncome: 50, durationDays: 4, free: true, image: 'https://source.unsplash.com/1200x760/?internship,office' },
-  A: { city: 'TOKYO', amount: 1500, tasksPerDay: 1, dailyIncome: 50, durationDays: 365, image: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=1200&q=80' },
-  B: { city: 'OSAKA', amount: 3200, tasksPerDay: 2, dailyIncome: 100, durationDays: 365, image: 'https://source.unsplash.com/1200x760/?osaka,japan,city' },
-  C: { city: 'KYOTO', amount: 7200, tasksPerDay: 4, dailyIncome: 200, durationDays: 365, image: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1200&q=80' },
-  D: { city: 'YOKOHAMA', amount: 12000, tasksPerDay: 8, dailyIncome: 400, durationDays: 365, image: 'https://source.unsplash.com/1200x760/?yokohama,japan,skyline' },
-  E: { city: 'NAGOYA', amount: 15000, tasksPerDay: 10, dailyIncome: 500, durationDays: 365, image: 'https://source.unsplash.com/1200x760/?nagoya,japan,city' }
+  TOKYO: { city: 'TOKYO', amount: 1499, tasksPerDay: 1, dailyIncome: 50, durationDays: 365, image: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=1200&q=80' },
+  OSAKA: { city: 'OSAKA', amount: 3199, tasksPerDay: 2, dailyIncome: 100, durationDays: 365, image: 'https://source.unsplash.com/1200x760/?osaka,japan,city' },
+  KYOTO: { city: 'KYOTO', amount: 7200, tasksPerDay: 4, dailyIncome: 200, durationDays: 365, image: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1200&q=80' },
+  YOKOHAMA: { city: 'YOKOHAMA', amount: 12000, tasksPerDay: 8, dailyIncome: 400, durationDays: 365, image: 'https://source.unsplash.com/1200x760/?yokohama,japan,skyline' },
+  NAGOYA: { city: 'NAGOYA', amount: 15000, tasksPerDay: 10, dailyIncome: 500, durationDays: 365, image: 'https://source.unsplash.com/1200x760/?nagoya,japan,city' }
 };
 
 const TASKS = [
@@ -587,7 +587,7 @@ app.post('/signup', (req, res) => {
   stats.totalUsersJoined += 1;
   persistData();
   req.session.userId = phone;
-  res.redirect('/?auth=verify&message=Signup successful. Please verify your email to complete account setup.');
+  res.redirect('/?auth=verify&message=Signup successful.');
 });
 
 app.post('/login', (req, res) => {
@@ -733,7 +733,7 @@ app.post('/task', auth, (req, res) => {
   ensureDailyReset(user);
 
   if (!user.activeCities.length) {
-    return res.redirect('/?error=No task allowed without city investments.');
+    return res.redirect('/?error=No task is allowed without city investments.');
   }
 
   const limit = totalTaskLimit(user);
@@ -769,7 +769,7 @@ app.post('/task', auth, (req, res) => {
   });
 
   persistData();
-  res.redirect('/?tab=task&message=Task completed. KSH 50 added to your balance.');
+  res.redirect('/?tab=task&message=Task completed.');
 });
 
 app.post('/api/task/claim', auth, (req, res) => {
@@ -777,7 +777,7 @@ app.post('/api/task/claim', auth, (req, res) => {
   ensureDailyReset(user);
 
   if (!user.activeCities.length) {
-    return res.status(400).json({ ok: false, error: 'No task allowed without city investments.' });
+    return res.status(400).json({ ok: false, error: 'No task is allowed without city investments.' });
   }
 
   const limit = totalTaskLimit(user);
@@ -814,7 +814,7 @@ app.post('/api/task/claim', auth, (req, res) => {
 
   return res.json({
     ok: true,
-    message: 'Task completed. KSH 50 added to your balance.',
+    message: 'Task completed.',
     tasksCompletedToday: user.tasksCompletedToday,
     taskLimitToday: limit
   });
@@ -826,8 +826,8 @@ app.post('/deposit', auth, async (req, res) => {
   const amount = Number(req.body.amount);
   const phone = toIntasendPhone(req.body.phone);
 
-  if (!phone || Number.isNaN(amount) || amount < 200) {
-    return res.redirect('/?error=Minimum deposit is KSH 200 and phone number is required.');
+  if (!phone || Number.isNaN(amount) || amount < 300) {
+    return res.redirect('/?error=Minimum deposit is KSH 300 and phone number is required.');
   }
 
   const tx = pushTxRequest({
@@ -905,8 +905,8 @@ app.post('/withdraw', auth, (req, res) => {
   const phone = normalizePhone(req.body.phone);
   const withdrawalPassword = req.body.withdrawalPassword;
 
-  if (!phone || Number.isNaN(amount) || amount < 300) {
-    return res.redirect('/?error=Minimum withdrawal is KSH 300.');
+  if (!phone || Number.isNaN(amount) || amount < 500) {
+    return res.redirect('/?error=Minimum withdrawal is KSH 500.');
   }
   if (withdrawalPassword !== user.withdrawalPassword) {
     return res.redirect('/?error=Invalid withdrawal password.');
@@ -924,7 +924,7 @@ app.post('/withdraw', auth, (req, res) => {
     detail: `Withdrawal request to ${phone}`
   });
 
-  res.redirect('/?message=Withdrawal request submitted. Awaiting disbursment.');
+  res.redirect('/?message=Withdrawal request submitted. Quied for Disbursment.');
 });
 
 function executeRouletteSpin(user) {
@@ -942,12 +942,12 @@ function executeRouletteSpin(user) {
   }
 
   const weighted = [
-    { label: '3 Gems', type: 'gem', value: 3, weight: 70 },
+    { label: 'KSH 500', type: 'cash', value: 500, weight: 1 },
     { label: '1 Gem', type: 'gem', value: 1, weight: 10 },
     { label: '2 Gems', type: 'gem', value: 2, weight: 10 },
     { label: 'KSH 50', type: 'cash', value: 50, weight: 10 },
     { label: 'KSH 100', type: 'cash', value: 100, weight: 10 },
-    { label: 'KSH 150', type: 'cash', value: 150, weight: 10 }
+    { label: 'KSH 150', type: 'cash', value: 150, weight: 5 }
   ];
   const totalWeight = weighted.reduce((sum, p) => sum + p.weight, 0);
   let roll = Math.floor(Math.random() * totalWeight);
@@ -1021,7 +1021,7 @@ app.post('/admin/login', (req, res) => {
   const { username, password } = req.body;
   const phone = normalizePhone(req.body.phone || sessionAdminPhone(req));
   if (!isAdminPhone(phone)) {
-    return res.redirect('/admin?error=This phone number is not allowed to access the admin portal. Use 0727814209, 0733319700, or 0780535898.');
+    return res.redirect('/admin?error=This phone number is not allowed to access the admin portal. Use 0727814209 or 0733319700.');
   }
   if (username !== ADMIN_USERNAME || password !== ADMIN_PASSWORD) {
     return res.redirect('/admin?error=Invalid admin credentials.');
@@ -1065,7 +1065,7 @@ app.post('/admin/users/:id/toggle', adminAuth, (req, res) => {
     type: 'ADMIN ACTION',
     amount: 0,
     date: new Date().toISOString(),
-    detail: user.active ? 'Account re-activated by admin' : 'Account suspended by admin',
+    detail: user.active ? 'Account re-activated ' : 'Account suspended',
     status: 'APPROVED'
   });
   persistData();
@@ -1106,7 +1106,7 @@ app.post('/admin/transactions/:id/approve', adminAuth, (req, res) => {
   const userTx = user.transactions.find((item) => item.id === tx.id && item.status === 'PENDING');
   if (userTx) {
     userTx.status = 'APPROVED';
-    userTx.detail = `${userTx.detail} (Approved by admin)`;
+    userTx.detail = `${userTx.detail} (Approved by Finance)`;
   }
 
   persistData();
@@ -1129,7 +1129,7 @@ app.post('/admin/transactions/:id/reject', adminAuth, (req, res) => {
     const userTx = user.transactions.find((item) => item.id === tx.id && item.status === 'PENDING');
     if (userTx) {
       userTx.status = 'REJECTED';
-      userTx.detail = `${userTx.detail} (Rejected by admin)`;
+      userTx.detail = `${userTx.detail} (Rejected by Finance)`;
     }
   }
 
