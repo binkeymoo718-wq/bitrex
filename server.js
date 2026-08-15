@@ -543,6 +543,64 @@ app.get('/', (req, res) => {
   });
 });
 
+// 🔔 Express State Setup (Place near your other Maps/Data structures)
+const userNotifications = new Map(); // Key: userId (phone), Value: Array of notifications
+
+// Function to send a notification to a specific user or ALL users
+function sendNotification(targetUserId, title, message) {
+  const notif = {
+    id: Date.now(),
+    title,
+    message,
+    read: false,
+    createdAt: new Date().toISOString()
+  };
+
+  if (targetUserId === 'ALL') {
+    for (const userId of users.keys()) {
+      if (!userNotifications.has(userId)) userNotifications.set(userId, []);
+      userNotifications.get(userId).unshift({ ...notif });
+    }
+  } else if (users.has(targetUserId)) {
+    if (!userNotifications.has(targetUserId)) userNotifications.set(targetUserId, []);
+    userNotifications.get(targetUserId).unshift(notif);
+  }
+  persistData();
+}
+
+// 📥 API: Get User Notifications
+app.get('/api/notifications', auth, (req, res) => {
+  const userId = req.session.userId;
+  const list = userNotifications.get(userId) || [];
+  const unreadCount = list.filter(n => !n.read).length;
+  res.json({ ok: true, unreadCount, notifications: list });
+});
+
+// 📥 API: Mark Notification as Read
+app.post('/api/notifications/read', auth, (req, res) => {
+  const userId = req.session.userId;
+  const { notificationId } = req.body;
+  const list = userNotifications.get(userId) || [];
+  
+  const target = list.find(n => n.id === Number(notificationId));
+  if (target) target.read = true;
+  
+  persistData();
+  res.json({ ok: true });
+});
+
+// 📤 ADMIN: Broadcast/Send Notification
+app.post('/admin/notifications/send', adminAuth, (req, res) => {
+  const { targetUserId, title, message } = req.body;
+  
+  if (!title || !message) {
+    return res.redirect('/admin/dashboard?error=Title and message are required.');
+  }
+
+  sendNotification(targetUserId || 'ALL', title, message);
+  res.redirect('/admin/dashboard?message=Notification sent successfully.');
+});
+
 app.post('/signup', (req, res) => {
   const { email, password, referralCode } = req.body;
   const name = String(req.body.name || '').trim();
