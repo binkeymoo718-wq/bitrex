@@ -173,6 +173,25 @@
         </div>
       </div>
     </div>
+	
+	<div class="admin-card my-4 p-4 border rounded">
+  <h3>📢 Send Notification</h3>
+  <form action="/admin/notifications/send" method="POST">
+    <div class="mb-3">
+      <label class="form-label">Target User Phone (Leave blank for ALL users):</label>
+      <input type="text" name="targetUserId" class="form-control" placeholder="e.g. 0711111111 or ALL">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Title:</label>
+      <input type="text" name="title" class="form-control" required placeholder="e.g. System Maintenance">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Message:</label>
+      <textarea name="message" class="form-control" rows="3" required placeholder="Enter notification message..."></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Send Notification</button>
+  </form>
+</div>
 
     <section class="card">
       <h1>Platform statistics dashboard</h1>
