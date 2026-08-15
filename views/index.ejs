@@ -134,8 +134,173 @@
 		<h4> 🧨CONGRATS🧨. Welcome again👋</h4>
           <h3>BITREX Dashboard</h3>
           <div class="small">Registered Number: <strong><%= user.phone %></strong></div>
-		  <form action="/Notifications" method="post"><button class="btn-yellow" style="width:auto;padding:20px 20px;">🔔Notifications</button></form>
         </div>
+		
+		<!-- Notification Bell Button -->
+<button id="notifBtn" type="button" class="btn btn-warning position-relative rounded-circle p-2">
+  🔔
+  <span id="notifBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none;">
+    0
+  </span>
+</button>
+
+<!-- 🔔 Notification Modal Popup -->
+<div id="notifModal" class="custom-modal-backdrop" style="display: none;">
+  <div class="custom-modal-content">
+    <div class="custom-modal-header">
+      <h5 class="m-0 text-white">📢 Notifications</h5>
+      <button id="closeNotifModal" class="close-btn">&times;</button>
+    </div>
+    <hr class="border-secondary my-2">
+    <div id="notifList" class="custom-modal-body">
+      <p class="text-muted text-center py-3">No notifications yet</p>
+    </div>
+  </div>
+</div>
+
+<!-- Modal CSS Styles -->
+<style>
+  .custom-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .custom-modal-content {
+    background: #121927;
+    border: 1px solid #1e293b;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 450px;
+    padding: 18px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  }
+
+  .custom-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .close-btn {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    font-size: 24px;
+    cursor: pointer;
+    line-height: 1;
+  }
+
+  .close-btn:hover {
+    color: #fff;
+  }
+
+  .custom-modal-body {
+    max-height: 350px;
+    overflow-y: auto;
+  }
+
+  .notif-card {
+    background: #1e293b;
+    border-left: 4px solid #3b82f6;
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .notif-card.unread {
+    background: #0f172a;
+    border-left-color: #f59e0b;
+  }
+
+  .notif-card:hover {
+    opacity: 0.9;
+  }
+</style>
+
+<!-- Modal Controller Script -->
+<script>
+  const notifModal = document.getElementById('notifModal');
+  const notifBtn = document.getElementById('notifBtn');
+  const closeNotifModal = document.getElementById('closeNotifModal');
+
+  // Open Modal
+  notifBtn.addEventListener('click', () => {
+    notifModal.style.display = 'flex';
+  });
+
+  // Close Modal on Close Button Click
+  closeNotifModal.addEventListener('click', () => {
+    notifModal.style.display = 'none';
+  });
+
+  // Close Modal when clicking outside the box
+  window.addEventListener('click', (e) => {
+    if (e.target === notifModal) {
+      notifModal.style.display = 'none';
+    }
+  });
+
+  // Fetch Notifications
+  async function loadNotifications() {
+    try {
+      const res = await fetch('/api/notifications');
+      const data = await res.json();
+      
+      if (!data.ok) return;
+
+      const badge = document.getElementById('notifBadge');
+      const list = document.getElementById('notifList');
+
+      if (data.unreadCount > 0) {
+        badge.innerText = data.unreadCount;
+        badge.style.display = 'inline-block';
+      } else {
+        badge.style.display = 'none';
+      }
+
+      if (!data.notifications || data.notifications.length === 0) {
+        list.innerHTML = '<p class="text-muted text-center py-3">No notifications yet</p>';
+        return;
+      }
+
+      list.innerHTML = data.notifications.map(n => `
+        <div class="notif-card ${n.read ? '' : 'unread'}" onclick="markAsRead(${n.id})">
+          <strong class="d-block text-white mb-1" style="font-size: 14px;">${n.title}</strong>
+          <small class="text-light opacity-75 d-block">${n.message}</small>
+          <div class="text-end mt-1">
+            <span class="text-muted" style="font-size: 10px;">${new Date(n.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+          </div>
+        </div>
+      `).join('');
+    } catch (err) {
+      console.error('Failed to load notifications:', err);
+    }
+  }
+
+  async function markAsRead(id) {
+    await fetch('/api/notifications/read', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ notificationId: id })
+    });
+    loadNotifications();
+  }
+
+  loadNotifications();
+  setInterval(loadNotifications, 30000);
+</script>
+
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
           <% if (isAdminPhone) { %><a href="/admin" class="badge-link">⚙️ Admin Portal</a><% } %>
           <form action="/logout" method="post"><button class="btn-red" style="width:auto;padding:10px 14px;">Logout</button></form>
