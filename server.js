@@ -1000,7 +1000,7 @@ function executeRouletteSpin(user) {
   }
 
   const weighted = [
-    { label: '3 Gems', type: 'gem', value: 3, weight: 76 },
+    { label: 'KSH500', type: 'cash', value: 500, weight: 7 },
     { label: '1 Gem', type: 'gem', value: 1, weight: 10 },
     { label: '2 Gems', type: 'gem', value: 2, weight: 7 },
     { label: 'KSH 50', type: 'cash', value: 50, weight: 4 },
