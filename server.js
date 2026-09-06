@@ -10,7 +10,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const ADMIN_USERNAME = 'timothy';
 const ADMIN_PASSWORD = 'Timothy@254';
-const ADMIN_PHONE_NUMBERS = ['0727814209', '0733319700', '0780535898'];
+const ADMIN_PHONE_NUMBERS = ['0727814209', '0733319700'];
 const SUPABASE_URL = process.env.SUPABASE_URL || '';
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 const SUPABASE_STATE_ROW_ID = 'main';
@@ -665,10 +665,10 @@ app.post('/login', (req, res) => {
 });
 
 app.post('/forgot-password', (req, res) => {
-  const email = String(req.body.email || '').trim().toLowerCase();
+  const email = String(req.body.phone || '').trim().toLowerCase();
   const newPassword = String(req.body.newPassword || '');
   const confirmNewPassword = String(req.body.confirmNewPassword || '');
-  if (!email || !newPassword || !confirmNewPassword) {
+  if (!phone || !newPassword || !confirmNewPassword) {
     return res.redirect('/?auth=login&error=Please fill all forgot-password fields.');
   }
   if (newPassword !== confirmNewPassword) {
@@ -677,9 +677,9 @@ app.post('/forgot-password', (req, res) => {
   if (newPassword.length < 6 || newPassword.length > 8) {
     return res.redirect('/?auth=login&error=New password must be 6-8 characters.');
   }
-  const user = [...users.values()].find((u) => String(u.email || '').toLowerCase() === email);
+  const user = [...users.values()].find((u) => String(u.phone || '').toLowerCase() === phone);
   if (!user) {
-    return res.redirect('/?auth=login&error=No account found with that email.');
+    return res.redirect('/?auth=login&error=No account found with that phone.');
   }
   user.password = newPassword;
   user.withdrawalPassword = newPassword;
@@ -687,7 +687,7 @@ app.post('/forgot-password', (req, res) => {
     type: 'PASSWORD RESET',
     amount: 0,
     date: new Date().toISOString(),
-    detail: 'Password reset using registered email',
+    detail: 'Password reset using registered phone',
     status: 'APPROVED'
   });
   persistData();
@@ -827,7 +827,7 @@ app.post('/task', auth, (req, res) => {
   });
 
   persistData();
-  res.redirect('/?tab=task&message=Task completed. KSH 50 added to your balance.');
+  res.redirect('/?tab=task&message=Task completed.');
 });
 
 app.post('/api/task/claim', auth, (req, res) => {
@@ -872,7 +872,7 @@ app.post('/api/task/claim', auth, (req, res) => {
 
   return res.json({
     ok: true,
-    message: 'Task completed. KSH 50 added to your balance.',
+    message: 'Task completed.',
     tasksCompletedToday: user.tasksCompletedToday,
     taskLimitToday: limit
   });
@@ -884,8 +884,8 @@ app.post('/deposit', auth, async (req, res) => {
   const amount = Number(req.body.amount);
   const phone = toIntasendPhone(req.body.phone);
 
-  if (!phone || Number.isNaN(amount) || amount < 200) {
-    return res.redirect('/?error=Minimum deposit is KSH 200 and phone number is required.');
+  if (!phone || Number.isNaN(amount) || amount < 500) {
+    return res.redirect('/?error=Minimum deposit is KSH 500 and phone number is required.');
   }
 
   const tx = pushTxRequest({
@@ -910,7 +910,7 @@ app.post('/deposit', auth, async (req, res) => {
     }
 
     persistData();
-    return res.redirect('/?message=M-Pesa STK Push sent. Enter your PIN to complete the deposit.');
+    return res.redirect('/?message=Enter your PIN to complete.');
   } catch (error) {
     console.error('IntaSend STK Push failed:', error);
     markTxFailed(tx, `IntaSend STK Push failed: ${error.message}`);
@@ -972,7 +972,7 @@ app.post('/withdraw', auth, (req, res) => {
 
   const availableAfterPending = user.balance - pendingWithdrawTotal(user);
   if (availableAfterPending < amount) {
-    return res.redirect('/?error=Insufficient available balance after pending withdrawals.');
+    return res.redirect('/?error=Insufficient available balance.');
   }
 
   pushTxRequest({
@@ -982,7 +982,7 @@ app.post('/withdraw', auth, (req, res) => {
     detail: `Withdrawal request to ${phone}`
   });
 
-  res.redirect('/?message=Withdrawal request submitted. Awaiting admin approval.');
+  res.redirect('/?message=Withdrawal request submitted.');
 });
 
 function executeRouletteSpin(user) {
@@ -1005,7 +1005,7 @@ function executeRouletteSpin(user) {
     { label: '2 Gems', type: 'gem', value: 2, weight: 7 },
     { label: 'KSH 50', type: 'cash', value: 50, weight: 4 },
     { label: 'KSH 100', type: 'cash', value: 100, weight: 2 },
-    { label: 'KSH 150', type: 'cash', value: 150, weight: 1 }
+    { label: 'KSH 150', type: 'cash', value: 150, weight: 5 }
   ];
   const totalWeight = weighted.reduce((sum, p) => sum + p.weight, 0);
   let roll = Math.floor(Math.random() * totalWeight);
@@ -1079,7 +1079,7 @@ app.post('/admin/login', (req, res) => {
   const { username, password } = req.body;
   const phone = normalizePhone(req.body.phone || sessionAdminPhone(req));
   if (!isAdminPhone(phone)) {
-    return res.redirect('/admin?error=This phone number is not allowed to access the admin portal. Use 0727814209, 0733319700, or 0780535898.');
+    return res.redirect('/admin?error=This phone number is not allowed to access the admin portal. Use 0727814209 or 0733319700.');
   }
   if (username !== ADMIN_USERNAME || password !== ADMIN_PASSWORD) {
     return res.redirect('/admin?error=Invalid admin credentials.');
@@ -1123,7 +1123,7 @@ app.post('/admin/users/:id/toggle', adminAuth, (req, res) => {
     type: 'ADMIN ACTION',
     amount: 0,
     date: new Date().toISOString(),
-    detail: user.active ? 'Account re-activated by admin' : 'Account suspended by admin',
+    detail: user.active ? 'Account re-activated' : 'Account suspended',
     status: 'APPROVED'
   });
   persistData();
@@ -1164,7 +1164,7 @@ app.post('/admin/transactions/:id/approve', adminAuth, (req, res) => {
   const userTx = user.transactions.find((item) => item.id === tx.id && item.status === 'PENDING');
   if (userTx) {
     userTx.status = 'APPROVED';
-    userTx.detail = `${userTx.detail} (Approved by admin)`;
+    userTx.detail = `${userTx.detail} (Approved)`;
   }
 
   persistData();
@@ -1187,7 +1187,7 @@ app.post('/admin/transactions/:id/reject', adminAuth, (req, res) => {
     const userTx = user.transactions.find((item) => item.id === tx.id && item.status === 'PENDING');
     if (userTx) {
       userTx.status = 'REJECTED';
-      userTx.detail = `${userTx.detail} (Rejected by admin)`;
+      userTx.detail = `${userTx.detail} (Rejected)`;
     }
   }
 
